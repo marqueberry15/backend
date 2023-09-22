@@ -11,6 +11,7 @@ const path = require("path");
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 // const connectFTP = require("./config//ftp");
+//jatinder
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
