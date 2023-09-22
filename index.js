@@ -33,7 +33,7 @@ app.use("/user", route);
 app.use("/mail", route2);
 app.use("/brand", route3);
 app.get("/", (req, res) => {
-  res.status(200).send("Welcome Meal API");
+  res.status(200).send("Welcome to API");
 });
 app.listen(PORT, () => {
   console.log(`server is running on http://localhost:${PORT}`);
