@@ -101,8 +101,14 @@ const login = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+const hello=(req,res)=>{
+
+  console.log("Sushma")
+  res.send({message:"Hello"})
+}
 
 module.exports = {
   register,
   login,
+  hello
 };
