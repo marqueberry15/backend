@@ -67,7 +67,7 @@ const login = async (req, res) => {
 
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
     const [rows] = await connectDB.execute(query, [email]);
-    console.log(rows, new Date(), date, time);
+
 
     if (rows.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -92,10 +92,11 @@ const login = async (req, res) => {
       .catch((err) => {
         console.log(err);
       });
+      console.log("responding")
 
     return res
       .status(200)
-      .json({ message: "Login successful", userid: user.Email });
+      .json({ message: "Login successful", user: user});
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
