@@ -9,7 +9,7 @@ const config = {
 };
 
 async function connectFTP(req,res) {
-  console.log(req.body,req.file)
+
   const client = new ftp.Client();
 
   try {

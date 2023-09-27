@@ -8,18 +8,7 @@ const config = {
   user: process.env.ftpuser, 
   password: process.env.ftppassword 
 };
-// const AWS = require("aws-sdk");
-// const s3 = new AWS.S3({
-//   signatureVersion: "v4",
-//   region: "ap-south-1",
-//   accessKeyId: "AKIA4EZQCBCZEEXKXEK3",
-//   secretAccessKey: "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",
 
-// function generateRandomString(length) {
-//   return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
-// }
-
-// Function to generate a unique identifier for the brand
 function generateBrandIdentifier(brandName) {
   const timestamp = Date.now();
   // const randomString = generateRandomString(4); // Adjust the length of the random string as needed
@@ -54,7 +43,7 @@ async function connectFTP(buffer,fileName) {
 }
 
 const saveinfo = async (req, res) => {
-  console.log("sfdgdfg",req.body)
+  
  
 
   try {
@@ -66,11 +55,10 @@ const saveinfo = async (req, res) => {
     if (!connectFTP(req.file.buffer,fileName)){
       res.send("message:Error i uploading logo")
     }
-   
-    console.log("logo is successfully uploaded")
+    const status = req.body.Status ? req.body.Status : "pending";
     // Insert the image data into the MySQL table
     const insertQuery =
-      "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+      "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`,`Status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
     await connectDB.query(insertQuery, [
       req.body.first_name,
       req.body.last_name,
@@ -88,10 +76,12 @@ const saveinfo = async (req, res) => {
       req.body.static_meme,
       req.body.time_limit,
       req.body.video_meme,
-      fileName
+      fileName,
+
+      status
      
     ]);
-    console.log("data is saved successfully")
+   
 
     res.send({ message: "Image saved successfully", status: 200 });
   } catch (error) {
@@ -123,81 +113,5 @@ const saveinfo = async (req, res) => {
 //     // Upload to S3 using the utility function
 //   await uploadToS3(bucket, key, xlsxBuffer);
 
- async function upload(req, res) {
-
-  const message = req.body
-  console.log("DSGFSDGDF",message)
-
-    try {
-
-      const params = {
-        Bucket: "marqueberrybackendimage",
-        Key: message.file,
-        ContentType: message.fileType,
-        Expires: 300000,
-      };
-      console.log(1)
-      await s3.putObject()
-      const preSignedUrl = await s3.getSignedUrlPromise("putObject", params);
-      console.log(2)
-      console.log(preSignedUrl);
-      return res.send({
-        statusCode: 200,
-        url:preSignedUrl
-
-      });
-    } catch (error) {
-      return res.send({
-        statusCode: 500,
-        body: JSON.stringify({
-          error: error.message,
-        }),
-      });
-    }
-  }
-
-const AWS = require("aws-sdk");
-
-
-AWS.config.update({
-  accessKeyId: "AKIA4EZQCBCZEEXKXEK3",
-  secretAccessKey: "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",
-  region: "ap-south-1",
-});
-
-const s3 = new AWS.S3();
-
-// const upload = async (req, res) => {
-//   const bucketName = "marqueberrybackendimage";
-//   const fileName = req.body.file; // Name you want for the file in the bucket
-//   const filePath = "public/uploads/" + req.body.file; // Path to the local image file
-//   const fileType = req.body.fileType; // Mime type of the file
-
-//   uploadImageToS3(bucketName, fileName, filePath, fileType)
-//     .then((url) => console.log(`Image uploaded successfully. URL: ${url}`))
-//     .catch((err) => console.error("hjkh,nj", err));
-// };
-// function uploadImageToS3(bucketName, fileName, filePath, fileType) {
-//   const params = {
-//     Bucket: bucketName,
-//     Key: fileName,
-//     Body: fs.readFileSync(filePath),
-//     ContentType: fileType,
-//     // ACL: 'public-read', // Set ACL to make the object publicly accessible (optional)
-//   };
-//   console.log(bucketName, fileName, filePath, fileType);
-
-//   return new Promise((resolve, reject) => {
-//     s3.upload(params, (err, data) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(data.Location);
-//       }
-//     });
-//   });
-// }
-
-// Usage
 
 module.exports = { saveinfo};

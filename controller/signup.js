@@ -21,7 +21,6 @@ const register = async (req, res) => {
   try {
     const { first_name, last_name, mobileNo, email, password, company_name } =
       req.body;
-    console.log("destruction", first_name, mobileNo);
 
     if (
       !first_name ||
@@ -46,7 +45,7 @@ const register = async (req, res) => {
       hashedPassword,
       company_name,
     ];
-    console.log(params, process.env.password);
+
     await connectDB.execute(query, params);
 
     return res.status(200).json({ message: "Registration successful" });
@@ -68,7 +67,6 @@ const login = async (req, res) => {
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
     const [rows] = await connectDB.execute(query, [email]);
 
-
     if (rows.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -87,28 +85,58 @@ const login = async (req, res) => {
     await connectDB
       .execute(query2, param2)
       .then((res) => {
-        console.log(res);
+        console.log("res",res)
       })
       .catch((err) => {
         console.log(err);
       });
-      console.log("responding")
 
-    return res
-      .status(200)
-      .json({ message: "Login successful", user: user});
+    return res.status(200).json({ message: "Login successful", user: user });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-const hello=(req,res)=>{
 
-  console.log("Sushma")
-  res.send({message:"Hello"})
-}
+const changepassword = async (req, res) => {
+  const { email, old_pass, new_pass } = req.body;
+  console.log("next",email,old_pass,new_pass)
+
+  try {
+    console.log(req.body)
+    const query = "SELECT * FROM `User` WHERE `Email` = ?";
+    console.log("query")
+    const [rows] = await connectDB.execute(query, [email]);
+
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+    console.log(user,"userrr")
+
+    const isPasswordMatch = await bcrypt.compare(old_pass, user.Password);
+
+    if (!isPasswordMatch) {
+      return res.status(401).json({ message: "Incorrect current password" });
+    }
+ 
+    const hashedPassword = await bcrypt.hash(new_pass, 10);
+    console.log(hashedPassword,email)
+
+    const updateQuery = "UPDATE `User` SET `Password` = ? WHERE `Email` = ?";
+    await connectDB.execute(updateQuery, [hashedPassword, email]);
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 
 module.exports = {
   register,
   login,
-  hello
+  changepassword
 };

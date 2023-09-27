@@ -6,7 +6,7 @@ const connectDB = mysql.createPool({
   password: process.env.password,
   database: process.env.database,
 });
-console.log(process.env.password)
+
 
 connectDB.execute("SELECT * FROM User;",function(err,result){
 if (err)
