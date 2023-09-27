@@ -7,11 +7,9 @@ const connectDB = mysql.createPool({
   database: process.env.database,
 });
 
-
-connectDB.execute("SELECT * FROM User;",function(err,result){
-if (err)
-throw err;
-console.log(result)
-})
+connectDB.execute("SELECT * FROM User;", function (err, result) {
+  if (err) throw err;
+  console.log(result);
+});
 
 module.exports = connectDB.promise();

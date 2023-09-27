@@ -85,7 +85,7 @@ const login = async (req, res) => {
     await connectDB
       .execute(query2, param2)
       .then((res) => {
-        console.log("res",res)
+        console.log("res", res);
       })
       .catch((err) => {
         console.log(err);
@@ -99,30 +99,26 @@ const login = async (req, res) => {
 
 const changepassword = async (req, res) => {
   const { email, old_pass, new_pass } = req.body;
-  console.log("next",email,old_pass,new_pass)
 
   try {
-    console.log(req.body)
+    console.log(req.body);
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
-    console.log("query")
-    const [rows] = await connectDB.execute(query, [email]);
 
+    const [rows] = await connectDB.execute(query, [email]);
 
     if (rows.length === 0) {
       return res.status(401).json({ message: "User not found" });
     }
 
     const user = rows[0];
-    console.log(user,"userrr")
 
     const isPasswordMatch = await bcrypt.compare(old_pass, user.Password);
 
     if (!isPasswordMatch) {
       return res.status(401).json({ message: "Incorrect current password" });
     }
- 
+
     const hashedPassword = await bcrypt.hash(new_pass, 10);
-    console.log(hashedPassword,email)
 
     const updateQuery = "UPDATE `User` SET `Password` = ? WHERE `Email` = ?";
     await connectDB.execute(updateQuery, [hashedPassword, email]);
@@ -134,9 +130,8 @@ const changepassword = async (req, res) => {
   }
 };
 
-
 module.exports = {
   register,
   login,
-  changepassword
+  changepassword,
 };

@@ -3,7 +3,6 @@ require("dotenv").config();
 
 const contact = async (req, res) => {
   try {
-   
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -14,14 +13,14 @@ const contact = async (req, res) => {
 
     const mailOptions = {
       from: process.env.email,
-      to: "info@marqueberry.com", 
+      to: "info@marqueberry.com",
       subject: "Form Submission",
       text: `Name: ${req.body.full_name}\nEmail: ${req.body.email}\nMessage: ${req.body.message}\nMobile: ${req.body.mobileNo}`,
     };
 
     const info = await transporter.sendMail(mailOptions);
-   
-    res.send({status:200,msg:"Successfull"});
+
+    res.send({ status: 200, msg: "Successfull" });
   } catch (error) {
     console.error("Error sending email:", error);
     res.status(500).send("Internal Server Error");
