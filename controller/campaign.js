@@ -13,7 +13,7 @@ const totalcamp = async (req, res) => {
       data: rows,
     });
   } catch (err) {
-    console.error(err);
+
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };

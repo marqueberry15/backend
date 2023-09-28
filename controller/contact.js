@@ -22,7 +22,7 @@ const contact = async (req, res) => {
 
     res.send({ status: 200, msg: "Successfull" });
   } catch (error) {
-    console.error("Error sending email:", error);
+   
     res.status(500).send("Internal Server Error");
   }
 };

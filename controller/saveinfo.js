@@ -2,6 +2,7 @@ const connectDB = require("../config/db");
 const ftp = require("basic-ftp");
 const fs = require("fs");
 require("dotenv").config();
+const getCurrentDateTime= require("./datetime")
 const config = {
   host: process.env.ftphost,
   port: process.env.ftpport,
@@ -42,7 +43,6 @@ async function connectFTP(buffer, fileName) {
 
 const saveinfo = async (req, res) => {
 
-  console.log("hey",req.body)
   try {
     const brandIdentifier = generateBrandIdentifier(req.body.brand_name);
 
@@ -53,9 +53,11 @@ const saveinfo = async (req, res) => {
       res.send("message:Error i uploading logo");
     }
     const status = req.body.Status ? req.body.Status : "pending";
-    // Insert the image data into the MySQL table
+    const {date,time}=getCurrentDateTime()
+        
+     
     const insertQuery =
-      "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`,`Status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
+      "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`,`Status`,`date`,`time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
     await connectDB.query(insertQuery, [
       req.body.first_name,
       req.body.last_name,
@@ -74,9 +76,11 @@ const saveinfo = async (req, res) => {
       req.body.time_limit,
       req.body.video_meme,
       fileName,
-
       status,
+      date,
+      time
     ]);
+    
 
     res.send({ message: "Image saved successfully", status: 200 });
   } catch (error) {

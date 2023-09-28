@@ -1,22 +1,6 @@
 const connectDB = require("../config/db");
 const bcrypt = require("bcrypt");
-
-const getCurrentDateTime = () => {
-  const now = new Date();
-
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const day = String(now.getDate()).padStart(2, "0");
-
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
-  const formattedDate = `${year}-${month}-${day}`;
-  const formattedTime = `${hours}:${minutes}:${seconds}`;
-
-  return { date: formattedDate, time: formattedTime };
-};
+const getCurrentDateTime=require("./datetime")
 const register = async (req, res) => {
   try {
     const { first_name, last_name, mobileNo, email, password, company_name } =
@@ -85,7 +69,7 @@ const login = async (req, res) => {
     await connectDB
       .execute(query2, param2)
       .then((res) => {
-        console.log("res", res);
+      
       })
       .catch((err) => {
         console.log(err);
@@ -101,7 +85,7 @@ const changepassword = async (req, res) => {
   const { email, old_pass, new_pass } = req.body;
 
   try {
-    console.log(req.body);
+    
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
 
     const [rows] = await connectDB.execute(query, [email]);
@@ -125,7 +109,7 @@ const changepassword = async (req, res) => {
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error("Error changing password:", error);
+  
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
