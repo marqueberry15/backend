@@ -6,11 +6,12 @@ const route = require("./routes/signup");
 const bodyparser = require("body-parser");
 const cors = require("cors");
 const route3 = require("./routes/info");
+const route4=require("./routes/admin")
 app.use(express.json({ extended: true }));
 const path = require("path");
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
-
+const connectDB2 =require("./config/db2")
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, FETCH");
@@ -18,7 +19,7 @@ app.use((req, res, next) => {
   next();
   app.use(express.static(path.resolve(__dirname, "public")));
 });
-
+connectDB2
 app.use(
   cors({
     origin: "*",
@@ -30,6 +31,7 @@ const PORT = process.env.PORT || 8000;
 app.use("/user", route);
 app.use("/mail", route2);
 app.use("/brand", route3);
+app.use("/admin",route4)
 
 app.listen(PORT, () => {
   console.log(`server is running on http://localhost:${PORT}`);
