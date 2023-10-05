@@ -1,7 +1,7 @@
 const connectDB2=require("../config/db2")
 const ftp=require("basic-ftp")
 const fs=require("fs");
-const { detectContentType } = require("next/dist/server/image-optimizer");
+
 require("dotenv").config();
 const connectDB =require("../config/db")
 
@@ -18,16 +18,13 @@ async function connectFTP(buffer, fileName) {
   try {
     await client.access(config);
 
-    // Change directory to 'public_html/marqueberrylogofiles'
+   
     await client.cd("marqueberryimage");
 
-    // Save the buffer as a temporary file
-    fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
-
-    // Upload the temporary file
+    fs.writeFileSync("tempFile.png", buffer); 
     await client.uploadFrom("tempFile.png", fileName);
 
-    // Delete the temporary file
+
     fs.unlinkSync("tempFile.png");
     client.close();
     return 1;
