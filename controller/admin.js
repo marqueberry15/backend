@@ -1,4 +1,4 @@
-const connectDB2=require("../config/db2")
+const connectDB2 = require("../config/db2")
 const ftp=require("basic-ftp")
 const fs=require("fs");
 
