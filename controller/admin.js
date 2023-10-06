@@ -106,6 +106,19 @@ const approval = async (req, res) => {
   }
 }
 
+const blog = async (req, res) => {
+  try {
+    console.log("HEYYYYYYY");
+    
+    const query = "SELECT * FROM `Blog` WHERE 1";
+    const [rows] = await connectDB2.execute(query);
+
+    res.status(200).json({ "data": rows });
+  } catch (error) {
+    console.error("Error fetching data from database:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
 
 
-module.exports={login,save,approval}
+module.exports={login,save,approval,blog}

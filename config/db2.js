@@ -6,7 +6,7 @@ const connectDB2 = mysql.createPool({
   password: process.env.password,
   database: process.env.database2,
 });
-console.log(process.env.host,process.env.user2,process.env.password,process.env.database2)
+// console.log(process.env.host,process.env.user2,process.env.password,process.env.database2)
 
 
 module.exports = connectDB2.promise();
