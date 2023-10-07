@@ -14,11 +14,12 @@ app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 
 app.use(cors({
-  origin: [
-    "https://admin.marqueberry.com",
-    "https://marqueberry.com",
-    // Add other allowed origins if needed
-  ],
+  // origin: [
+  //   "https://admin.marqueberry.com",
+  //   "https://marqueberry.com",
+  //   // Add other allowed origins if needed
+  // ],
+  origin:"*",
   methods: "GET, POST, PUT, DELETE, FETCH",
   allowedHeaders: "Content-Type, Authorization",
 }));

@@ -38,14 +38,14 @@ const login = async (req, res) => {
   try {
 
       const { email, password } = req.body;
-console.log(email,password)
+
       if (!email || !password) {
           return res.status(400).json({ error: "Email and password are required" });
       }
 
       const query = "SELECT * FROM `Admin` WHERE `Email` = ?";
       const [rows] = await connectDB2.execute(query, [email]);
-console.log(rows)
+
       if (rows.length === 0) {
           return res.status(401).json({ error: "Invalid email or password" });
       }
@@ -92,16 +92,22 @@ const save = async (req, res) => {
 };
 
 const approval = async (req, res) => {
+  console.log(1)
   const { action } = req.params; // Assuming 'action' is a parameter in your URL
   const { Id } = req.body; // Assuming 'Id' is being sent in the request body
 
   try {
+    console.log(2)
       const updateQuery = "UPDATE `BrandInfo` SET `Status` = ? WHERE `Id` = ?";
+      console.log(3)
       await connectDB.execute(updateQuery, [action, Id]);
+      console.log(4)
 
       return res.status(200).json({ message: "Status updated successfully" });
   } catch (error) {
+    console.log(5)
       console.error("Error updating status:", error);
+      console.log(6)
       return res.status(500).json({ error: "Internal Server Error" });
   }
 }
