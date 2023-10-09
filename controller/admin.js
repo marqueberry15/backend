@@ -27,6 +27,7 @@ async function connectFTP(buffer, fileName) {
 
     fs.unlinkSync("tempFile.png");
     client.close();
+    console.log("repsonse is",res)
     if (res.code===226)
     {return 1};
   } catch (err) {
