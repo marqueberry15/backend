@@ -22,19 +22,20 @@ async function connectFTP(buffer, fileName) {
     await client.cd("marqueberryimage");
 
     fs.writeFileSync("tempFile.png", buffer); 
-    await client.uploadFrom("tempFile.png", fileName);
+    const res=await client.uploadFrom("tempFile.png", fileName)
 
 
     fs.unlinkSync("tempFile.png");
     client.close();
-    return 1;
+    if (res.code===226)
+    {return 1};
   } catch (err) {
     client.close();
     return 0;
   }
 }
 const login = async (req, res) => {
-  console.log(req.body)
+
   try {
 
       const { email, password } = req.body;
@@ -66,14 +67,14 @@ const login = async (req, res) => {
 
 function generateBrandIdentifier(brandName) {
   const timestamp = Date.now();
-  // const randomString = generateRandomString(4); // Adjust the length of the random string as needed
-  return `${brandName}_${timestamp}`;
+   return `${brandName}_${timestamp}`;
 }
 
 const save = async (req, res) => {
   const type = req.params.type;
   const { header, content, } = req.body;
   const fileName=generateBrandIdentifier(header)
+
 
   if (!connectFTP(req.file.buffer, fileName)) {
     res.send("message:Error i uploading logo");
@@ -92,32 +93,31 @@ const save = async (req, res) => {
 };
 
 const approval = async (req, res) => {
-  console.log(1)
+ 
   const { action } = req.params; // Assuming 'action' is a parameter in your URL
   const { Id } = req.body; // Assuming 'Id' is being sent in the request body
 
   try {
-    console.log(2)
+
       const updateQuery = "UPDATE `BrandInfo` SET `Status` = ? WHERE `Id` = ?";
-      console.log(3)
+  
       await connectDB.execute(updateQuery, [action, Id]);
-      console.log(4)
+     
 
       return res.status(200).json({ message: "Status updated successfully" });
   } catch (error) {
-    console.log(5)
-      console.error("Error updating status:", error);
-      console.log(6)
+   
       return res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
 const blog = async (req, res) => {
   try {
-    console.log("HEYYYYYYY");
-    
+      
+
     const query = "SELECT * FROM `Blog` WHERE 1";
     const [rows] = await connectDB2.execute(query);
+
 
     res.status(200).json({ "data": rows });
   } catch (error) {
