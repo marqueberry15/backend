@@ -1,6 +1,7 @@
 const connectDB2 = require("../config/db2")
-const ftp=require("basic-ftp")
-const fs=require("fs");
+const { Client } = require("basic-ftp");
+const fs = require("fs");
+
 
 require("dotenv").config();
 const connectDB =require("../config/db")
@@ -12,31 +13,30 @@ const config = {
   password: process.env.ftppassword,
 };
 
+
 async function connectFTP(buffer, fileName) {
-  const client = new ftp.Client();
+  const client = new Client();
 
   try {
     await client.access(config);
 
-   
     await client.cd("marqueberryimage");
 
-    fs.writeFileSync("tempFile.png", buffer); 
-    const res=await client.uploadFrom("tempFile.png", fileName)
+    const writeStream = client.createWriteStream(fileName);
+    writeStream.end(buffer);
+    await client.handle(writeStream);
 
-
-    fs.unlinkSync("tempFile.png");
     client.close();
-    console.log("repsonse is",res)
-    if (res.code===226)
-    {return 1};
+    return 1;
   } catch (err) {
+    console.error("Error:", err);
     client.close();
     return 0;
   }
 }
-const login = async (req, res) => {
 
+
+const login = async (req, res) => {
   try {
 
       const { email, password } = req.body;
