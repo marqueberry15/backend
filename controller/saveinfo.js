@@ -22,12 +22,11 @@ async function connectFTP(buffer, fileName) {
   try {
     await client.access(config);
 
-    // Change directory to 'public_html/marqueberrylogofiles'
+  
     await client.cd("marqueberrylogofiles");
 
-    // Save the buffer as a temporary file
-    fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
-
+  
+    fs.writeFileSync("tempFile.png", buffer);
    console.log("Hey",fileName)
     await client.uploadFrom("tempFile.png", fileName).then((re)=>{
     console.log(re)}).catch((err)=>{

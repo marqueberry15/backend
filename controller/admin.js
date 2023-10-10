@@ -1,8 +1,7 @@
 const connectDB2 = require("../config/db2")
 const ftp = require("basic-ftp");
 const fs = require("fs");
-
-
+const getCurrentDateTime=require("./datetime")
 require("dotenv").config();
 const connectDB =require("../config/db")
 
@@ -22,7 +21,7 @@ async function connectFTP(buffer, fileName) {
     await client.access(config);
 
     // Change directory to 'public_html/marqueberrylogofiles'
-    await client.cd("marqueberrylogofiles");
+    await client.cd("public_html/marqueberryimage");
 
     // Save the buffer as a temporary file
     fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
@@ -84,7 +83,7 @@ const save = async (req, res) => {
   const { header, content, } = req.body;
   const fileName=generateBrandIdentifier(header)
   const result = await connectFTP(req.file.buffer, fileName);
-
+console.log("LETS start")
   if (result === 0) {
     console.log("error")
     return res.status(500).json({ error: "Error uploading logo" });
