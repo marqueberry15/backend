@@ -1,6 +1,6 @@
 const connectDB2 = require("../config/db2")
 const ftp = require("basic-ftp");
-const fs = require("fs").promises()
+const fs = require("fs").promises
 const getCurrentDateTime=require("./datetime")
 require("dotenv").config();
 const connectDB =require("../config/db")
