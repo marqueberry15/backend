@@ -1,5 +1,5 @@
 const connectDB2 = require("../config/db2")
-const { Client } = require("basic-ftp");
+const ftp = require("basic-ftp");
 const fs = require("fs");
 
 
@@ -14,22 +14,30 @@ const config = {
 };
 
 
+
 async function connectFTP(buffer, fileName) {
-  const client = new Client();
+  const client = new ftp.Client();
 
   try {
     await client.access(config);
 
-    await client.cd("marqueberryimage");
+    // Change directory to 'public_html/marqueberrylogofiles'
+    await client.cd("marqueberrylogofiles");
 
-    const writeStream = client.createWriteStream(fileName);
-    writeStream.end(buffer);
-    await client.handle(writeStream);
+    // Save the buffer as a temporary file
+    fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
 
+    // Upload the temporary file
+    await client.uploadFrom("tempFile.png", fileName).then((re)=>{
+    console.log(re)}).catch((err)=>{
+      console.log(err)
+    })
+
+    // Delete the temporary file
+    fs.unlinkSync("tempFile.png");
     client.close();
     return 1;
   } catch (err) {
-    console.error("Error:", err);
     client.close();
     return 0;
   }
@@ -75,13 +83,12 @@ const save = async (req, res) => {
   const type = req.params.type;
   const { header, content, } = req.body;
   const fileName=generateBrandIdentifier(header)
+  const result = await connectFTP(req.file.buffer, fileName);
 
-
-  if (!connectFTP(req.file.buffer, fileName)) {
-    res.send("message:Error i uploading logo");
+  if (result === 0) {
+    console.log("error")
+    return res.status(500).json({ error: "Error uploading logo" });
   }
-
-
 
   try {
     const insertQuery = `INSERT INTO ${type} (Header, Content,Image) VALUES (?, ?,?)`;
