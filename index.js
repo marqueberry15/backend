@@ -6,7 +6,7 @@ const bodyparser = require("body-parser");
 const cors = require("cors");
 const route3 = require("./routes/info");
 const route4 = require("./routes/admin");
-
+const path=require("path")
 const app = express();
 
 // Middleware
@@ -14,16 +14,12 @@ app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 
 app.use(cors({
-  // origin: [
-  //   "https://admin.marqueberry.com",
-  //   "https://marqueberry.com",
-  //   // Add other allowed origins if needed
-  // ],
+ 
   origin:"*",
   methods: "GET, POST, PUT, DELETE, FETCH",
   allowedHeaders: "Content-Type, Authorization",
 }));
-
+app.use(express.static(path.resolve(__dirname, "public")));
 // Routes
 app.use("/user", route);
 app.use("/mail", route2);
