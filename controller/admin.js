@@ -1,6 +1,6 @@
 const connectDB2 = require("../config/db2")
 const ftp = require("basic-ftp");
-const fs = require("fs");
+const fs = require("fs").promises()
 const getCurrentDateTime=require("./datetime")
 require("dotenv").config();
 const connectDB =require("../config/db")
@@ -13,27 +13,29 @@ const config = {
 };
 
 
+ // Import the promises version of fs
 
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
-console.log(1)
+  console.log(1)
   try {
     await client.access(config);
-console.log(2)
-    // Change directory to 'public_html/marqueberrylogofiles'
-    await client.cd("marqueberryimage");
-console.log(3)
-    // Save the buffer as a temporary file
-    fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
-console.log(4)
-    // Upload the temporary file
-    await client.uploadFrom("tempFile.png", fileName).then((re)=>{
-    console.log(re)}).catch((err)=>{
-      console.log(err)
-    })
+    console.log(2)
 
-    // Delete the temporary file
-    fs.unlinkSync("tempFile.png");
+    await client.cd("marqueberryimage");
+    console.log(3, buffer)
+
+    // Use fs.writeFile instead of fs.writeFileSync
+    await fs.writeFile("tempFile.png", buffer);
+
+    console.log(4)
+
+    const re = await client.uploadFrom("tempFile.png", fileName);
+    console.log(re);
+
+    // Use fs.unlink instead of fs.unlinkSync
+    await fs.unlink("tempFile.png");
+
     client.close();
     return 1;
   } catch (err) {
