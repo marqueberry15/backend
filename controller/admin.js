@@ -20,7 +20,7 @@ async function connectFTP(buffer, fileName) {
     await client.access(config);
     console.log(2)
 
-    await client.cd("marqueberryimage");
+    await client.cd("public_html/marqueberryimage");
     console.log(3, buffer)
 
     await fs.writeFile("tempFile.png", buffer);
