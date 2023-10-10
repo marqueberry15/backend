@@ -13,8 +13,6 @@ const config = {
 };
 
 
- // Import the promises version of fs
-
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
   console.log(1)
@@ -25,24 +23,23 @@ async function connectFTP(buffer, fileName) {
     await client.cd("marqueberryimage");
     console.log(3, buffer)
 
-    // Use fs.writeFile instead of fs.writeFileSync
     await fs.writeFile("tempFile.png", buffer);
-
     console.log(4)
 
     const re = await client.uploadFrom("tempFile.png", fileName);
-    console.log(re);
+    console.log('Upload successful:', re);
 
-    // Use fs.unlink instead of fs.unlinkSync
     await fs.unlink("tempFile.png");
 
     client.close();
     return 1;
   } catch (err) {
+    console.error('Error:', err); // Log the error for debugging
     client.close();
     return 0;
   }
 }
+
 
 
 const login = async (req, res) => {
