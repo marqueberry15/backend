@@ -28,7 +28,7 @@ async function connectFTP(buffer, fileName) {
     // Save the buffer as a temporary file
     fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
 
-    // Upload the temporary file
+   console.log("Hey",fileName)
     await client.uploadFrom("tempFile.png", fileName).then((re)=>{
     console.log(re)}).catch((err)=>{
       console.log(err)
