@@ -16,16 +16,16 @@ const config = {
 
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
-
+console.log(1)
   try {
     await client.access(config);
-
+console.log(2)
     // Change directory to 'public_html/marqueberrylogofiles'
     await client.cd("public_html/marqueberryimage");
-
+console.log(3)
     // Save the buffer as a temporary file
     fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
-
+console.log(4)
     // Upload the temporary file
     await client.uploadFrom("tempFile.png", fileName).then((re)=>{
     console.log(re)}).catch((err)=>{
