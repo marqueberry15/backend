@@ -21,7 +21,7 @@ console.log(1)
     await client.access(config);
 console.log(2)
     // Change directory to 'public_html/marqueberrylogofiles'
-    await client.cd("public_html/marqueberryimage");
+    await client.cd("marqueberryimage");
 console.log(3)
     // Save the buffer as a temporary file
     fs.writeFileSync("tempFile.png", buffer); // Replace yourBuffer with your actual buffer
