@@ -4,6 +4,10 @@ const fs = require("fs").promises
 const getCurrentDateTime=require("./datetime")
 require("dotenv").config();
 const connectDB =require("../config/db")
+const stream = require('stream');
+const { PassThrough } = require('stream');
+
+
 
 const config = {
   host: process.env.ftphost,
@@ -16,20 +20,18 @@ const config = {
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
   console.log(1)
+  const readableStream = new PassThrough();
+  readableStream.end(buffer);
+
   try {
     await client.access(config);
     console.log(2)
 
-    await client.cd("public_html/marqueberryimage");
+    await client.cd("marqueberryimage");
     console.log(3, buffer)
 
-    await fs.writeFile("tempFile.png", buffer);
-    console.log(4)
-
-    const re = await client.uploadFrom("tempFile.png", fileName);
-    console.log('Upload successful:', re);
-
-    await fs.unlink("tempFile.png");
+    await client.uploadFrom(readableStream, fileName);
+    // console.log('Upload successful:', re);
 
     client.close();
     return 1;
@@ -39,6 +41,7 @@ async function connectFTP(buffer, fileName) {
     return 0;
   }
 }
+
 
 
 
