@@ -18,26 +18,24 @@ function generateBrandIdentifier(brandName) {
 
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
+  console.log(1)
+  const readableStream = new PassThrough();
+  readableStream.end(buffer);
 
   try {
     await client.access(config);
+    console.log(2)
 
-  
     await client.cd("marqueberrylogofiles");
+    console.log(3, buffer)
 
-  
-    fs.writeFileSync("tempFile.png", buffer);
-   console.log("Hey",fileName)
-    await client.uploadFrom("tempFile.png", fileName).then((re)=>{
-    console.log(re)}).catch((err)=>{
-      console.log(err)
-    })
+    await client.uploadFrom(readableStream, fileName);
+    // console.log('Upload successful:', re);
 
-    // Delete the temporary file
-    fs.unlinkSync("tempFile.png");
     client.close();
     return 1;
   } catch (err) {
+    console.error('Error:', err); // Log the error for debugging
     client.close();
     return 0;
   }
@@ -50,14 +48,14 @@ const saveinfo = async (req, res) => {
 
     // Modify the file name to include the brand identifier
     const fileName = `logo_${brandIdentifier}.png`;
-
-    if (!connectFTP(req.file.buffer, fileName)) {
-      res.send("message:Error i uploading logo");
+const  result=connectFTP()
+    if (result === 0) {
+      console.log("error")
+      return res.status(500).json({ error: "Error uploading logo" });
     }
     const status = req.body.Status ? req.body.Status : "pending";
     const {date,time}=getCurrentDateTime()
-        
-     
+         
     const insertQuery =
       "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`,`Status`,`date`,`time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
     await connectDB.query(insertQuery, [

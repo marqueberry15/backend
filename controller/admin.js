@@ -92,8 +92,9 @@ console.log("LETS start")
   }
 
   try {
-    const insertQuery = `INSERT INTO ${type} (Header, Content,Image) VALUES (?, ?,?)`;
-     await connectDB2.execute(insertQuery, [header, content,fileName]).then(()=>res.status(200).json({msg:"Uploaded Successfully"}))
+    const {date,time}=getCurrentDateTime()
+    const insertQuery = `INSERT INTO ${type} (Header, Content,Image,Date,Time) VALUES (?, ?,?,?,?)`;
+     await connectDB2.execute(insertQuery, [header, content,fileName,date,time]).then(()=>res.status(200).json({msg:"Uploaded Successfully"}))
    .catch((err)=>res.status(500).json({error:err}))
   } catch (error) {
     console.error("Error saving data:", error);
