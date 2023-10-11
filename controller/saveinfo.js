@@ -1,8 +1,8 @@
 const connectDB = require("../config/db");
 const ftp = require("basic-ftp");
 const fs = require("fs");
-const stream = require('stream');
-const { PassThrough } = require('stream');
+const stream = require('stream').promises
+const { PassThrough } = require('stream').promises
 require("dotenv").config();
 const getCurrentDateTime= require("./datetime")
 const config = {
@@ -22,7 +22,7 @@ async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
   console.log(1)
   const readableStream = new PassThrough();
-  readableStream.end(buffer);
+ await readableStream.end(buffer);
 
   try {
     await client.access(config);
@@ -50,7 +50,7 @@ const saveinfo = async (req, res) => {
 
     // Modify the file name to include the brand identifier
     const fileName = `logo_${brandIdentifier}.png`;
-const  result=connectFTP()
+const  result=await connectFTP()
     if (result === 0) {
       console.log("error")
       return res.status(500).json({ error: "Error uploading logo" });
