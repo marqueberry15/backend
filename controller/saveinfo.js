@@ -1,6 +1,8 @@
 const connectDB = require("../config/db");
 const ftp = require("basic-ftp");
 const fs = require("fs");
+const stream = require('stream');
+const { PassThrough } = require('stream');
 require("dotenv").config();
 const getCurrentDateTime= require("./datetime")
 const config = {
@@ -55,7 +57,7 @@ const  result=connectFTP()
     }
     const status = req.body.Status ? req.body.Status : "pending";
     const {date,time}=getCurrentDateTime()
-         
+
     const insertQuery =
       "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`,`Status`,`date`,`time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
     await connectDB.query(insertQuery, [
