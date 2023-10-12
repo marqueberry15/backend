@@ -149,5 +149,19 @@ const blog = async (req, res) => {
   }
 }
 
+const casestudy= async (req, res) => {
+  try {
+     console.log("HELOOO")
+    const query = "SELECT * FROM `CaseStudy` WHERE 1";
+    const [rows] = await connectDB2.execute(query);
 
-module.exports={login,save,approval,blog}
+
+    res.status(200).json({ "data": rows });
+  } catch (error) {
+    console.error("Error fetching data from database:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+
+module.exports={login,save,approval,blog,casestudy}
