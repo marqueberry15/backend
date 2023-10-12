@@ -17,7 +17,7 @@ const config = {
 };
 
 
-async function connectFTP(buffer, fileName) {
+async function connectFTP(buffer, fileName,path) {
   const client = new ftp.Client();
   console.log(1)
   const readableStream = new PassThrough();
@@ -27,7 +27,7 @@ async function connectFTP(buffer, fileName) {
     await client.access(config);
     console.log(2)
 
-    await client.cd("marqueberryimage");
+    await client.cd(`${path}`);
     console.log(3, buffer)
 
     await client.uploadFrom(readableStream, fileName);
@@ -80,27 +80,40 @@ function generateBrandIdentifier(brandName) {
    return `${brandName}_${timestamp}`;
 }
 
-const save = async (req, res) => {
-  const type = req.params.type;
-  const { header, content, } = req.body;
-  const fileName=generateBrandIdentifier(header)
-  const result = await connectFTP(req.file.buffer, fileName);
-console.log("LETS start")
-  if (result === 0) {
-    console.log("error")
-    return res.status(500).json({ error: "Error uploading logo" });
-  }
 
+const save = async (req, res) => {
   try {
-    const {date,time}=getCurrentDateTime()
-    const insertQuery = `INSERT INTO ${type} (Header, Content,Image,Date,Time) VALUES (?, ?,?,?,?)`;
-     await connectDB2.execute(insertQuery, [header, content,fileName,date,time]).then(()=>res.status(200).json({msg:"Uploaded Successfully"}))
-   .catch((err)=>res.status(500).json({error:err}))
+    const type = req.params.type;
+    const { header, content } = req.body;
+    const fileName = generateBrandIdentifier(header);
+
+    // Define path based on type
+    const path = (type === 'Blog') ? 'marqueberryblog' : 'marqueberrycasestudy';
+console.log(path)
+    // Upload file to FTP
+    const result = await connectFTP(req.file.buffer, fileName, path);
+
+    if (result === 0) {
+      console.log("error");
+      return res.status(500).json({ error: "Error uploading logo" });
+    }
+
+    const { date, time } = getCurrentDateTime();
+
+    // Define insert query
+    const insertQuery = `INSERT INTO ${type} (Header, Content, Image, Date, Time) VALUES (?, ?, ?, ?, ?)`;
+
+    // Execute the query
+    await connectDB2.execute(insertQuery, [header, content, fileName, date, time]);
+
+    // Send success response
+    res.status(200).json({ msg: "Uploaded Successfully" });
   } catch (error) {
     console.error("Error saving data:", error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 const approval = async (req, res) => {
  
