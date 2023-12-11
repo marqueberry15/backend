@@ -31,8 +31,7 @@ readableStream.end(buffer);
     console.log(3, buffer)
 
     await client.uploadFrom(readableStream, fileName);
-    // console.log('Upload successful:', re);
-
+    
     client.close();
     return 1;
   } catch (err) {

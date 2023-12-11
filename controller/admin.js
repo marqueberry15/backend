@@ -165,3 +165,43 @@ const casestudy= async (req, res) => {
 
 
 module.exports={login,save,approval,blog,casestudy}
+
+// async function generateAndSaveOTP(req, res) {
+//   try {
+//     const mobileNo = req.body.mobileNo || '';
+    
+
+//     if (mobileNo !== '' && mobileNo.length === 10) {
+//      const generateOtp = Math.floor(1000 + Math.random() * 9000);
+//      const user = await common.GetRecords(config.userTable, "", { mobileNo });
+//   console.log(user,user.status)
+//   if (user.status==200){
+//     const response = {
+//       status: 401,
+//       msg: 'Phone No. Already registered.',
+//     };
+//     return res.status(401).send(response);
+//   }
+  
+//     // const generateOtp=1234;
+//       // Save OTP to Excel file on Hostinger and upload to FTP
+//       const currentDate = new Date();
+//       const created_at = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+//       const fileName = `otp_${mobileNo}.txt`;
+
+//      // const saveResult = await saveOTPToHostinger(mobileNo, generateOtp, created_at, fileName);
+//      const saveResult = await saveOTPLocally(mobileNo, generateOtp, created_at, fileName);
+
+//       if (saveResult) {
+//         return res.status(200).json({ status: 200, msg: 'OTP Saved Successfully' });
+//       } else {
+//         return res.status(500).json({ status: 500, msg: 'FTP upload failed.' });
+//       }
+//     } else {
+//       return res.status(500).json({ status: 500, msg: 'Please provide valid mobile number' });
+//     }
+//   } catch (error) {
+//     console.error('Error:', error);
+//     return res.status(500).json({ status: 500, msg: 'Internal Server Error' });
+//   }
+// }
