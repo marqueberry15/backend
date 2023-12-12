@@ -30,7 +30,6 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.5",
     "path": "^0.12.7",
-    "razorpay": "^2.9.2",
     "stream": "^0.0.2",
     "underscore": "^1.13.6"
   }

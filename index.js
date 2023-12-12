@@ -9,7 +9,6 @@ const route4 = require("./routes/admin");
 const path=require("path")
 const app = express();
 const connectDB=require("./config/db")
-const route5=require("./routes/payment")
 const route6= require("./routes/app")
 // Middleware
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -28,7 +27,6 @@ app.use("/user", route);
 app.use("/mail", route2);
 app.use("/brand", route3);
 app.use("/admin", route4);
-app.use("/brand",route5)
 app.use("/app/user",route6)
 const PORT = process.env.PORT || 8000;
 
