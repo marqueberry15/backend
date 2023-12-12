@@ -10,7 +10,6 @@ const path=require("path")
 const app = express();
 const connectDB=require("./config/db")
 const route6= require("./routes/app")
-// Middleware
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 
@@ -22,7 +21,6 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.static(path.resolve(__dirname, "public")));
-// Routes
 app.use("/user", route);
 app.use("/mail", route2);
 app.use("/brand", route3);

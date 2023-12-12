@@ -144,6 +144,7 @@ const validateOTP = async (req, res) => {
 };
 
 async function generateAndSaveOTP(req, res) {
+  console.log('HEyyy')
   const mobileNo = req.body.mobileNo || "";
   if (mobileNo !== "" && mobileNo.length === 10) {
     const generateOtp = Math.floor(1000 + Math.random() * 9000);
@@ -155,7 +156,7 @@ async function generateAndSaveOTP(req, res) {
         msg: "User Already registered.",
       };
       console.log("User already exist")
-      return res.status(400).send(response);
+      return res.send(response);
     }
 
     const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
