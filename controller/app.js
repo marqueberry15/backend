@@ -14,7 +14,7 @@ const moment = require("moment-timezone");
 
 const usersignup = async (mobileNo, fullName, userName, otp) => {
 
-  console.log('heyyyyyyyyyyyy')
+
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
@@ -227,23 +227,18 @@ console.log(signupResult)
             const token = jwt.sign({ id: signupResult.data.insertId }, config.JwtSupersecret, {
               expiresIn: parseInt(config.JwtTokenExpiresIn),
             });
-            
-            console.log(token)
-
             const response = {
               status: 200,
               msg: 'Successful',
               token: token,
               data: signupResult,
             };
-
             res.send(response);
           } else {
             const response = {
               status: 500,
               msg: 'Error in user registration',
             };
-
             res.send(response);
           }
         }
@@ -271,4 +266,18 @@ catch(err){
   }
 };
 
-module.exports = { login, generateAndSaveOTP, validatephoneOTP, validateOTP };
+async function getCampaign (req,res){
+  console.log(1)
+  try{
+    console.log(2)
+    const campaigndetails= await common.GetCampaign('BrandInfo',"","");
+    console.log(campaigndetails)
+    return res.json({'status':200,'campaigndetails':campaigndetails})
+  }
+  catch(err){
+    return res.status(500).json({'Error':err})
+  }
+
+}
+
+module.exports = { login, generateAndSaveOTP, validatephoneOTP, validateOTP, getCampaign };

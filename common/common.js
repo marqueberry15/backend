@@ -9,6 +9,7 @@ const dbConnection = mysql.createPool({
   database: "u394360389_Adoro",
 });
 dbConnection.promise();
+const connectDB= require("../config/db")
 
 // const _SERVER = "";
 // let dbConnection;
@@ -211,6 +212,20 @@ module.exports = {
       return await error;
     }
   },
+  GetCampaign: async (table, where,fields) => {
+try{
+  console.log(3)
+
+  const details=await connectDB.execute("SELECT * FROM BrandInfo Where `Status`= ? ",["Accepted"])
+  console.log(4)
+  console.log("details",details[0])
+return details[0]
+}
+catch(err){
+  return err
+}
+  },
+  
   Logins: async (where) => {
     try {
       return new Promise(async (resolve, reject) => {
