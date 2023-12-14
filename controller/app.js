@@ -153,7 +153,7 @@ async function generateAndSaveOTP(req, res) {
     if (user.status == 200) {
       const response = {
         status: 401,
-        msg: "User Already registered.",
+        msg: "User Already registered. Please SignIn",
       };
       console.log("User already exist")
       return res.send(response);
