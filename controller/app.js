@@ -118,7 +118,7 @@ const validateOTP = async (req, res) => {
         { id: GetRecords.data[0].Id },
         `'${config.JwtSupersecret}'`,
         {
-          expiresIn: 864000,
+          expiresIn: 86400,
         }
       );
 
@@ -217,7 +217,7 @@ const validatephoneOTP = async (req, res) => {
           "*",
         {mobileNo}
         );
-        console.log('REcord in this is ',getRecords,getRecords.status,getRecords.data[0].otp==otp)
+        console.log('Record in this is ',getRecords,getRecords.status,getRecords.data[0].otp==otp)
         if (
           getRecords.status && getRecords.data[0].otp==otp){
 
@@ -225,13 +225,13 @@ const validatephoneOTP = async (req, res) => {
 console.log(signupResult)
           if (signupResult.status) {
             const token = jwt.sign({ id: signupResult.data.insertId }, config.JwtSupersecret, {
-              expiresIn: parseInt(config.JwtTokenExpiresIn),
+              expiresIn: 86400,
             });
             const response = {
               status: 200,
               msg: 'Successful',
               token: token,
-              data: signupResult,
+              data: {mobileNo,fullName,userName,otp},
             };
             res.send(response);
           } else {
