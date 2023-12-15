@@ -13,8 +13,6 @@ const configr = {
 const moment = require("moment-timezone");
 
 const usersignup = async (mobileNo, fullName, userName, otp) => {
-
-
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
@@ -144,7 +142,7 @@ const validateOTP = async (req, res) => {
 };
 
 async function generateAndSaveOTP(req, res) {
-  console.log('HEyyy')
+  console.log("HEyyy");
   const mobileNo = req.body.mobileNo || "";
   if (mobileNo !== "" && mobileNo.length === 10) {
     const generateOtp = Math.floor(1000 + Math.random() * 9000);
@@ -155,14 +153,13 @@ async function generateAndSaveOTP(req, res) {
         status: 401,
         msg: "User Already registered. Please SignIn",
       };
-      console.log("User already exist")
+      console.log("User already exist");
       return res.send(response);
     }
 
     const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
     const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
     const sendMsg = await axios.get(url);
-  
 
     if (sendMsg.status !== 200) {
     }
@@ -193,11 +190,9 @@ async function generateAndSaveOTP(req, res) {
       }
     }
 
-    return res.status(200).json({ status: 200, msg: 'OTP Saved Successfully' });
-
+    return res.status(200).json({ status: 200, msg: "OTP Saved Successfully" });
   } else {
-    return res
-      .json({ status: 500, msg: "Please provide valid mobile number" });
+    return res.json({ status: 500, msg: "Please provide valid mobile number" });
   }
 }
 
@@ -211,47 +206,52 @@ const validatephoneOTP = async (req, res) => {
 
     if (mobileNo !== "" && mobileNo.length === 10) {
       console.log(2);
-      try{
-        const getRecords = await common.GetRecords(
-          'Signup_otp',
-          "*",
-        {mobileNo}
+      try {
+        const getRecords = await common.GetRecords("Signup_otp", "*", {
+          mobileNo,
+        });
+        console.log(
+          "Record in this is ",
+          getRecords,
+          getRecords.status,
+          getRecords.data[0].otp == otp
         );
-        console.log('Record in this is ',getRecords,getRecords.status,getRecords.data[0].otp==otp)
-        if (
-          getRecords.status && getRecords.data[0].otp==otp){
-
-          const signupResult = await usersignup(mobileNo,fullName,userName,otp); // You may need to adjust the arguments based on your usersignup function
-console.log(signupResult)
+        if (getRecords.status && getRecords.data[0].otp == otp) {
+          const signupResult = await usersignup(
+            mobileNo,
+            fullName,
+            userName,
+            otp
+          ); // You may need to adjust the arguments based on your usersignup function
+          console.log(signupResult);
           if (signupResult.status) {
-            const token = jwt.sign({ id: signupResult.data.insertId }, config.JwtSupersecret, {
-              expiresIn: 86400,
-            });
+            const token = jwt.sign(
+              { id: signupResult.data.insertId },
+              config.JwtSupersecret,
+              {
+                expiresIn: 86400,
+              }
+            );
             const response = {
               status: 200,
-              msg: 'Successful',
+              msg: "Successful",
               token: token,
-              data: {mobileNo,fullName,userName,otp},
+              data: { mobileNo, fullName, userName, otp },
             };
             res.send(response);
           } else {
             const response = {
               status: 500,
-              msg: 'Error in user registration',
+              msg: "Error in user registration",
             };
             res.send(response);
           }
+        } else {
+          return res.json({ status: 500, msg: "Invalid Otp" });
         }
-        else{
-          return  res.json({ status: 500, msg: "Invalid Otp" });
-        }
-
+      } catch (err) {
+        res.json({ status: 500, msg: "Internal Server Error" });
       }
-catch(err){
-  res.json({ status: 500, msg: "Internal Server Error" });
-
-}
-    
     } else {
       const response = {
         status: 400,
@@ -266,18 +266,55 @@ catch(err){
   }
 };
 
-async function getCampaign (req,res){
-  console.log(1)
-  try{
-    console.log(2)
-    const campaigndetails= await common.GetCampaign('BrandInfo',"","");
-    console.log(campaigndetails)
-    return res.json({'status':200,'campaigndetails':campaigndetails})
+async function getCampaign(req, res) {
+  try {
+    const campaigndetails = await common.GetCampaign("BrandInfo", "", "");
+    return res.json({ status: 200, campaigndetails: campaigndetails });
+  } catch (err) {
+    return res.status(500).json({ Error: err });
   }
-  catch(err){
-    return res.status(500).json({'Error':err})
-  }
-
 }
 
-module.exports = { login, generateAndSaveOTP, validatephoneOTP, validateOTP, getCampaign };
+const update = async (req, res) => {
+  try {
+
+    const fullName = req.body.fullName;
+    const userName = req.body.userName;
+    const Email = req.body.Email;
+    const accountNo = req.body.accountNo;
+    const bankName = req.body.bankName;
+    const benificiaryName = req.body.benificiaryName;
+    const ifscCode = req.body.ifscCode;
+    const mobileNo = req.body.mobileNo;
+
+    const updateResult = await common.UpdateRecords(config.userTable, {
+      fullName,
+      userName,
+      Email,
+      accountNo,
+      bankName,
+      benificiaryName,
+      ifscCode,
+      mobileNo,
+      
+    },mobileNo);
+
+    if (updateResult.status) {
+      res.status(200).json({ msg: "Update successful", data: updateResult });
+    } else {
+      res.json({ status: 500, msg: updateResult.Error.sqlMessage });
+    }
+  } catch (error) {
+    console.error("Error updating records:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = {
+  login,
+  generateAndSaveOTP,
+  validatephoneOTP,
+  validateOTP,
+  getCampaign,
+  update,
+};

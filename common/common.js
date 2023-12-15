@@ -9,7 +9,8 @@ const dbConnection = mysql.createPool({
   database: "u394360389_Adoro",
 });
 dbConnection.promise();
-const connectDB= require("../config/db")
+const connectDB= require("../config/db");
+const { update } = require("../controller/app");
 
 // const _SERVER = "";
 // let dbConnection;
@@ -124,9 +125,11 @@ module.exports = {
     }
   },
   UpdateRecords: async (table, updateObject, mobileNo) => {
+    console.log("#####################",table,updateObject,mobileNo)
     try {
       let responseObj = {};
       const sql = `UPDATE ${table} SET ? WHERE mobileNo = ?`;
+      console.log(sql,mobileNo)
   
       const result = await new Promise((resolve, reject) => {
         dbConnection.query(sql, [updateObject, mobileNo], (err, result) => {
