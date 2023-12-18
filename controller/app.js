@@ -4,6 +4,9 @@ const axios = require("axios");
 const fs = require("fs").promises;
 const { PassThrough } = require("stream");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
+
 const configr = {
   host: process.env.ftphost,
   port: process.env.ftpport,
@@ -11,6 +14,7 @@ const configr = {
   password: process.env.ftppassword,
 };
 const moment = require("moment-timezone");
+const { serialize } = require("v8");
 
 const usersignup = async (mobileNo, fullName, userName, otp) => {
   try {
@@ -310,6 +314,53 @@ const update = async (req, res) => {
   }
 };
 
+
+const saveInterest = async (req,res)=>{
+
+  console.log("BOSYYYYYY",req.body?req.body:req)
+  return res.status(200).json({msg:"DONEEE"})
+
+
+}
+
+const contact = async (req, res) => {
+  try {
+    console.log(1)
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.email,
+        pass: process.env.password2,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.email,
+      to: "info@marqueberry.com",
+      subject: "Adoro App Support",
+      text: `Name: ${req.body.fullName}\nEmail: ${req.body.email}\nMessage: ${req.body.message}`,
+    };
+    console.log(3)
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Infofff",info)
+
+   
+    
+    if (info.messageId) {
+      res.status(200).send({ status: 200, msg: 'Successful' });
+    } else {
+      console.error('Error during email sending:', info);
+      res.status(500).send('Internal Server Error');
+    }
+ 
+  } catch (error) {
+   
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
 module.exports = {
   login,
   generateAndSaveOTP,
@@ -317,4 +368,6 @@ module.exports = {
   validateOTP,
   getCampaign,
   update,
+  saveInterest
+  ,contact
 };

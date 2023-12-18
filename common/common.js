@@ -51,24 +51,9 @@ module.exports = {
     try {
       console.log(table,where,fields)
       return new Promise(async (resolve, reject) => {
-        // let responseObj = {};
-        // if (_.isEmpty(fields)) {
-        //   fields = "*";
-        // }
-        // if (_.isEmpty(where)) {
-        //   where = _.isEmpty(where) ? '1=1' : buildConditionFromObject(where);
-
-        //   where = 'id != ""';
-        // }
-        // // if (!_.isEmpty(where)) {
-        // //     where = 'id =' + where;
-        // // }
-        // let sql = `SELECT ${fields} FROM ${table} WHERE ${where}`;
-        // // console.log(sql)
+      
         let responseObj = {};
         fields = _.isEmpty(fields) ? "*" : fields;
-  
-        // If where clause is empty, default to '1=1' to fetch all records
        
         let sql = `SELECT ${fields} FROM ${table}  Where ?`;
   
@@ -228,6 +213,7 @@ catch(err){
   return err
 }
   },
+  
   
   Logins: async (where) => {
     try {
