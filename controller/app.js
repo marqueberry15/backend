@@ -315,13 +315,30 @@ const update = async (req, res) => {
 };
 
 
-const saveInterest = async (req,res)=>{
+const saveInterest = async (req, res) => {
+  try {
+    console.log("YYYYYYYYYYYYYY",req.body)
+    const { mobileNo,  leastCount } = req.body;
+    console.log("hggggggggg", mobileNo,  leastCount);
 
-  console.log("BOSYYYYYY",req.body?req.body:req)
-  return res.status(200).json({msg:"DONEEE"})
+    const Interest =  leastCount.map(item => item.id).join(' ');
+    console.log(Interest);
 
+    const updateResult = await common.UpdateRecords(config.userTable, {Interest }, mobileNo);
 
-}
+    if (updateResult.status) {
+      console.log("Update successful:");
+      return res.status(200).json({ msg: "DONEEE", updateResult: updateResult.data });
+    } else {
+      console.error("Update failed:", updateResult.error);
+      return res.status(500).json({ error: "Internal Server Error", updateResult: null });
+    }
+  } catch (error) {
+    console.error("Error saving interest:", error);
+    return res.status(500).json({ error: "Internal Server Error", updateResult: null });
+  }
+};
+
 
 const contact = async (req, res) => {
   try {
