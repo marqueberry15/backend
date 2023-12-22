@@ -13,8 +13,8 @@ const configr = {
   user: "u394360389",
   password: process.env.ftppassword,
 };
+
 const moment = require("moment-timezone");
-const { serialize } = require("v8");
 
 const usersignup = async (mobileNo, fullName, userName, otp) => {
   try {
@@ -57,10 +57,9 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
   }
 };
 const login = async (req, res) => {
+  console.log("HIIIIIIIIIIIII")
   try {
-    console.log(1);
     const mobileNo = req.body.mobileNo || "";
-
     console.log(2, mobileNo);
     if (mobileNo && mobileNo.length === 10) {
       const user = await common.GetRecords(config.userTable, "", { mobileNo });
@@ -71,6 +70,7 @@ const login = async (req, res) => {
         const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
 
         const sendMsg = await axios.get(url);
+        console.log(sendMsg);
         const updateObj = { otp: generateOtp };
         const updatedUser = await common.UpdateRecords(
           config.userTable,
@@ -281,7 +281,6 @@ async function getCampaign(req, res) {
 
 const update = async (req, res) => {
   try {
-
     const fullName = req.body.fullName;
     const userName = req.body.userName;
     const Email = req.body.Email;
@@ -291,17 +290,20 @@ const update = async (req, res) => {
     const ifscCode = req.body.ifscCode;
     const mobileNo = req.body.mobileNo;
 
-    const updateResult = await common.UpdateRecords(config.userTable, {
-      fullName,
-      userName,
-      Email,
-      accountNo,
-      bankName,
-      benificiaryName,
-      ifscCode,
-      mobileNo,
-      
-    },mobileNo);
+    const updateResult = await common.UpdateRecords(
+      config.userTable,
+      {
+        fullName,
+        userName,
+        Email,
+        accountNo,
+        bankName,
+        benificiaryName,
+        ifscCode,
+        mobileNo,
+      },
+      mobileNo
+    );
 
     if (updateResult.status) {
       res.status(200).json({ msg: "Update successful", data: updateResult });
@@ -314,35 +316,40 @@ const update = async (req, res) => {
   }
 };
 
-
 const saveInterest = async (req, res) => {
   try {
-    console.log("YYYYYYYYYYYYYY",req.body)
-    const { mobileNo,  leastCount } = req.body;
-    console.log("hggggggggg", mobileNo,  leastCount);
-
-    const Interest =  leastCount.map(item => item.id).join(' ');
+    const { mobileNo, leastCount } = req.body;
+    const Interest = leastCount.map((item) => item.id).join(" ");
     console.log(Interest);
 
-    const updateResult = await common.UpdateRecords(config.userTable, {Interest }, mobileNo);
+    const updateResult = await common.UpdateRecords(
+      config.userTable,
+      { Interest },
+      mobileNo
+    );
 
     if (updateResult.status) {
       console.log("Update successful:");
-      return res.status(200).json({ msg: "DONEEE", updateResult: updateResult.data });
+      return res
+        .status(200)
+        .json({ msg: "DONEEE", updateResult: updateResult.data });
     } else {
       console.error("Update failed:", updateResult.error);
-      return res.status(500).json({ error: "Internal Server Error", updateResult: null });
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", updateResult: null });
     }
   } catch (error) {
     console.error("Error saving interest:", error);
-    return res.status(500).json({ error: "Internal Server Error", updateResult: null });
+    return res
+      .status(500)
+      .json({ error: "Internal Server Error", updateResult: null });
   }
 };
 
-
 const contact = async (req, res) => {
   try {
-    console.log(1)
+    console.log(1);
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -357,26 +364,21 @@ const contact = async (req, res) => {
       subject: "Adoro App Support",
       text: `Name: ${req.body.fullName}\nEmail: ${req.body.email}\nMessage: ${req.body.message}`,
     };
-    console.log(3)
+    console.log(3);
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Infofff",info)
+    console.log("Infofff", info);
 
-   
-    
     if (info.messageId) {
-      res.status(200).send({ status: 200, msg: 'Successful' });
+      res.status(200).send({ status: 200, msg: "Successful" });
     } else {
-      console.error('Error during email sending:', info);
-      res.status(500).send('Internal Server Error');
+      console.error("Error during email sending:", info);
+      res.status(500).send("Internal Server Error");
     }
- 
   } catch (error) {
-   
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 module.exports = {
   login,
@@ -385,6 +387,6 @@ module.exports = {
   validateOTP,
   getCampaign,
   update,
-  saveInterest
-  ,contact
+  saveInterest,
+  contact,
 };

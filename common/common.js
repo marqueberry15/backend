@@ -110,7 +110,6 @@ module.exports = {
     }
   },
   UpdateRecords: async (table, updateObject, mobileNo) => {
-    console.log("#####################",table,updateObject,mobileNo)
     try {
       let responseObj = {};
       const sql = `UPDATE ${table} SET ? WHERE mobileNo = ?`;
@@ -138,9 +137,8 @@ module.exports = {
       return await error;
     }
   },
+
   
-  // Example usage:
-   
   acceptFollowReq: async (table, updateObject, where) => {
     try {
       return new Promise(async (resolve, reject) => {
@@ -172,6 +170,7 @@ module.exports = {
       return await error;
     }
   },
+  
   deleteRecords: async (table, where) => {
     try {
       return new Promise(async (resolve, reject) => {
