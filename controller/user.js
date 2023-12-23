@@ -21,7 +21,7 @@ async function connectFTP(buffer, fileName) {
       await client.cd("UserProfilePic");
       console.log(3, buffer)
   
-      await client.uploadFrom(readableStream, fileName);
+      await client.uploadFrom(readableStream, fileName,{ overwrite: true });
       
       client.close();
       return 1;
