@@ -10,7 +10,7 @@ const dbConnection = mysql.createPool({
 });
 dbConnection.promise();
 const connectDB= require("../config/db");
-const { update } = require("../controller/app");
+
 
 // const _SERVER = "";
 // let dbConnection;
