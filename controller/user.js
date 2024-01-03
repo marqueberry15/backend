@@ -86,11 +86,15 @@ exports.createPost = async (req, res)=>{
   
 
     const result= await connectFTP(req.file.buffer,fileName,"UserPost")
+
     const post={
       mobileNo:req.body.mobileNo,
      type:req.body.type?req.body.type:'',
       content:req.body.content?req.body.content:'',
-      fileName
+      category:req.body.category?req.body.category:'',
+      fileName,
+      type:req.file.mimetype,
+      date:`${date}_${time}`
     }
     if (result){
       const updatedUser = await common.AddRecords(
