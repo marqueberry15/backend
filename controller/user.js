@@ -83,7 +83,7 @@ exports.createPost = async (req, res)=>{
   try{
     const {date,time}=getCurrentDateTime()
     const fileName=`${date}_${time}`
-  
+    const type = req.file.mimetype.split('/')[0];
 
     const result= await connectFTP(req.file.buffer,fileName,"UserPost")
 
@@ -93,7 +93,7 @@ exports.createPost = async (req, res)=>{
       content:req.body.content?req.body.content:'',
       category:req.body.category?req.body.category:'',
       fileName,
-      type:req.file.mimetype,
+      type,
       date:`${date}_${time}`
     }
     if (result){
