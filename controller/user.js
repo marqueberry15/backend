@@ -8,20 +8,18 @@ const configr = {
     port: process.env.ftpport,
     user: 'u394360389.Admin',
     password: process.env.ftppassword,
-  };
-async function connectFTP(buffer, fileName) {
+  }
+  
+async function connectFTP(buffer, fileName,folder) {
     const client = new ftp.Client();
     console.log(1)
     const readableStream = new PassThrough();
-    console.log('aaaaaaa')
-  readableStream.end(buffer);
-  console.log("bbbbbbb",config)
-  
+  readableStream.end(buffer); 
     try {
       await client.access(configr);
       console.log(2)
   
-      await client.cd("UserProfilePic");
+      await client.cd(folder);
       console.log(3, buffer)
   
       await client.uploadFrom(readableStream, fileName,{ overwrite: true });
@@ -35,13 +33,11 @@ async function connectFTP(buffer, fileName) {
     }
   }
 exports.updateprofile= async(req,res)=>{
-    console.log('REEEEEEEEEEEEE',req.file.buffer,req.body)
-
     try{
         console.log("hey")
         const {date,time}=getCurrentDateTime()
         const fileName=`${date}_${time}`
-        const result= await connectFTP(req.file.buffer,fileName)
+        const result= await connectFTP(req.file.buffer,fileName,"UserProfilePic")
         if (result){
           const updatedUser = await common.UpdateRecords(
             config.userTable,
@@ -68,7 +64,7 @@ exports.updateprofile= async(req,res)=>{
 }
 
 exports.userDetail= async(req,res)=>{
-  console.log('USERRRRRRRRRRRRRR', req.query); // Change req.body to req.query
+  console.log('USERRRRRRRRRRRRRR', req.query); 
   const mobileNo = req.query.mobileNo;
   const User=await common.GetRecords(config.userTable,'',{mobileNo})
   console.log(User)
@@ -80,4 +76,63 @@ exports.userDetail= async(req,res)=>{
   }
 
 
+}
+
+exports.createPost = async (req, res)=>{
+  console.log("BODYYYYYY is",req.body,req.file)
+  try{
+    const {date,time}=getCurrentDateTime()
+    const fileName=`${date}_${time}`
+  
+
+    const result= await connectFTP(req.file.buffer,fileName,"UserPost")
+    const post={
+      mobileNo:req.body.mobileNo,
+     type:req.body.type?req.body.type:'',
+      content:req.body.content?req.body.content:'',
+      fileName
+    }
+    if (result){
+      const updatedUser = await common.AddRecords(
+    'Post',
+      post,
+        req.body.mobileNo
+      ); 
+      if(updatedUser){
+        return res.send({status:200,msg:"Picture Uploaded Succesfully",file:fileName})
+
+      }
+      else   return res.send({status:401,msg:"Error in Picture Uploading"})
+
+    }
+    else{
+        return res.send({status:500,msg:"Facing Problem in Uploading Picture"})
+    }
+
+
+}
+catch(err){
+
+    return res.status(501).send({msg:err})
+}
+
+   
+
+}
+
+exports.getPost=async(req, res)=> {
+  try {
+    const mobileNo = req.query.mobileNo;
+    console.log('mobile number',mobileNo)
+    const postdetails = await common.GetRecords("Post", "",{ mobileNo });
+    if (postdetails.status===200){
+      console.log(postdetails)
+      return res.status(200).send({ status: 200, posts: postdetails.data });
+    }
+    
+
+   
+  } catch (err) {
+    return res.status(500).json({ Error: err });
+  }
 }

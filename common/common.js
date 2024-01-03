@@ -56,7 +56,7 @@ module.exports = {
         fields = _.isEmpty(fields) ? "*" : fields;
        
         let sql = `SELECT ${fields} FROM ${table}  Where ?`;
-  
+  console.log("QUERY IS",sql)
         try {
           dbConnection.query(sql,[where], async (err, result) => {
             if (err) {
@@ -64,7 +64,7 @@ module.exports = {
               reject(responseCode.dbErrorResponse(err));
             }
             if (result && result.length > 0) {
-              // console.log(result)
+           
               responseObj = responseCode.fetchRecordSuccessResponse(result);
               resolve(responseObj);
             } else {
