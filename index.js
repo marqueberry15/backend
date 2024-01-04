@@ -11,8 +11,7 @@ const app = express();
 const connectDB=require("./config/db")
 const route6= require("./routes/app")
 app.use(bodyparser.urlencoded({ extended: true }));
-app.use(bodyparser.json());
-
+app.use(bodyparser.json({ limit: '50mb' })); 
 app.use(cors({
  
   origin:"*",

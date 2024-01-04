@@ -140,3 +140,30 @@ exports.getPost=async(req, res)=> {
     return res.status(500).json({ Error: err });
   }
 }
+
+exports.deletePost = async (req, res)=>{
+  try{
+     
+      console.log(req.body)
+          let post_id = req.query.Id;
+          let deleteLike = await common.deleteRecords('Post',`Id = ${post_id}`);
+          
+          if (deleteLike){
+              let response = {
+                  status : 200,
+                  msg : "Post deleted successfully."
+              }
+              res.send(response)
+          }else{
+              let response = {
+                  status : 500,
+                  msg : "Something went wrong"
+              }
+              res.send(response)
+          }
+    
+  }catch(err){
+      throw err;
+  }
+   
+}
