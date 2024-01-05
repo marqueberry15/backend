@@ -47,39 +47,43 @@ const connectDB= require("../config/db");
 // connectToDatabase();
 
 module.exports = {
-  GetRecords: async (table, fields, where ) => {
+  GetRecords: async (table, fields, where) => {
     try {
-      console.log(table,where,fields)
-      return new Promise(async (resolve, reject) => {
-      
-        let responseObj = {};
-        fields = _.isEmpty(fields) ? "*" : fields;
-       
-        let sql = `SELECT ${fields} FROM ${table}  Where ?`;
-  console.log("QUERY IS",sql)
-        try {
-          dbConnection.query(sql,[where], async (err, result) => {
-            if (err) {
-              console.log(err);
-              reject(responseCode.dbErrorResponse(err));
+        console.log(table, where, fields);
+        return new Promise(async (resolve, reject) => {
+          console.log('wherre strt',where)
+            let responseObj = {};
+            console.log('wherrrrrrrrrrr',_.isEmpty(where))
+            fields = _.isEmpty(fields) ? "*" : fields;
+
+            where = _.isEmpty(where) ? 1 : where;
+
+            let sql = `SELECT ${fields} FROM ${table} WHERE ?`;
+            console.log("QUERY IS", sql, where, where.mobileNo);
+
+            try {
+                dbConnection.query(sql, [where], async (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        reject(responseCode.dbErrorResponse(err));
+                    }
+                    if (result && result.length > 0) {
+                        responseObj = responseCode.fetchRecordSuccessResponse(result);
+                        resolve(responseObj);
+                    } else {
+                        responseObj = responseCode.recordNotFoundResponse();
+                        resolve(responseObj);
+                    }
+                });
+            } catch (error) {
+                return await error;
             }
-            if (result && result.length > 0) {
-           
-              responseObj = responseCode.fetchRecordSuccessResponse(result);
-              resolve(responseObj);
-            } else {
-              responseObj = responseCode.recordNotFoundResponse();
-              resolve(responseObj);
-            }
-          });
-        } catch (error) {
-          return await error;
-        }
-      });
+        });
     } catch (error) {
-      return await error;
+        return await error;
     }
-  },
+},
+
 
   AddRecords: async (table, addObject) => {
     try {

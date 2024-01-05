@@ -52,11 +52,10 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
 const login = async (req, res) => {
   try {
     const mobileNo = req.body.mobileNo || "";
-    console.log(2, mobileNo);
+ 
     if (mobileNo && mobileNo.length === 10) {
       const user = await common.GetRecords(config.userTable, "", { mobileNo });
-      console.log(3, user);
-
+ 
       if (user.status) 
   
       {
@@ -66,7 +65,7 @@ const login = async (req, res) => {
         const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
 
         const sendMsg = await axios.get(url);
-        console.log(sendMsg);
+       
         const updateObj = { otp: generateOtp };
         const updatedUser = await common.UpdateRecords(
           config.userTable,
