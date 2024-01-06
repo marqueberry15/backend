@@ -153,7 +153,7 @@ async function generateAndSaveOTP(req, res) {
     const username= await common.GetRecords(config.userTable, "", { userName:req.body.userName })
     console.log(user,username);
 
-    if (username.status) {
+    if (username.status==200) {
       const response = {
         status: 401,
         msg: "Username must be unique",
