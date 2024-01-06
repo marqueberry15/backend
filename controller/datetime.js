@@ -1,19 +1,19 @@
+
 const getCurrentDateTime = () => {
   const now = new Date();
 
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZone: "Asia/Kolkata", 
-  };
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0"); 
+  const day = String(now.getDate()).padStart(2, "0");
 
-  const formattedDateTime = now.toLocaleString("en-IN", options);
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
 
-  return formattedDateTime;
+  const formattedDate = `${year}-${month}-${day}`;
+  const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+  return { date: formattedDate, time: formattedTime };
 };
 
 module.exports=getCurrentDateTime

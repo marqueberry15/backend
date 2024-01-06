@@ -1,6 +1,6 @@
 const ftp = require("basic-ftp");
 const { PassThrough } = require("stream");
-const getCurrentDateTime = require("./datetime").default;
+const getCurrentDateTime = require("./datetime")
 const common = require("../common/common");
 const config = require("../config/config");
 const configr = {
@@ -87,12 +87,14 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
+    console.log('hiiiii')
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
     const type = req.file.mimetype.split("/")[0];
-    const frnd = req.body.tag;
+    // const frnd = req.body.tag?req.body.tag:''
 
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
+    console.log('resssss')
 
     const post = {
       mobileNo: req.body.mobileNo,
@@ -104,34 +106,38 @@ exports.createPost = async (req, res) => {
       date: `${date}_${time}`,
     };
 
-    const mention = {
-      user: frnd,
-      type: req.body.type ? req.body.type : "",
-      content: req.body.content ? req.body.content : "",
-      category: req.body.category ? req.body.category : "",
-      fileName,
-      type,
-      date: `${date}_${time}`,
-    };
+    // const mention = {
+    //   user: frnd,
+    //   type: req.body.type ? req.body.type : "",
+    //   content: req.body.content ? req.body.content : "",
+    //   category: req.body.category ? req.body.category : "",
+    //   fileName,
+    //   type,
+    //   date: `${date}_${time}`,
+    // };
 
 
     if (result) {
+      console.log('resultttttt')
       const updatedUser = await common.AddRecords(
         "Post",
         post,
         req.body.mobileNo
       );
       if (updatedUser) {
-        const updatemention = await common.AddRecords("Mentios", mention, frnd);
+        // const updatemention = await common.AddRecords("Mentios", mention, frnd);
 
-        if (updatemention) {
-          return res.send({
-            status: 200,
-            msg: "Picture Uploaded Succesfully",
-            file: fileName,
-          });
-        } else
-          return res.send({ status: 401, msg: "Error in Picture Uploading" });
+        // if (updatemention) {
+        //   return res.send({
+        //     status: 200,
+        //     msg: "Picture Uploaded Succesfully",
+        //     file: fileName,
+        //   });
+        // } else
+        //   return res.send({ status: 401, msg: "Error in Picture Uploading" });
+        console.log('updateddddddd')
+     return res.send({status:200,msg:"Picture uploaded Successfully",file:fileName})
+     
       } else
         return res.send({ status: 401, msg: "Error in Picture Uploading" });
     } else {
