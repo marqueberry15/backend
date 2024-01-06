@@ -12,40 +12,6 @@ dbConnection.promise();
 const connectDB= require("../config/db");
 
 
-// const _SERVER = "";
-// let dbConnection;
-
-// async function createDbConnection() {
-//     switch (_SERVER) {
-//         case "Production":
-//             return mysql.createConnection(config.MYSQL_CREDENTIAL_PRODUCTION);
-//         case "Development":
-//             return mysql.createConnection(config.MYSQL_CREDENTIAL_DEVELOPMENT);
-//         default:
-//             console.log("connecting")
-//             return mysql.createConnection({
-//                 host: 'srv1021.hstgr.io',
-//                 user: "u394360389_Adoro",
-//                 password: "Marqueberryisthegreat@123",
-//                 database: "u394360389_App",
-//                 dateStrings: true,
-//                 charset: 'utf8mb4'
-//             });
-//     }
-// }
-
-// async function connectToDatabase() {
-//     try {
-//         dbConnection = await createDbConnection();
-//         await dbConnection.connect();
-//         console.log("Connected to the database!");
-//     } catch (err) {
-//         console.error("Error connecting to the database:", err);
-//         throw err;
-//     }
-// }
-// connectToDatabase();
-
 module.exports = {
   GetRecords: async (table, fields, where) => {
     try {
@@ -59,7 +25,7 @@ module.exports = {
             where = _.isEmpty(where) ? 1 : where;
 
             let sql = `SELECT ${fields} FROM ${table} WHERE ?`;
-            console.log("QUERY IS", sql, where, where.mobileNo);
+         
 
             try {
                 dbConnection.query(sql, [where], async (err, result) => {

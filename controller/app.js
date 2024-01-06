@@ -13,13 +13,24 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
-    console.log(user);
+    const username= await common.GetRecords(config.userTable, "", { userName })
+    console.log(user,username);
+
     if (user.status) {
       const response = {
         status: 401,
         msg: "Phone No. Already registered.",
       };
       res.send(response);
+    }
+    if (username.status){
+
+      const response={
+        status: 401,
+        msg: "Username should be Unique",
+
+      }
+      res.send(response)
     }
 
     const timestamp = currentDate.getTime();
