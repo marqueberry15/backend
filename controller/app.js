@@ -100,17 +100,17 @@ const login = async (req, res) => {
 
 const validateOTP = async (req, res) => {
   try {
-    console.log("Lets validate");
+ 
     let mobileNo = req.body.mobileNo ? req.body.mobileNo : "";
     let otp = req.body.otp ? req.body.otp : "";
-    console.log(1);
+
 
     if (mobileNo != "" && mobileNo.length == 10) {
-      console.log(2);
+
       let GetRecords = await common.GetRecords(config.userTable, "", {
         mobileNo,
       });
-      console.log(3, GetRecords);
+    
       let token = jwt.sign(
         { id: GetRecords.data[0].Id },
         `'${config.JwtSupersecret}'`,
@@ -146,13 +146,13 @@ async function generateAndSaveOTP(req, res) {
     let generateOtp = mobileNo === "7400705595" ? 1111 : Math.floor(1000 + Math.random() * 9000);
       
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
-    console.log(user, user.status);
+ 
     if (user.status == 200) {
       const response = {
         status: 401,
         msg: "User Already registered. Please SignIn",
       };
-      console.log("User already exist");
+   
       return res.send(response);
     }
 
@@ -182,9 +182,9 @@ async function generateAndSaveOTP(req, res) {
     } else {
       try {
         const insertResult = await common.AddRecords("Signup_otp", newotp);
-        console.log(insertResult, insertResult.data);
+     
       } catch (err) {
-        console.log(err);
+   
         return res.json({ status: 200, msg: "Cannot verify" });
       }
     }
@@ -197,24 +197,19 @@ async function generateAndSaveOTP(req, res) {
 
 const validatephoneOTP = async (req, res) => {
   try {
-    console.log(1);
+
     const mobileNo = req.body.mobileNo;
     const otp = req.body.otp;
     const fullName = req.body.fullName;
     const userName = req.body.fullName;
 
     if (mobileNo !== "" && mobileNo.length === 10) {
-      console.log(2);
+   
       try {
         const getRecords = await common.GetRecords("Signup_otp", "*", {
           mobileNo,
         });
-        console.log(
-          "Record in this is ",
-          getRecords,
-          getRecords.status,
-          getRecords.data[0].otp == otp
-        );
+     
         if (getRecords.status && getRecords.data[0].otp == otp) {
           const signupResult = await usersignup(
             mobileNo,
@@ -222,7 +217,7 @@ const validatephoneOTP = async (req, res) => {
             userName,
             otp
           ); // You may need to adjust the arguments based on your usersignup function
-          console.log(signupResult);
+        
           if (signupResult.status) {
             const token = jwt.sign(
               { id: signupResult.data.insertId },
@@ -313,9 +308,10 @@ const update = async (req, res) => {
 
 const saveInterest = async (req, res) => {
   try {
-    const { mobileNo, leastCount } = req.body;
-    const Interest = leastCount.map((item) => item.id).join(" ");
-    console.log(Interest);
+    console.log(req.body,'Interstttttttt')
+    const { mobileNo,  selectedInterests} = req.body;
+    const Interest =  selectedInterests.map((item) => item).join(" ");
+    console.log(Interest,"Interset       isssssss");
 
     const updateResult = await common.UpdateRecords(
       config.userTable,

@@ -216,6 +216,41 @@ catch(err){
   return err
 }
   },
+  GetPosts: async (table, fields, categories) => {
+    try {
+        console.log(table, fields, categories);
+        return new Promise(async (resolve, reject) => {
+          
+            let responseObj = {};
+          
+            fields = _.isEmpty(fields) ? "*" : fields;
+            const query = `SELECT * FROM ${table} WHERE category IN ('${categories.join("', '")}');`;
+            
+            console.log("QUERY IS", query);
+
+            try {
+                dbConnection.query(query,  async (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        reject(responseCode.dbErrorResponse(err));
+                    }
+                    if (result && result.length > 0) {
+                        responseObj = responseCode.fetchRecordSuccessResponse(result);
+                        resolve(responseObj);
+                    } else {
+                        responseObj = responseCode.recordNotFoundResponse();
+                        resolve(responseObj);
+                    }
+                });
+            } catch (error) {
+                return await error;
+            }
+        });
+    } catch (error) {
+        return await error;
+    }
+},
+
   
   
   Logins: async (where) => {

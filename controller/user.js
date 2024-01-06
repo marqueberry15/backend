@@ -68,10 +68,10 @@ exports.updateprofile = async (req, res) => {
 };
 
 exports.userDetail = async (req, res) => {
-  console.log("USERRRRRRRRRRRRRR", req.query);
+  console.log("USERRRRRRRRRRRRRR", req.query,'query is');
   const mobileNo = req.query.mobileNo
+
   const User = await common.GetRecords(config.userTable, "", { mobileNo });
-  console.log(User);
   if (User.status) {
     return res.status(200).send({
       status: 200,
@@ -104,6 +104,9 @@ exports.createPost = async (req, res) => {
       fileName,
       type,
       date: `${date}_${time}`,
+      profile:req.body.profile?req.body.profile:'',
+      fullName:req.body.fullName?req.body.fullName:'',
+      userNAme:req.body.userName?req.body.userName:''
     };
 
     // const mention = {
@@ -203,5 +206,23 @@ exports.allUsers = async (req, res) => {
 
   } else {
     return res.send({ status: 500, msg: "Error in Getting Details " });
+  }
+};
+
+exports.getinterest = async (req, res) => {
+
+  try {
+    const Interest = req.query.interest;
+ 
+    const interestsArray = Interest.split(' ');
+
+  
+    const postdetails = await common.GetPosts("Post", "", interestsArray);
+    if (postdetails.status === 200) {
+      console.log(postdetails);
+      return res.status(200).send({ status: 200, posts: postdetails.data });
+    }
+  } catch (err) {
+    return res.status(500).json({ Error: err });
   }
 };
