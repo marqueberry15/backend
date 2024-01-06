@@ -23,15 +23,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
       };
       res.send(response);
     }
-    if (username.status){
-
-      const response={
-        status: 401,
-        msg: "Username should be Unique",
-
-      }
-      res.send(response)
-    }
+   
 
     const timestamp = currentDate.getTime();
     const created_at = moment()
@@ -157,7 +149,17 @@ async function generateAndSaveOTP(req, res) {
     let generateOtp = mobileNo === "7400705595" ? 1111 : Math.floor(1000 + Math.random() * 9000);
       
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
- 
+
+    const username= await common.GetRecords(config.userTable, "", { userName:req.body.userName })
+    console.log(user,username);
+
+    if (username.status) {
+      const response = {
+        status: 401,
+        msg: "Username must be unique",
+      };
+      res.send(response);
+    }
     if (user.status == 200) {
       const response = {
         status: 401,
@@ -220,6 +222,7 @@ const validatephoneOTP = async (req, res) => {
         const getRecords = await common.GetRecords("Signup_otp", "*", {
           mobileNo,
         });
+        
      
         if (getRecords.status && getRecords.data[0].otp == otp) {
           const signupResult = await usersignup(
