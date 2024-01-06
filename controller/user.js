@@ -218,9 +218,14 @@ exports.getinterest = async (req, res) => {
 
   
     const postdetails = await common.GetPosts("Post", "", interestsArray);
+    console.log(postdetails,'posttt details')
     if (postdetails.status === 200) {
       console.log(postdetails);
       return res.status(200).send({ status: 200, posts: postdetails.data });
+    }
+    else{
+      return res.status(200).send({ status: 400, posts: []});
+
     }
   } catch (err) {
     return res.status(500).json({ Error: err });
