@@ -98,7 +98,6 @@ exports.createPost = async (req, res) => {
 
     const post = {
       mobileNo: req.body.mobileNo,
-      type: req.body.type ? req.body.type : "",
       content: req.body.content ? req.body.content : "",
       category: req.body.category ? req.body.category : "",
       fileName,
