@@ -1,8 +1,6 @@
 const common = require("../common/common");
 const config = require("../config/config");
 const axios = require("axios");
-const fs = require("fs").promises;
-const { PassThrough } = require("stream");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 require("dotenv").config();

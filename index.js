@@ -10,8 +10,8 @@ const path=require("path")
 const app = express();
 const connectDB=require("./config/db")
 const route6= require("./routes/app")
-app.use(bodyparser.json({ limit: "10000kb", extended: true }));
-app.use(bodyparser.urlencoded({ limit: "10000kb", extended: true }));
+app.use(bodyparser.json({ limit: "100mb", extended: true }));
+app.use(bodyparser.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors({
  
   origin:"*",
