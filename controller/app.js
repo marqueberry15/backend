@@ -8,6 +8,43 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const moment = require("moment-timezone");
+const fakeNumbers = [
+  "8740012043",
+  "8740001234",
+  "9461422121",
+  "1234321459",
+  "6745341278",
+  "7400705595",
+  "5400705595",
+  "2400705595",
+  "3400705595",
+  "4400705595",
+  "7976500383",
+  "7976500382",
+  "7976500381",
+  "7976500380",
+  "7976500384",
+  "7809984932",
+  "9809984932",
+  "7608907392",
+  "8608097392",
+  "6808907392",
+  "8826608505",
+  "9826608505",
+  "7826608505",
+  "6826608505",
+  "5826608505",
+  "9990698793",
+  "9990698792",
+  "9990698790",
+  "9990698791",
+  "9990698794",
+  "9811319861",
+  "1811319861",
+  "2811319861",
+  "3811319861",
+  "4811319861",
+];
 
 const usersignup = async (mobileNo, fullName, userName, otp) => {
   try {
@@ -55,20 +92,24 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
 const login = async (req, res) => {
   try {
     const mobileNo = req.body.mobileNo || "";
- 
+    
     if (mobileNo && mobileNo.length === 10) {
       const user = await common.GetRecords(config.userTable, "", { mobileNo });
- 
-      if (user.status) 
-  
-      {
-        let generateOtp = mobileNo === "7400705595" ? 1111 : Math.floor(1000 + Math.random() * 9000);
-        
-        const message = `Hey Creator, Your OTP for signIn is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
-        const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
 
-        const sendMsg = await axios.get(url);
-       
+      if (user.status) {
+        let generateOtp;
+
+        if (fakeNumbers.includes(mobileNo)) {
+          generateOtp = 1111;
+        } else {
+          generateOtp = Math.floor(1000 + Math.random() * 9000);
+
+          const message = `Hey Creator, Your OTP for signIn is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
+          const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
+
+          const sendMsg = await axios.get(url);
+        }
+
         const updateObj = { otp: generateOtp };
         const updatedUser = await common.UpdateRecords(
           config.userTable,
@@ -144,69 +185,80 @@ const validateOTP = async (req, res) => {
 };
 
 async function generateAndSaveOTP(req, res) {
-  const mobileNo = req.body.mobileNo || "";
-  if (mobileNo !== "" && mobileNo.length === 10) {
-    let generateOtp = mobileNo === "7400705595" ? 1111 : Math.floor(1000 + Math.random() * 9000);
-      
-    const user = await common.GetRecords(config.userTable, "", { mobileNo });
+  try {
+    const mobileNo = req.body.mobileNo || "";
 
-    const username= await common.GetRecords(config.userTable, "", { userName:req.body.userName })
-    console.log(user,username);
+    if (mobileNo !== "" && mobileNo.length === 10) {
+      let generateOtp;
 
-    if (username.status==200) {
-      const response = {
-        status: 401,
-        msg: "Username must be unique",
-      };
-      res.send(response);
-    }
-    if (user.status == 200) {
-      const response = {
-        status: 401,
-        msg: "User Already registered. Please SignIn",
-      };
-   
-      return res.send(response);
-    }
+    
+      if (fakeNumbers.includes(mobileNo)) {
+        console.log('fakeee   numder foundssssss',mobileNo)
+        generateOtp = 1111;
+      } else {
+        generateOtp = Math.floor(1000 + Math.random() * 9000);
 
-    const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
-    const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
-    const sendMsg = await axios.get(url);
+       
+        const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
+        const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
+        const sendMsg = await axios.get(url);
 
-    if (sendMsg.status !== 200) {
-    }
-    const newotp = {
-      otp: generateOtp,
-      mobileNo: mobileNo,
-    };
-
-    const userotp = await common.GetRecords("Signup_otp", "", { mobileNo });
-    if (userotp.status == 200) {
-      const updateObj = { otp: generateOtp };
-      try {
-        const updatedUser = await common.UpdateRecords(
-          "Signup_otp",
-          updateObj,
-          mobileNo
-        );
-      } catch (err) {
-        return res.send({ status: 500, msg: "Cannot verify" });
+        if (sendMsg.status !== 200) {
+          // Handle error if OTP sending fails
+        }
       }
+
+      const user = await common.GetRecords(config.userTable, "", { mobileNo });
+      const username = await common.GetRecords(config.userTable, "", { userName: req.body.userName });
+
+      if (username.status == 200) {
+        const response = {
+          status: 401,
+          msg: "Username must be unique",
+        };
+        return res.send(response);
+      }
+
+      if (user.status == 200) {
+        const response = {
+          status: 401,
+          msg: "User Already registered. Please SignIn",
+        };
+        return res.send(response);
+      }
+
+      const newotp = {
+        otp: generateOtp,
+        mobileNo: mobileNo,
+      };
+
+      const userotp = await common.GetRecords("Signup_otp", "", { mobileNo });
+
+      if (userotp.status == 200) {
+        const updateObj = { otp: generateOtp };
+        try {
+          const updatedUser = await common.UpdateRecords("Signup_otp", updateObj, mobileNo);
+        } catch (err) {
+          return res.send({ status: 500, msg: "Cannot verify" });
+        }
+      } else {
+        try {
+          const insertResult = await common.AddRecords("Signup_otp", newotp);
+        } catch (err) {
+          return res.json({ status: 200, msg: "Cannot verify" });
+        }
+      }
+
+      return res.status(200).json({ status: 200, msg: "OTP Saved Successfully" });
     } else {
-      try {
-        const insertResult = await common.AddRecords("Signup_otp", newotp);
-     
-      } catch (err) {
-   
-        return res.json({ status: 200, msg: "Cannot verify" });
-      }
+      return res.json({ status: 500, msg: "Please provide valid mobile number" });
     }
-
-    return res.status(200).json({ status: 200, msg: "OTP Saved Successfully" });
-  } else {
-    return res.json({ status: 500, msg: "Please provide valid mobile number" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.send({ status: 500, msg: "Internal Server Error" });
   }
 }
+
 
 const validatephoneOTP = async (req, res) => {
   try {
