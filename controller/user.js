@@ -91,8 +91,6 @@ exports.createPost = async (req, res) => {
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
     const type = req.file.mimetype.split("/")[0];
-    // const frnd = req.body.tag?req.body.tag:''
-
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
     console.log('resssss')
 
@@ -228,5 +226,64 @@ exports.getinterest = async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({ Error: err });
+  }
+};
+
+const uploadPost = async (req, res, file) => {
+  const { date, time } = getCurrentDateTime();
+  const fileName = `${date}_${time}_${file.filename}`;
+  const type = file.mimetype.split("/")[0];
+  
+  try {
+    const result = await connectFTP(file.buffer, fileName, "UserPost");
+    if (result) {
+      const post = {
+        mobileNo: req.body.mobileNo,
+        content: req.body.content || "",
+        category: req.body.category || "",
+        fileName,
+        type,
+        date: `${date}_${time}`,
+        profile: req.body.profile || '',
+        fullName: req.body.fullName || '',
+        userName: req.body.userName || ''
+      };
+
+      const updatedUser = await common.AddRecords("Post", post, req.body.mobileNo);
+      if (updatedUser) {
+        return { status: 200, msg: "Picture uploaded Successfully", file: fileName };
+      } else {
+        return { status: 401, msg: "Error in Picture Uploading" };
+      }
+    } else {
+      return { status: 500, msg: "Facing Problem in Uploading Picture" };
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.createPosts = async (req, res) => {
+  try {
+
+    const files = req.files 
+
+    if (!files || files.length === 0) {
+      return res.status(400).send({ status: 400, msg: "No files uploaded" });
+    }
+
+    const uploadPromises = files.map(file => uploadPost(req, res, file));
+    const results = await Promise.all(uploadPromises);
+
+  
+    const isSuccess = results.every(result => result.status === 200);
+
+    if (isSuccess) {
+      return res.status(200).send(results);
+    } else {
+      return res.status(500).send(results.find(result => result.status === 500));
+    }
+  } catch (err) {
+    return res.status(501).send({ msg: err });
   }
 };

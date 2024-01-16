@@ -9,9 +9,11 @@ const getCurrentDateTime = () => {
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
   const seconds = String(now.getSeconds()).padStart(2, "0");
+  const milliseconds = String(now.getMilliseconds()).padStart(3, "0");
+
 
   const formattedDate = `${year}-${month}-${day}`;
-  const formattedTime = `${hours}:${minutes}:${seconds}`;
+  const formattedTime = `${hours}:${minutes}:${seconds}:${milliseconds}`;
 
   return { date: formattedDate, time: formattedTime };
 };

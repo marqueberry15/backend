@@ -78,10 +78,8 @@ const save = async (req, res) => {
     const { header, content } = req.body;
     const fileName = generateBrandIdentifier(header);
 
-    // Define path based on type
     const path = type === "Blog" ? "marqueberryblog" : "marqueberrycasestudy";
     console.log(path);
-    // Upload file to FTP
     const result = await connectFTP(req.file.buffer, fileName, path);
 
     if (result === 0) {
@@ -91,10 +89,10 @@ const save = async (req, res) => {
 
     const { date, time } = getCurrentDateTime();
 
-    // Define insert query
+
     const insertQuery = `INSERT INTO ${type} (Header, Content, Image, Date, Time) VALUES (?, ?, ?, ?, ?)`;
 
-    // Execute the query
+    
     await connectDB2.execute(insertQuery, [
       header,
       content,
@@ -103,7 +101,7 @@ const save = async (req, res) => {
       time,
     ]);
 
-    // Send success response
+ 
     res.status(200).json({ msg: "Uploaded Successfully" });
   } catch (error) {
     console.error("Error saving data:", error);
@@ -112,8 +110,8 @@ const save = async (req, res) => {
 };
 
 const approval = async (req, res) => {
-  const { action } = req.params; // Assuming 'action' is a parameter in your URL
-  const { Id } = req.body; // Assuming 'Id' is being sent in the request body
+  const { action } = req.params; 
+  const { Id } = req.body; 
 
   try {
     const updateQuery = "UPDATE `BrandInfo` SET `Status` = ? WHERE `Id` = ?";
@@ -139,13 +137,15 @@ const blog = async (req, res) => {
 };
 
 const blogstudy = async (req, res) => {
+ 
  try{
   console.log('heyyyyyyyyyy',req.params)
   const { header } = req.params;
   const head = header.replace(/-/g, ' ');
-console.log(head)
-  const query = `SELECT * FROM Blog WHERE Header = ${head}`;
-  const [rows] = await connectDB2.execute(query);
+
+const query = 'SELECT * FROM Blog WHERE Header = ?';
+const [rows] = await connectDB2.execute(query, [head]);
+
   res.status(200).json({ data: rows });
  }
  catch (error) {
@@ -154,9 +154,9 @@ console.log(head)
 }
 };
 
-const casestudy = async (req, res) => {
+const cases = async (req, res) => {
   try {
-    console.log("HELOOO");
+
     const query = "SELECT * FROM `CaseStudy` WHERE 1";
     const [rows] = await connectDB2.execute(query);
 
@@ -167,4 +167,19 @@ const casestudy = async (req, res) => {
   }
 };
 
-module.exports = { login, save, approval, blog, casestudy, blogstudy };
+const casestudy = async (req, res) => {
+  try {
+    const { header } = req.params;
+    const head = header.replace(/-/g, ' ');
+  const query = 'SELECT * FROM CaseStudy WHERE Header = ?';
+  const [rows] = await connectDB2.execute(query, [head]);
+  res.status(200).json({ data: rows });
+
+
+  } catch (error) {
+    console.error("Error fetching data from database:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = { login, save, approval, blog, cases, blogstudy,casestudy };
