@@ -3,6 +3,7 @@ const { PassThrough } = require("stream");
 const getCurrentDateTime = require("./datetime")
 const common = require("../common/common");
 const config = require("../config/config");
+const { error } = require("console");
 const configr = {
   host: "154.41.233.75",
   port: process.env.ftpport,
@@ -12,22 +13,19 @@ const configr = {
 
 async function connectFTP(buffer, fileName, folder) {
   const client = new ftp.Client();
-  console.log(1);
   const readableStream = new PassThrough();
   readableStream.end(buffer);
   try {
     await client.access(configr);
-    console.log(2);
+  
 
     await client.cd(folder);
-    console.log(3, buffer);
 
     await client.uploadFrom(readableStream, fileName, { overwrite: true });
 
     client.close();
     return 1;
   } catch (err) {
-    console.error("Error:", err);
     client.close();
     return 0;
   }
@@ -230,8 +228,9 @@ exports.getinterest = async (req, res) => {
 };
 
 const uploadPost = async (req, res, file) => {
+ 
   const { date, time } = getCurrentDateTime();
-  const fileName = `${date}_${time}_${file.filename}`;
+  const fileName = `${date}_${time}_${file.originalname}`;
   const type = file.mimetype.split("/")[0];
   
   try {
@@ -287,3 +286,87 @@ exports.createPosts = async (req, res) => {
     return res.status(501).send({ msg: err });
   }
 };
+
+exports.createTemplates = async (req, res) => {
+  try {
+
+    const files = req.files 
+
+    if (!files || files.length === 0) {
+      return res.status(400).send({ status: 400, msg: "No files uploaded" });
+    }
+
+    const uploadPromises = files.map(file => uploadTemplate(req, res, file));
+    const results = await Promise.all(uploadPromises);
+
+
+  
+    const isSuccess = results.every(result => result.status === 200);
+
+
+    if (isSuccess) {
+      return res.status(200).send(results);
+    } else {
+      console.log('234343',)
+      return res.status(500).send(results.find(result => result.status === 500));
+    }
+  } catch (err) {
+    return res.status(501).send({ msg: err });
+  }
+};
+
+const uploadTemplate = async (req, res, file) => {
+ 
+  const { date, time } = getCurrentDateTime();
+  const fileName = `${date}_${time}_${file.originalname}`;
+  const type = file.mimetype.split("/")[0];
+  const name  = file.originalname
+  
+  try {
+    const result = await connectFTP(file.buffer, fileName, "Template/Image");
+    if (result) {
+      const post = {
+      
+        fileName,
+        type,
+        name
+      
+        // profile: req.body.profile || '',
+        // fullName: req.body.fullName || '',
+        // userName: req.body.userName || ''
+      };
+
+      const updatedUser = await common.AddRecords("Template_Image", post );
+      if (updatedUser) {
+        
+        return { status: 200, msg: "Picture uploaded Successfully", file: fileName };
+      } else {
+        console.log(post,'facing error')
+        return { status: 401, msg: "Error in Picture Uploading" };
+      }
+    } else {
+      return { status: 500, msg: "Facing Problem in Uploading Picture" };
+    }
+  } catch (err) {
+
+    throw err;
+  }
+};
+
+exports.getTemplate = async (req, res) => {
+  try {
+    
+    const postdetails = await common.GetRecords("Template_Image", "", "");
+    if (postdetails.status === 200) {
+      console.log(postdetails);
+      return res.status(200).send({ status: 200, posts: postdetails.data });
+    }
+  } catch (err) {
+    return res.status(500).json({ Error: err });
+  }
+};
+
+
+
+
+

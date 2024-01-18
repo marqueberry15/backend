@@ -2,7 +2,7 @@ const express = require("express")
 const route =express.Router()
 const upload=require("../middleware/mutler")
 const {login,generateAndSaveOTP, validatephoneOTP,validateOTP, getCampaign,update,saveInterest,contact}=require("../controller/app")
-const { updateprofile,userDetail,createPost,getPost, deletePost, allUsers, getinterest, createPosts} = require("../controller/user")
+const { updateprofile,userDetail,createPost,getPost, deletePost, allUsers, getinterest, createPosts, createTemplates, getTemplate} = require("../controller/user")
 route.post("/generateotp",generateAndSaveOTP)
 route.post("/validatephone",validatephoneOTP)
 route.post("/login",login)
@@ -19,6 +19,8 @@ route.get("/userpost",getPost)
 route.delete("/deletepost",deletePost)
 route.get("/userinterest",getinterest)
 route.post("/createallpost",upload.array("files"),createPosts)
+route.post("/createtemplate",upload.array("files"),createTemplates)
+route.get("/getalltemplates",getTemplate)
 module.exports=route
 
 
