@@ -343,6 +343,7 @@ const update = async (req, res) => {
     const benificiaryName = req.body.benificiaryName;
     const ifscCode = req.body.ifscCode;
     const mobileNo = req.body.mobileNo;
+    const gender=req.body.gender 
 
     const updateResult = await common.UpdateRecords(
       config.userTable,
@@ -355,6 +356,7 @@ const update = async (req, res) => {
         benificiaryName,
         ifscCode,
         mobileNo,
+        gender
       },
       mobileNo
     );
@@ -404,9 +406,9 @@ const saveInterest = async (req, res) => {
 
 const contact = async (req, res) => {
   try {
-    console.log(1);
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: 'smtp.gmail.com',
+      port: 587,
       auth: {
         user: process.env.email,
         pass: process.env.password2,
@@ -416,24 +418,20 @@ const contact = async (req, res) => {
     const mailOptions = {
       from: process.env.email,
       to: "info@marqueberry.com",
-      subject: "Adoro App Support",
-      text: `Name: ${req.body.fullName}\nEmail: ${req.body.email}\nMessage: ${req.body.message}`,
+      subject: "Form Submission",
+      text: `Name: ${req.body.full_name}\nEmail: ${req.body.email}\nMessage: ${req.body.message}\nMobile: ${req.body.mobileNo}`,
     };
-    console.log(3);
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Infofff", info);
+    console.log(info)
 
-    if (info.messageId) {
-      res.status(200).send({ status: 200, msg: "Successful" });
-    } else {
-      console.error("Error during email sending:", info);
-      res.status(500).send("Internal Server Error");
-    }
+    res.send({ status: 200, msg: "Successful" });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 module.exports = {
   login,

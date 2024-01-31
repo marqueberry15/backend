@@ -3,7 +3,8 @@ const { PassThrough } = require("stream");
 const getCurrentDateTime = require("./datetime")
 const common = require("../common/common");
 const config = require("../config/config");
-const { error } = require("console");
+// const sharp = require('sharp');
+
 const configr = {
   host: "154.41.233.75",
   port: process.env.ftpport,
@@ -88,6 +89,11 @@ exports.createPost = async (req, res) => {
     console.log('hiiiii')
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
+    // const resizedImageBuffer = await sharp(req.file.buffer)
+    //   .resize({ width: 800, height: 600, fit: 'inside' })
+    //   .toBuffer();
+
+    
     const type = req.file.mimetype.split("/")[0];
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
     console.log('resssss')
@@ -297,10 +303,7 @@ exports.createTemplates = async (req, res) => {
     }
 
     const uploadPromises = files.map(file => uploadTemplate(req, res, file));
-    const results = await Promise.all(uploadPromises);
-
-
-  
+    const results = await Promise.all(uploadPromises);  
     const isSuccess = results.every(result => result.status === 200);
 
 
@@ -331,9 +334,7 @@ const uploadTemplate = async (req, res, file) => {
         type,
         name
       
-        // profile: req.body.profile || '',
-        // fullName: req.body.fullName || '',
-        // userName: req.body.userName || ''
+      
       };
 
       const updatedUser = await common.AddRecords("Template_Image", post );
@@ -358,7 +359,7 @@ exports.getTemplate = async (req, res) => {
     
     const postdetails = await common.GetRecords("Template_Image", "", "");
     if (postdetails.status === 200) {
-      console.log(postdetails);
+  
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
   } catch (err) {

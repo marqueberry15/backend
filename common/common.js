@@ -9,47 +9,43 @@ const dbConnection = mysql.createPool({
   database: "u394360389_Adoro",
 });
 dbConnection.promise();
-const connectDB= require("../config/db");
 
+const connectDB = require("../config/db");
 
 module.exports = {
   GetRecords: async (table, fields, where) => {
     try {
-        console.log(table, where, fields);
-        return new Promise(async (resolve, reject) => {
-          console.log('wherre strt',where)
-            let responseObj = {};
-            console.log('wherrrrrrrrrrr',_.isEmpty(where))
-            fields = _.isEmpty(fields) ? "*" : fields;
+      return new Promise(async (resolve, reject) => {
+        let responseObj = {};
 
-            where = _.isEmpty(where) ? 1 : where;
+        fields = _.isEmpty(fields) ? "*" : fields;
 
-            let sql = `SELECT ${fields} FROM ${table} WHERE ?`;
-         
+        where = _.isEmpty(where) ? 1 : where;
 
-            try {
-                dbConnection.query(sql, [where], async (err, result) => {
-                    if (err) {
-                        console.log(err);
-                        reject(responseCode.dbErrorResponse(err));
-                    }
-                    if (result && result.length > 0) {
-                        responseObj = responseCode.fetchRecordSuccessResponse(result);
-                        resolve(responseObj);
-                    } else {
-                        responseObj = responseCode.recordNotFoundResponse();
-                        resolve(responseObj);
-                    }
-                });
-            } catch (error) {
-                return await error;
+        let sql = `SELECT ${fields} FROM ${table} WHERE ?`;
+
+        try {
+          dbConnection.query(sql, [where], async (err, result) => {
+            if (err) {
+              console.log(err);
+              reject(responseCode.dbErrorResponse(err));
             }
-        });
+            if (result && result.length > 0) {
+              responseObj = responseCode.fetchRecordSuccessResponse(result);
+              resolve(responseObj);
+            } else {
+              responseObj = responseCode.recordNotFoundResponse();
+              resolve(responseObj);
+            }
+          });
+        } catch (error) {
+          return await error;
+        }
+      });
     } catch (error) {
-        return await error;
+      return await error;
     }
-},
-
+  },
 
   AddRecords: async (table, addObject) => {
     try {
@@ -83,8 +79,8 @@ module.exports = {
     try {
       let responseObj = {};
       const sql = `UPDATE ${table} SET ? WHERE mobileNo = ?`;
-      console.log(sql,mobileNo)
-  
+      console.log(sql, mobileNo);
+
       const result = await new Promise((resolve, reject) => {
         dbConnection.query(sql, [updateObject, mobileNo], (err, result) => {
           if (err) {
@@ -96,11 +92,11 @@ module.exports = {
           }
         });
       });
-  
+
       if (!_.isEmpty(result)) {
         responseObj = await responseCode.recordUpdatedSuccessResponse();
       }
-  
+
       return responseObj;
     } catch (error) {
       console.error("Error:", error);
@@ -108,7 +104,6 @@ module.exports = {
     }
   },
 
-  
   acceptFollowReq: async (table, updateObject, where) => {
     try {
       return new Promise(async (resolve, reject) => {
@@ -140,7 +135,7 @@ module.exports = {
       return await error;
     }
   },
-  
+
   deleteRecords: async (table, where) => {
     try {
       return new Promise(async (resolve, reject) => {
@@ -169,56 +164,57 @@ module.exports = {
       return await error;
     }
   },
-  GetCampaign: async (table, where,fields) => {
-try{
-  console.log(3)
+  GetCampaign: async (table, where, fields) => {
+    try {
+      console.log(3);
 
-  const details=await connectDB.execute("SELECT * FROM BrandInfo Where `Status`= ? ",["Accepted"])
-  console.log(4)
-  console.log("details",details[0])
-return details[0]
-}
-catch(err){
-  return err
-}
+      const details = await connectDB.execute(
+        "SELECT * FROM BrandInfo Where `Status`= ? ",
+        ["Accepted"]
+      );
+      console.log(4);
+      console.log("details", details[0]);
+      return details[0];
+    } catch (err) {
+      return err;
+    }
   },
   GetPosts: async (table, fields, categories) => {
     try {
-        console.log(table, fields, categories);
-        return new Promise(async (resolve, reject) => {
-          
-            let responseObj = {};
-          
-            fields = _.isEmpty(fields) ? "*" : fields;
-            const query = `SELECT * FROM ${table} WHERE category IN ('${categories.join("', '")}');`;
-            
-            console.log("QUERY IS", query);
+      console.log(table, fields, categories);
+      return new Promise(async (resolve, reject) => {
+        let responseObj = {};
 
-            try {
-                dbConnection.query(query,  async (err, result) => {
-                    if (err) {
-                        console.log(err);
-                        reject(responseCode.dbErrorResponse(err));
-                    }
-                    if (result && result.length > 0) {
-                        responseObj = responseCode.fetchRecordSuccessResponse(result);
-                        resolve(responseObj);
-                    } else {
-                        responseObj = responseCode.recordNotFoundResponse();
-                        resolve(responseObj);
-                    }
-                });
-            } catch (error) {
-                return await error;
+        fields = _.isEmpty(fields) ? "*" : fields;
+        const query = `SELECT * FROM ${table} WHERE category IN ('${categories.join(
+          "', '"
+        )}');`;
+
+        console.log("QUERY IS", query);
+
+        try {
+          dbConnection.query(query, async (err, result) => {
+            if (err) {
+              console.log(err);
+              reject(responseCode.dbErrorResponse(err));
             }
-        });
+            if (result && result.length > 0) {
+              responseObj = responseCode.fetchRecordSuccessResponse(result);
+              resolve(responseObj);
+            } else {
+              responseObj = responseCode.recordNotFoundResponse();
+              resolve(responseObj);
+            }
+          });
+        } catch (error) {
+          return await error;
+        }
+      });
     } catch (error) {
-        return await error;
+      return await error;
     }
-},
+  },
 
-  
-  
   Logins: async (where) => {
     try {
       return new Promise(async (resolve, reject) => {
