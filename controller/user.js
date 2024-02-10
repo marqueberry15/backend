@@ -1,9 +1,8 @@
 const ftp = require("basic-ftp");
 const { PassThrough } = require("stream");
-const getCurrentDateTime = require("./datetime")
+const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const config = require("../config/config");
-// const sharp = require('sharp');
 
 const configr = {
   host: "154.41.233.75",
@@ -18,7 +17,6 @@ async function connectFTP(buffer, fileName, folder) {
   readableStream.end(buffer);
   try {
     await client.access(configr);
-  
 
     await client.cd(folder);
 
@@ -33,7 +31,6 @@ async function connectFTP(buffer, fileName, folder) {
 }
 exports.updateprofile = async (req, res) => {
   try {
-    console.log("hey");
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
     const result = await connectFTP(
@@ -67,8 +64,7 @@ exports.updateprofile = async (req, res) => {
 };
 
 exports.userDetail = async (req, res) => {
-  console.log("USERRRRRRRRRRRRRR", req.query,'query is');
-  const mobileNo = req.query.mobileNo
+  const mobileNo = req.query.mobileNo;
 
   const User = await common.GetRecords(config.userTable, "", { mobileNo });
   if (User.status) {
@@ -77,8 +73,6 @@ exports.userDetail = async (req, res) => {
       msg: "Getting Details Successfully",
       data: User.data[0],
     });
-
-
   } else {
     return res.send({ status: 500, msg: "Error in Getting Details " });
   }
@@ -86,17 +80,11 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
-    console.log('hiiiii')
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
-    // const resizedImageBuffer = await sharp(req.file.buffer)
-    //   .resize({ width: 800, height: 600, fit: 'inside' })
-    //   .toBuffer();
 
-    
     const type = req.file.mimetype.split("/")[0];
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
-    console.log('resssss')
 
     const post = {
       mobileNo: req.body.mobileNo,
@@ -105,43 +93,23 @@ exports.createPost = async (req, res) => {
       fileName,
       type,
       date: `${date}_${time}`,
-      profile:req.body.profile?req.body.profile:'',
-      fullName:req.body.fullName?req.body.fullName:'',
-      userNAme:req.body.userName?req.body.userName:''
+      profile: req.body.profile ? req.body.profile : "",
+      fullName: req.body.fullName ? req.body.fullName : "",
+      userNAme: req.body.userName ? req.body.userName : "",
     };
 
-    // const mention = {
-    //   user: frnd,
-    //   type: req.body.type ? req.body.type : "",
-    //   content: req.body.content ? req.body.content : "",
-    //   category: req.body.category ? req.body.category : "",
-    //   fileName,
-    //   type,
-    //   date: `${date}_${time}`,
-    // };
-
-
     if (result) {
-      console.log('resultttttt')
       const updatedUser = await common.AddRecords(
         "Post",
         post,
         req.body.mobileNo
       );
       if (updatedUser) {
-        // const updatemention = await common.AddRecords("Mentios", mention, frnd);
-
-        // if (updatemention) {
-        //   return res.send({
-        //     status: 200,
-        //     msg: "Picture Uploaded Succesfully",
-        //     file: fileName,
-        //   });
-        // } else
-        //   return res.send({ status: 401, msg: "Error in Picture Uploading" });
-        console.log('updateddddddd')
-     return res.send({status:200,msg:"Picture uploaded Successfully",file:fileName})
-     
+        return res.send({
+          status: 200,
+          msg: "Picture uploaded Successfully",
+          file: fileName,
+        });
       } else
         return res.send({ status: 401, msg: "Error in Picture Uploading" });
     } else {
@@ -158,10 +126,9 @@ exports.createPost = async (req, res) => {
 exports.getPost = async (req, res) => {
   try {
     const mobileNo = req.query.mobileNo;
-    console.log("mobile number", mobileNo);
+
     const postdetails = await common.GetRecords("Post", "", { mobileNo });
     if (postdetails.status === 200) {
-      console.log(postdetails);
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
   } catch (err) {
@@ -171,7 +138,6 @@ exports.getPost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
   try {
-    console.log(req.body);
     let post_id = req.query.Id;
     let deleteLike = await common.deleteRecords("Post", `Id = ${post_id}`);
 
@@ -194,39 +160,31 @@ exports.deletePost = async (req, res) => {
 };
 
 exports.allUsers = async (req, res) => {
-
   const User = await common.GetRecords(config.userTable, "", "");
-  console.log(User);
+
   if (User.status) {
     return res.status(200).send({
       status: 200,
       msg: "Getting Details Successfully",
       data: User.data,
     });
-
-
   } else {
     return res.send({ status: 500, msg: "Error in Getting Details " });
   }
 };
 
 exports.getinterest = async (req, res) => {
-
   try {
     const Interest = req.query.interest;
- 
-    const interestsArray = Interest.split(' ');
 
-  
+    const interestsArray = Interest.split(" ");
+
     const postdetails = await common.GetPosts("Post", "", interestsArray);
-    console.log(postdetails,'posttt details')
-    if (postdetails.status === 200) {
-      console.log(postdetails);
-      return res.status(200).send({ status: 200, posts: postdetails.data });
-    }
-    else{
-      return res.status(200).send({ status: 400, posts: []});
 
+    if (postdetails.status === 200) {
+      return res.status(200).send({ status: 200, posts: postdetails.data });
+    } else {
+      return res.status(200).send({ status: 400, posts: [] });
     }
   } catch (err) {
     return res.status(500).json({ Error: err });
@@ -234,11 +192,10 @@ exports.getinterest = async (req, res) => {
 };
 
 const uploadPost = async (req, res, file) => {
- 
   const { date, time } = getCurrentDateTime();
   const fileName = `${date}_${time}_${file.originalname}`;
   const type = file.mimetype.split("/")[0];
-  
+
   try {
     const result = await connectFTP(file.buffer, fileName, "UserPost");
     if (result) {
@@ -249,14 +206,22 @@ const uploadPost = async (req, res, file) => {
         fileName,
         type,
         date: `${date}_${time}`,
-        profile: req.body.profile || '',
-        fullName: req.body.fullName || '',
-        userName: req.body.userName || ''
+        profile: req.body.profile || "",
+        fullName: req.body.fullName || "",
+        userName: req.body.userName || "",
       };
 
-      const updatedUser = await common.AddRecords("Post", post, req.body.mobileNo);
+      const updatedUser = await common.AddRecords(
+        "Post",
+        post,
+        req.body.mobileNo
+      );
       if (updatedUser) {
-        return { status: 200, msg: "Picture uploaded Successfully", file: fileName };
+        return {
+          status: 200,
+          msg: "Picture uploaded Successfully",
+          file: fileName,
+        };
       } else {
         return { status: 401, msg: "Error in Picture Uploading" };
       }
@@ -270,23 +235,23 @@ const uploadPost = async (req, res, file) => {
 
 exports.createPosts = async (req, res) => {
   try {
-
-    const files = req.files 
+    const files = req.files;
 
     if (!files || files.length === 0) {
       return res.status(400).send({ status: 400, msg: "No files uploaded" });
     }
 
-    const uploadPromises = files.map(file => uploadPost(req, res, file));
+    const uploadPromises = files.map((file) => uploadPost(req, res, file));
     const results = await Promise.all(uploadPromises);
 
-  
-    const isSuccess = results.every(result => result.status === 200);
+    const isSuccess = results.every((result) => result.status === 200);
 
     if (isSuccess) {
       return res.status(200).send(results);
     } else {
-      return res.status(500).send(results.find(result => result.status === 500));
+      return res
+        .status(500)
+        .send(results.find((result) => result.status === 500));
     }
   } catch (err) {
     return res.status(501).send({ msg: err });
@@ -295,23 +260,22 @@ exports.createPosts = async (req, res) => {
 
 exports.createTemplates = async (req, res) => {
   try {
-
-    const files = req.files 
+    const files = req.files;
 
     if (!files || files.length === 0) {
       return res.status(400).send({ status: 400, msg: "No files uploaded" });
     }
 
-    const uploadPromises = files.map(file => uploadTemplate(req, res, file));
-    const results = await Promise.all(uploadPromises);  
-    const isSuccess = results.every(result => result.status === 200);
-
+    const uploadPromises = files.map((file) => uploadTemplate(req, res, file));
+    const results = await Promise.all(uploadPromises);
+    const isSuccess = results.every((result) => result.status === 200);
 
     if (isSuccess) {
       return res.status(200).send(results);
     } else {
-      console.log('234343',)
-      return res.status(500).send(results.find(result => result.status === 500));
+      return res
+        .status(500)
+        .send(results.find((result) => result.status === 500));
     }
   } catch (err) {
     return res.status(501).send({ msg: err });
@@ -319,47 +283,42 @@ exports.createTemplates = async (req, res) => {
 };
 
 const uploadTemplate = async (req, res, file) => {
- 
   const { date, time } = getCurrentDateTime();
   const fileName = `${date}_${time}_${file.originalname}`;
   const type = file.mimetype.split("/")[0];
-  const name  = file.originalname
-  
+  const name = file.originalname;
+
   try {
     const result = await connectFTP(file.buffer, fileName, "Template/Image");
     if (result) {
       const post = {
-      
         fileName,
         type,
-        name
-      
-      
+        name,
       };
 
-      const updatedUser = await common.AddRecords("Template_Image", post );
+      const updatedUser = await common.AddRecords("Template_Image", post);
       if (updatedUser) {
-        
-        return { status: 200, msg: "Picture uploaded Successfully", file: fileName };
+        return {
+          status: 200,
+          msg: "Picture uploaded Successfully",
+          file: fileName,
+        };
       } else {
-        console.log(post,'facing error')
         return { status: 401, msg: "Error in Picture Uploading" };
       }
     } else {
       return { status: 500, msg: "Facing Problem in Uploading Picture" };
     }
   } catch (err) {
-
     throw err;
   }
 };
 
 exports.getTemplate = async (req, res) => {
   try {
-    
     const postdetails = await common.GetRecords("Template_Image", "", "");
     if (postdetails.status === 200) {
-  
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
   } catch (err) {
@@ -367,7 +326,166 @@ exports.getTemplate = async (req, res) => {
   }
 };
 
+exports.follow = async (req, res) => {
+  try {
+    let userName = req.body.userName;
+    let Follow_id = req.body.follow_id;
 
+    const addobj = {
+      userName,
+      Follow_id,
+    };
 
+    let addRecord = await common.AddRecords("Follow", addobj);
 
+    if (addRecord) {
+      let response = {
+        status: 200,
+        msg: "Successfully added comment to the database",
+      };
+      res.send(response);
+    } else {
+      let response = {
+        status: 500,
+        msg: "Something went wrong while adding comment to the database",
+      };
+      res.send(response);
+    }
+  } catch (err) {
+    console.log("Facing Error", err);
+  }
+};
 
+exports.getfollow = async (req, res) => {
+  try {
+    const Follow_Id = req.query.Id;
+
+    const getfollower = await common.GetRecords("Follow", "", {
+      userName: Follow_Id,
+    });
+    console.log("followering is", getfollower);
+    if (getfollower.status == 200) {
+      return res.status(200).send({ status: 200, followers: getfollower.data });
+    } else
+      return res.status(401).send({ msg: "Cannot found the follower details" });
+  } catch (err) {
+    console.log(err);
+    return res.status(501).send({ msg: "Error while fetching the details" });
+  }
+};
+
+exports.getfollowers = async (req, res) => {
+  try {
+    const Follow_id = req.query.Id;
+
+    const getfollower = await common.GetRecords("Follow", "", { Follow_id });
+    console.log("followers is", getfollower);
+    if (getfollower.status == 200) {
+      return res.status(200).send({ status: 200, followers: getfollower.data });
+    } else
+      return res.status(401).send({ msg: "Cannot found the follower details" });
+  } catch (err) {
+    console.log(err);
+    return res.status(501).send({ msg: "Error while fetching the details" });
+  }
+};
+
+exports.getFollowerList = async (req, res) => {
+  try {
+
+    console.log('hryyy')
+    let user_id = req.query.Id;
+    let follower_user_ids = req.query.arr;
+
+    if (
+      !follower_user_ids ||
+      !Array.isArray(follower_user_ids) ||
+      follower_user_ids.length === 0
+    ) {
+      let response = {
+        status: 400,
+        msg: "Invalid or empty follower_user_ids array",
+      };
+      return res.send(response);
+    }
+    console.log('arrya is sss',follower_user_ids)
+   
+    // let follower_user_ids_str = follower_user_ids.join(",");
+
+    const commaSeparatedString = follower_user_ids.map(value => `'${value}'`).join(', ');
+    console.log('dfdd',commaSeparatedString )
+
+  
+    // let sql = `SELECT User.Id, User.userName, User.fullName FROM Follow LEFT JOIN User ON Follow.Follow_id = User.Id WHERE Follow.Follow_id IN (63,65,64,67);`;
+    let sql =`SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.userName In (${commaSeparatedString });`
+
+    let getUser = await common.customQuery(sql);
+    
+    if (getUser.data.length > 0) {
+      let response = {
+        status: 200,
+        msg: "Data Available",
+        data: getUser.data,
+      };
+      res.send(response);
+    } else {
+      let response = {
+        status: 500,
+        msg: "No data available",
+      };
+      res.send(response);
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.getFollowingList = async (req, res) => {
+  try {
+
+    console.log('hryyy')
+    let user_id = req.query.Id;
+    let follower_user_ids = req.query.arr;
+
+    if (
+      !follower_user_ids ||
+      !Array.isArray(follower_user_ids) ||
+      follower_user_ids.length === 0
+    ) {
+      let response = {
+        status: 400,
+        msg: "Invalid or empty follower_user_ids array",
+      };
+      return res.send(response);
+    }
+    console.log('arrya is sss',follower_user_ids)
+   
+    // let follower_user_ids_str = follower_user_ids.join(",");
+
+    const commaSeparatedString = follower_user_ids.map(value => `'${value}'`).join(', ');
+    console.log('dfdd',commaSeparatedString )
+
+  
+    // let sql = `SELECT User.Id, User.userName, User.fullName FROM Follow LEFT JOIN User ON Follow.Follow_id = User.Id WHERE Follow.Follow_id IN (63,65,64,67);`;
+    let sql =`SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.Id In (${commaSeparatedString });`
+
+    let getUser = await common.customQuery(sql);
+    
+    if (getUser.data.length > 0) {
+      let response = {
+        status: 200,
+        msg: "Data Available",
+        data: getUser.data,
+      };
+      res.send(response);
+    } else {
+      let response = {
+        status: 500,
+        msg: "No data available",
+      };
+      res.send(response);
+    }
+  } catch (err) {
+    throw err;
+  }
+};

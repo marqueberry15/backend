@@ -16,24 +16,21 @@ const config = {
 
 async function connectFTP(buffer, fileName, path) {
   const client = new ftp.Client();
-  console.log(1);
   const readableStream = new PassThrough();
   readableStream.end(buffer);
 
   try {
     await client.access(config);
-    console.log(2);
-
+ 
     await client.cd(`${path}`);
-    console.log(3, buffer);
+
 
     await client.uploadFrom(readableStream, fileName);
-    // console.log('Upload successful:', re);
-
+    
     client.close();
     return 1;
   } catch (err) {
-    console.error("Error:", err); // Log the error for debugging
+   
     client.close();
     return 0;
   }
@@ -79,11 +76,11 @@ const save = async (req, res) => {
     const fileName = generateBrandIdentifier(header);
 
     const path = type === "Blog" ? "marqueberryblog" : "marqueberrycasestudy";
-    console.log(path);
+  
     const result = await connectFTP(req.file.buffer, fileName, path);
 
     if (result === 0) {
-      console.log("error");
+     
       return res.status(500).json({ error: "Error uploading logo" });
     }
 
@@ -139,7 +136,7 @@ const blog = async (req, res) => {
 const blogstudy = async (req, res) => {
  
  try{
-  console.log('heyyyyyyyyyy',req.params)
+ 
   const { header } = req.params;
   const head = header.replace(/-/g, ' ');
 
@@ -181,5 +178,7 @@ const casestudy = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
 
 module.exports = { login, save, approval, blog, cases, blogstudy,casestudy };

@@ -23,7 +23,7 @@ module.exports = {
         where = _.isEmpty(where) ? 1 : where;
 
         let sql = `SELECT ${fields} FROM ${table} WHERE ?`;
-        console.log('fiels and where is',sql,where)
+      
 
         try {
           dbConnection.query(sql, [where], async (err, result) => {
@@ -190,8 +190,6 @@ module.exports = {
         const query = `SELECT * FROM ${table} WHERE category IN ('${categories.join(
           "', '"
         )}');`;
-
-        console.log("QUERY IS", query);
 
         try {
           dbConnection.query(query, async (err, result) => {

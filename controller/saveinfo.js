@@ -19,16 +19,15 @@ function generateBrandIdentifier(brandName) {
 
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
-  console.log(1)
+ 
   const readableStream = new PassThrough();
 readableStream.end(buffer);
 
   try {
     await client.access(config);
-    console.log(2)
+  
 
     await client.cd("marqueberrylogofiles");
-    console.log(3, buffer)
 
     await client.uploadFrom(readableStream, fileName);
     
@@ -50,7 +49,7 @@ const saveinfo = async (req, res) => {
     const fileName = `logo_${brandIdentifier}.png`;
 const  result=await connectFTP(req.file.buffer,fileName)
     if (result === 0) {
-      console.log("error")
+   
       return res.status(500).json({ error: "Error uploading logo" });
     }
     const status = req.body.Status ? req.body.Status : "pending";

@@ -1,8 +1,6 @@
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
-exports.postComment = async (req, res) => {
-
-  console.log('boddyyy is ',req.body)
+exports.postComment = async (req, res) => { 
   try {
     let text = req.body.text;
     let reply = req.body.parent_id;
@@ -10,7 +8,7 @@ exports.postComment = async (req, res) => {
     let userName = req.body.user;
     let profile = req.body.profile;
     let { date, time } = getCurrentDateTime();
-    console.log("date and time s", date, time);
+  
     const Date= `${date}_${time}`
 
     let addobj = {
@@ -51,8 +49,6 @@ exports.postComment = async (req, res) => {
 exports.getAllComments = async (req, res) => {
     try {
       let Post_Id = req.query.post_id; 
-      console.log('posts is is',Post_Id)
-  
 
       const commentdetails = await common.GetRecords("Comment", "", {Post_Id});
   
@@ -80,4 +76,7 @@ exports.getAllComments = async (req, res) => {
       res.send(response);
     }
   };
+
   
+  
+

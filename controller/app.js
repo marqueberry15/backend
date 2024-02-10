@@ -49,7 +49,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
     const username= await common.GetRecords(config.userTable, "", { userName })
-    console.log(user,username);
+
 
     if (user.status) {
       const response = {
@@ -64,7 +64,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
     const created_at = moment()
       .tz("Asia/Kolkata")
       .format("YYYY-MM-DD HH:mm:ss");
-    console.log(mobileNo, "mobile Number is");
+   
     const newUser = {
       fullName: fullName,
       userName: userName,
@@ -75,7 +75,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
     };
 
     const insertResult = await common.AddRecords(config.userTable, newUser);
-    console.log(insertResult, insertResult.data);
+   
 
     if (insertResult.status) {
       return insertResult;
@@ -191,7 +191,7 @@ async function generateAndSaveOTP(req, res) {
 
     
       if (fakeNumbers.includes(mobileNo)) {
-        console.log('fakeee   numder foundssssss',mobileNo)
+        
         generateOtp = 1111;
       } else {
         generateOtp = Math.floor(1000 + Math.random() * 9000);
@@ -374,11 +374,10 @@ const update = async (req, res) => {
 
 const saveInterest = async (req, res) => {
   try {
-    console.log(req.body,'Interstttttttt')
+  
     const { mobileNo,  selectedInterests} = req.body;
     const Interest =  selectedInterests.map((item) => item).join(" ");
-    console.log(Interest,"Interset       isssssss");
-
+   
     const updateResult = await common.UpdateRecords(
       config.userTable,
       { Interest },
@@ -386,7 +385,7 @@ const saveInterest = async (req, res) => {
     );
 
     if (updateResult.status) {
-      console.log("Update successful:");
+    
       return res
         .status(200)
         .json({ msg: "DONEEE", updateResult: updateResult.data });
@@ -423,7 +422,7 @@ const contact = async (req, res) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(info)
+    
 
     res.send({ status: 200, msg: "Successful" });
   } catch (error) {
