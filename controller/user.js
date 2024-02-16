@@ -29,6 +29,7 @@ async function connectFTP(buffer, fileName, folder) {
     return 0;
   }
 }
+
 exports.updateprofile = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
@@ -331,6 +332,19 @@ exports.follow = async (req, res) => {
     let userName = req.body.userName;
     let Follow_id = req.body.follow_id;
 
+    const existingRecord = await common.GetRecords("Follow", {
+      userName,
+      Follow_id,
+    });
+
+    if (existingRecord) {
+      let response = {
+        status: 400,
+        msg: "Duplicate record. This user is already being followed.",
+      };
+      res.send(response);
+    }
+
     const addobj = {
       userName,
       Follow_id,
@@ -392,8 +406,7 @@ exports.getfollowers = async (req, res) => {
 
 exports.getFollowerList = async (req, res) => {
   try {
-
-    console.log('hryyy')
+    console.log("hryyy");
     let user_id = req.query.Id;
     let follower_user_ids = req.query.arr;
 
@@ -408,19 +421,20 @@ exports.getFollowerList = async (req, res) => {
       };
       return res.send(response);
     }
-    console.log('arrya is sss',follower_user_ids)
-   
+    console.log("arrya is sss", follower_user_ids);
+
     // let follower_user_ids_str = follower_user_ids.join(",");
 
-    const commaSeparatedString = follower_user_ids.map(value => `'${value}'`).join(', ');
-    console.log('dfdd',commaSeparatedString )
+    const commaSeparatedString = follower_user_ids
+      .map((value) => `'${value}'`)
+      .join(", ");
+    console.log("dfdd", commaSeparatedString);
 
-  
     // let sql = `SELECT User.Id, User.userName, User.fullName FROM Follow LEFT JOIN User ON Follow.Follow_id = User.Id WHERE Follow.Follow_id IN (63,65,64,67);`;
-    let sql =`SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.userName In (${commaSeparatedString });`
+    let sql = `SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.userName In (${commaSeparatedString});`;
 
     let getUser = await common.customQuery(sql);
-    
+
     if (getUser.data.length > 0) {
       let response = {
         status: 200,
@@ -442,8 +456,7 @@ exports.getFollowerList = async (req, res) => {
 
 exports.getFollowingList = async (req, res) => {
   try {
-
-    console.log('hryyy')
+    console.log("hryyy");
     let user_id = req.query.Id;
     let follower_user_ids = req.query.arr;
 
@@ -458,19 +471,15 @@ exports.getFollowingList = async (req, res) => {
       };
       return res.send(response);
     }
-    console.log('arrya is sss',follower_user_ids)
-   
-    // let follower_user_ids_str = follower_user_ids.join(",");
-
-    const commaSeparatedString = follower_user_ids.map(value => `'${value}'`).join(', ');
-    console.log('dfdd',commaSeparatedString )
-
-  
-    // let sql = `SELECT User.Id, User.userName, User.fullName FROM Follow LEFT JOIN User ON Follow.Follow_id = User.Id WHERE Follow.Follow_id IN (63,65,64,67);`;
-    let sql =`SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.Id In (${commaSeparatedString });`
+    console.log("arrya is sss", follower_user_ids);
+    const commaSeparatedString = follower_user_ids
+      .map((value) => `'${value}'`)
+      .join(", ");
+    console.log("dfdd", commaSeparatedString);
+    let sql = `SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.Id In (${commaSeparatedString});`;
 
     let getUser = await common.customQuery(sql);
-    
+
     if (getUser.data.length > 0) {
       let response = {
         status: 200,
@@ -487,5 +496,88 @@ exports.getFollowingList = async (req, res) => {
     }
   } catch (err) {
     throw err;
+  }
+};
+
+exports.deletefollow = async (req, res) => {
+  console.log(req.body, "bodyddd isssss");
+  const userName = req.body.userName;
+  const Follow_user = req.body.Id_name;
+  const sql = `DELETE FROM Follow
+  WHERE userName = '${userName}'
+  AND Follow_id = (SELECT Id FROM User WHERE userName = '${Follow_user}')
+  `;
+  let getUser = await common.customQuery(sql);
+  console.log("getuser is sss", getUser);
+  res.status(200).send(getUser);
+};
+
+exports.updatewallpaper = async (req, res) => {
+  try {
+    const { date, time } = getCurrentDateTime();
+    const fileName = `${date}_${time}`;
+    const result = await connectFTP(req.file.buffer, fileName, "UserWallpaper");
+    if (result) {
+      const updatedUser = await common.UpdateRecords(
+        config.userTable,
+        { wallPaper: fileName },
+        req.body.mobileNo
+      );
+      if (updatedUser) {
+        return res.send({
+          status: 200,
+          msg: "Picture Uploaded Succesfully",
+          file: fileName,
+        });
+      } else
+        return res.send({ status: 401, msg: "Error in Picture Uploading" });
+    } else {
+      return res.send({
+        status: 500,
+        msg: "Facing Problem in Uploading Picture",
+      });
+    }
+  } catch (err) {
+    return res.status(501).send({ msg: err });
+  }
+};
+
+exports.userTemplate = async (req, res) => {
+  console.log("saving the templateeeeee",req.file,req.body);
+  try {
+    console.log(1)
+    const { date, time } = getCurrentDateTime();
+    console.log(2)
+    const fileName = `${date}_${time}`;
+    console.log(3)
+    const result = await connectFTP(req.file.buffer, fileName, "UserTemplate");
+    console.log("result isss", result);
+    if (result) {
+      const updatedUser = await common.UpdateRecords(
+        "User_Template",
+        {
+          fileName,
+          user: req.body.userName,
+          caption: req.body.caption,
+          category: req.body.category,
+        },
+        req.body.mobileNo
+      );
+      if (updatedUser) {
+        return res.send({
+          status: 200,
+          msg: "Picture Uploaded Succesfully",
+          file: fileName,
+        });
+      } else
+        return res.send({ status: 401, msg: "Error in Picture Uploading" });
+    } else {
+      return res.send({
+        status: 500,
+        msg: "Facing Problem in Uploading Picture",
+      });
+    }
+  } catch (err) {
+    return res.status(501).send({ msg: err });
   }
 };

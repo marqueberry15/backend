@@ -2,7 +2,7 @@ const express = require("express")
 const route =express.Router()
 const upload=require("../middleware/mutler")
 const {login,generateAndSaveOTP, validatephoneOTP,validateOTP, getCampaign,update,saveInterest,contact}=require("../controller/app")
-const { updateprofile,userDetail,createPost,getPost, deletePost, allUsers, getinterest, createPosts, createTemplates, getTemplate, follow, getfollow, getfollowers, getFollowingList, getFollowerList} = require("../controller/user")
+const { updateprofile,userDetail,createPost,getPost, deletePost, allUsers, getinterest, createPosts, createTemplates, getTemplate, follow, getfollow, getfollowers, getFollowingList, getFollowerList, deletefollow, updatewallpaper, userTemplate} = require("../controller/user")
 const { postComment, getAllComments } = require("../controller/post")
 route.post("/generateotp",generateAndSaveOTP)
 route.post("/validatephone",validatephoneOTP)
@@ -29,6 +29,9 @@ route.get("/getfollow",getfollow)
 route.get("/getfollowers",getfollowers)
 route.get("/userfollower",getFollowerList)
 route.get("/userfollowing",getFollowingList)
+route.post("/deletefollow",deletefollow)
+route.post("/updatewallpaper",upload.single('image'),updatewallpaper)
+route.post("/uploadtemplate",upload.single('file'),userTemplate)
 module.exports=route
 
 

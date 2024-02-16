@@ -13,7 +13,6 @@ const route6= require("./routes/app")
 app.use(bodyparser.json({ limit: "100mb", extended: true }));
 app.use(bodyparser.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors({
- 
   origin:"*",
   methods: "GET, POST, PUT, DELETE, FETCH",
   allowedHeaders: "Content-Type, Authorization",

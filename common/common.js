@@ -8,8 +8,8 @@ const dbConnection = mysql.createPool({
   password: "Marqueberryisthegreat@123",
   database: "u394360389_Adoro",
 });
-dbConnection.promise();
 
+dbConnection.promise();
 const connectDB = require("../config/db");
 
 module.exports = {
@@ -274,6 +274,8 @@ module.exports = {
   },
 
   customQuery: async (sql) => {
+
+    console.log('query is ',sql)
     try {
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
