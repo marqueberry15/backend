@@ -13,20 +13,26 @@ dbConnection.promise();
 const connectDB = require("../config/db");
 
 module.exports = {
-  GetRecords: async (table, fields, where) => {
+  GetRecords: async (table, fields, whereConditions) => {
     try {
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
-
+  
         fields = _.isEmpty(fields) ? "*" : fields;
-
-        where = _.isEmpty(where) ? 1 : where;
-
-        let sql = `SELECT ${fields} FROM ${table} WHERE ?`;
-      
-
+  
+        whereConditions = _.isEmpty(whereConditions) ? {} : whereConditions;
+  
+        let sql = `SELECT ${fields} FROM ${table}`;
+        const conditionKeys = Object.keys(whereConditions);
+        if (conditionKeys.length > 0) {
+          const conditions = conditionKeys.map(key => `${key} = ?`);
+          sql += " WHERE " + conditions.join(" AND ");
+        }
+  
+        console.log('sql statement is ', sql);
+  
         try {
-          dbConnection.query(sql, [where], async (err, result) => {
+          dbConnection.query(sql, Object.values(whereConditions), async (err, result) => {
             if (err) {
               console.log(err);
               reject(responseCode.dbErrorResponse(err));
@@ -40,11 +46,11 @@ module.exports = {
             }
           });
         } catch (error) {
-          return await error;
+          reject(error);
         }
       });
     } catch (error) {
-      return await error;
+      return error;
     }
   },
 

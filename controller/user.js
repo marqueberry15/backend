@@ -334,13 +334,12 @@ exports.follow = async (req, res) => {
     let userName = req.body.userName;
     let Follow_id = req.body.follow_id;
 
-    const existingRecord = await common.GetRecords("Follow", {
+    const existingRecord = await common.GetRecords("Follow", "", {
       userName,
       Follow_id,
     });
 
     if (existingRecord) {
-
       let response = {
         status: 400,
         msg: "Duplicate record. This user is already being followed.",
@@ -352,18 +351,17 @@ exports.follow = async (req, res) => {
       userName,
       Follow_id,
     };
-    
+
     let addRecord = await common.AddRecords("Follow", addobj);
 
     if (addRecord) {
-      const noti= {
-        msg:`${userName} started following you`,
-        userId:Follow_id,
-      }
-       const notisend= await common.AddRecords("Notification");
-      if (notisend.status){
-        
-        
+      const noti = {
+        msg: `${userName} started following you`,
+        userId: Follow_id,
+      };
+      const notisend = await common.AddRecords("Notification");
+      if (notisend.status) {
+        console.log("Started to follow");
       }
       let response = {
         status: 200,
@@ -661,7 +659,7 @@ exports.createcontest = async (req, res) => {
       Description,
       prizeMoney,
       contestName,
-      fileName
+      fileName,
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
     if (addcontest) {
@@ -694,7 +692,6 @@ exports.applycontest = async (req, res) => {
         time,
         type: req.file.mimetype,
         userName,
-
       });
       if (updatedUser) {
         return res.send({
