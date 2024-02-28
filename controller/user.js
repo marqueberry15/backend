@@ -287,18 +287,20 @@ const uploadTemplate = async (req, res, file) => {
   const { date, time } = getCurrentDateTime();
   const fileName = `${date}_${time}_${file.originalname}`;
   const type = file.mimetype.split("/")[0];
-  const name = file.originalname;
 
   try {
-    const result = await connectFTP(file.buffer, fileName, "Template/Image");
+    const result = await connectFTP(file.buffer, fileName, "TrendingTemplate");
     if (result) {
-      const post = {
+      const template = {
         fileName,
         type,
-        name,
       };
+      console.log("template isss ", template);
 
-      const updatedUser = await common.AddRecords("Template_Image", post);
+      const updatedUser = await common.AddRecords(
+        "Trending_Template",
+        template
+      );
       if (updatedUser) {
         return {
           status: 200,
@@ -338,6 +340,7 @@ exports.follow = async (req, res) => {
     });
 
     if (existingRecord) {
+
       let response = {
         status: 400,
         msg: "Duplicate record. This user is already being followed.",
@@ -349,10 +352,19 @@ exports.follow = async (req, res) => {
       userName,
       Follow_id,
     };
-
+    
     let addRecord = await common.AddRecords("Follow", addobj);
 
     if (addRecord) {
+      const noti= {
+        msg:`${userName} started following you`,
+        userId:Follow_id,
+      }
+       const notisend= await common.AddRecords("Notification");
+      if (notisend.status){
+        
+        
+      }
       let response = {
         status: 200,
         msg: "Successfully added comment to the database",
@@ -543,26 +555,22 @@ exports.updatewallpaper = async (req, res) => {
 };
 
 exports.userTemplate = async (req, res) => {
-  console.log("saving the templateeeeee",req.file,req.body);
+  console.log("saving the templateeeeee", req.file, req.body);
   try {
-    console.log(1)
+    console.log(1);
     const { date, time } = getCurrentDateTime();
-    console.log(2)
+    console.log(2);
     const fileName = `${date}_${time}`;
-    console.log(3)
+    console.log(3);
     const result = await connectFTP(req.file.buffer, fileName, "UserTemplate");
     console.log("result isss", result);
     if (result) {
-      const updatedUser = await common.UpdateRecords(
-        "User_Template",
-        {
-          fileName,
-          user: req.body.userName,
-          caption: req.body.caption,
-          category: req.body.category,
-        },
-        req.body.mobileNo
-      );
+      const updatedUser = await common.AddRecords("User_Template", {
+        fileName,
+        user: req.body.userName,
+        caption: req.body.caption,
+        category: req.body.category,
+      });
       if (updatedUser) {
         return res.send({
           status: 200,
@@ -575,6 +583,130 @@ exports.userTemplate = async (req, res) => {
       return res.send({
         status: 500,
         msg: "Facing Problem in Uploading Picture",
+      });
+    }
+  } catch (err) {
+    return res.status(501).send({ msg: err });
+  }
+};
+
+exports.applycampaign = async (req, res) => {
+  console.log("saving the templateeeeee", req.file, req.body);
+  try {
+    console.log(1);
+    const { date, time } = getCurrentDateTime();
+    const { campaign_name, userName } = req.body;
+    console.log(2);
+    const fileName = `${date}_${time}_${campaign_name}`;
+    console.log(3);
+    const result = await connectFTP(req.file.buffer, fileName, "Campaign");
+    console.log("result isss", result);
+    if (result) {
+      const updatedUser = await common.AddRecords("Campaign", {
+        fileName,
+        campaign_name,
+        time,
+        type: req.file.mimetype,
+        userName,
+      });
+      if (updatedUser) {
+        return res.send({
+          status: 200,
+          msg: "Picture Uploaded Succesfully",
+          file: fileName,
+        });
+      } else
+        return res.send({ status: 401, msg: "Error in Picture Uploading" });
+    } else {
+      return res.send({
+        status: 500,
+        msg: "Facing Problem in Uploading Picture",
+      });
+    }
+  } catch (err) {
+    return res.status(501).send({ msg: err });
+  }
+};
+
+exports.getUserTemplate = async (req, res) => {
+  console.log("getting usersssssss template", req.query);
+  try {
+    const user = req.query.user;
+    console.log("user is ", user);
+    const templatedetails = await common.GetRecords("User_Template", "", {
+      user,
+    });
+    console.log(templatedetails);
+    if (templatedetails.status === 200) {
+      console.log("templates of users is", templatedetails);
+      return res
+        .status(200)
+        .send({ status: 200, templates: templatedetails.data });
+    }
+  } catch (err) {
+    return res.status(500).json({ Error: err });
+  }
+};
+
+exports.createcontest = async (req, res) => {
+  try {
+    const { date, time } = getCurrentDateTime();
+    console.log(2);
+    const fileName = `${date}_${time}_${req.body.contestName}`;
+    console.log(3);
+    const { Description, prizeMoney, contestName } = req.body;
+    const result = await connectFTP(req.file.buffer, fileName, "Contest");
+    console.log("result isss", result);
+    const contestobj = {
+      Description,
+      prizeMoney,
+      contestName,
+      fileName
+    };
+    const addcontest = await common.AddRecords("Contest", contestobj);
+    if (addcontest) {
+      return res
+        .status(200)
+        .send({ msg: "Contest Created Successfully", status: 200 });
+    } else {
+      return res.status(401).send({ msg: "Facing problem in backend" });
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.applycontest = async (req, res) => {
+  console.log("saving the templateeeeee", req.file, req.body);
+  try {
+    console.log(1);
+    const { date, time } = getCurrentDateTime();
+    const { contestName, userName } = req.body;
+    console.log(2);
+    const fileName = `${date}_${time}_${userName}`;
+    console.log(3);
+    const result = await connectFTP(req.file.buffer, fileName, "ContestApply");
+    console.log("result isss", result);
+    if (result) {
+      const updatedUser = await common.AddRecords("Contest_Apply", {
+        fileName,
+        contestName,
+        time,
+        type: req.file.mimetype,
+        userName,
+
+      });
+      if (updatedUser) {
+        return res.send({
+          status: 200,
+          msg: "Applied  Succesfully",
+        });
+      } else
+        return res.send({ status: 401, msg: "Error in Picture Uploading" });
+    } else {
+      return res.send({
+        status: 500,
+        msg: "Facing Problem in Applyying for Campaign",
       });
     }
   } catch (err) {

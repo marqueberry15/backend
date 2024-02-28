@@ -274,7 +274,6 @@ module.exports = {
   },
 
   customQuery: async (sql) => {
-
     console.log('query is ',sql)
     try {
       return new Promise(async (resolve, reject) => {

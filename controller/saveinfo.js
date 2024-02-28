@@ -1,9 +1,9 @@
 const connectDB = require("../config/db");
 const ftp = require("basic-ftp");
 const fs = require("fs");
-const { PassThrough } = require('stream')
+const { PassThrough } = require("stream");
 require("dotenv").config();
-const getCurrentDateTime= require("./datetime")
+const getCurrentDateTime = require("./datetime");
 const config = {
   host: process.env.ftphost,
   port: process.env.ftpport,
@@ -19,41 +19,38 @@ function generateBrandIdentifier(brandName) {
 
 async function connectFTP(buffer, fileName) {
   const client = new ftp.Client();
- 
+
   const readableStream = new PassThrough();
-readableStream.end(buffer);
+  readableStream.end(buffer);
 
   try {
     await client.access(config);
-  
 
     await client.cd("marqueberrylogofiles");
 
     await client.uploadFrom(readableStream, fileName);
-    
+
     client.close();
     return 1;
   } catch (err) {
-    console.error('Error:', err); // Log the error for debugging
+    console.error("Error:", err); // Log the error for debugging
     client.close();
     return 0;
   }
 }
 
 const saveinfo = async (req, res) => {
-
   try {
     const brandIdentifier = generateBrandIdentifier(req.body.brand_name);
 
     // Modify the file name to include the brand identifier
     const fileName = `logo_${brandIdentifier}.png`;
-const  result=await connectFTP(req.file.buffer,fileName)
+    const result = await connectFTP(req.file.buffer, fileName);
     if (result === 0) {
-   
       return res.status(500).json({ error: "Error uploading logo" });
     }
     const status = req.body.Status ? req.body.Status : "pending";
-    const {date,time}=getCurrentDateTime()
+    const { date, time } = getCurrentDateTime();
 
     const insertQuery =
       "INSERT INTO `BrandInfo` (`first_name`, `last_name`, `email`, `company_name`, `mobileNo`, `IsLogo`, `IsStock_image`, `brand_guidlines`, `brand_name`, `campaign_industry`, `campaign_name`, `gif`, `marketing_budget`, `static_meme`, `time_limit`, `video_meme`,`Logo`,`Status`,`date`,`time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
@@ -77,9 +74,8 @@ const  result=await connectFTP(req.file.buffer,fileName)
       fileName,
       status,
       date,
-      time
+      time,
     ]);
-    
 
     res.send({ message: "Image saved successfully", status: 200 });
   } catch (error) {
@@ -87,5 +83,7 @@ const  result=await connectFTP(req.file.buffer,fileName)
     res.status(500).send({ message: "Internal server error", status: 500 });
   }
 };
+
+
 
 module.exports = { saveinfo };
