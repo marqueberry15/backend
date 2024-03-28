@@ -48,8 +48,9 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
-    const username= await common.GetRecords(config.userTable, "", { userName })
-
+    const username = await common.GetRecords(config.userTable, "", {
+      userName,
+    });
 
     if (user.status) {
       const response = {
@@ -58,13 +59,12 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
       };
       res.send(response);
     }
-   
 
     const timestamp = currentDate.getTime();
     const created_at = moment()
       .tz("Asia/Kolkata")
       .format("YYYY-MM-DD HH:mm:ss");
-   
+
     const newUser = {
       fullName: fullName,
       userName: userName,
@@ -75,7 +75,6 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
     };
 
     const insertResult = await common.AddRecords(config.userTable, newUser);
-   
 
     if (insertResult.status) {
       return insertResult;
@@ -90,7 +89,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
 const login = async (req, res) => {
   try {
     const mobileNo = req.body.mobileNo || "";
-    
+
     if (mobileNo && mobileNo.length === 10) {
       const user = await common.GetRecords(config.userTable, "", { mobileNo });
 
@@ -142,17 +141,17 @@ const login = async (req, res) => {
 
 const validateOTP = async (req, res) => {
   try {
- 
+    console.log("validat otp ", req.body);
+
     let mobileNo = req.body.mobileNo ? req.body.mobileNo : "";
     let otp = req.body.otp ? req.body.otp : "";
 
-
     if (mobileNo != "" && mobileNo.length == 10) {
-
+      console.log('iff')
       let GetRecords = await common.GetRecords(config.userTable, "", {
         mobileNo,
       });
-    
+    console.log('get records is',GetRecords)
       let token = jwt.sign(
         { id: GetRecords.data[0].Id },
         `'${config.JwtSupersecret}'`,
@@ -162,19 +161,20 @@ const validateOTP = async (req, res) => {
       );
 
       if (GetRecords.data[0].otp == otp) {
+        console.log('otp matched')
         let response = {
           status: 200,
           msg: "Successful",
           token: token,
           data: GetRecords.data[0],
         };
-        res.send(response);
+        res.status(200).send(response);
       } else {
         let response = {
           status: 500,
           msg: "Not Authorized",
         };
-        res.send(response);
+        res.status(500).send(response);
       }
     }
   } catch (error) {
@@ -189,14 +189,11 @@ async function generateAndSaveOTP(req, res) {
     if (mobileNo !== "" && mobileNo.length === 10) {
       let generateOtp;
 
-    
       if (fakeNumbers.includes(mobileNo)) {
-        
         generateOtp = 1111;
       } else {
         generateOtp = Math.floor(1000 + Math.random() * 9000);
 
-       
         const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
         const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
         const sendMsg = await axios.get(url);
@@ -207,7 +204,9 @@ async function generateAndSaveOTP(req, res) {
       }
 
       const user = await common.GetRecords(config.userTable, "", { mobileNo });
-      const username = await common.GetRecords(config.userTable, "", { userName: req.body.userName });
+      const username = await common.GetRecords(config.userTable, "", {
+        userName: req.body.userName,
+      });
 
       if (username.status == 200) {
         const response = {
@@ -235,7 +234,11 @@ async function generateAndSaveOTP(req, res) {
       if (userotp.status == 200) {
         const updateObj = { otp: generateOtp };
         try {
-          const updatedUser = await common.UpdateRecords("Signup_otp", updateObj, mobileNo);
+          const updatedUser = await common.UpdateRecords(
+            "Signup_otp",
+            updateObj,
+            mobileNo
+          );
         } catch (err) {
           return res.send({ status: 500, msg: "Cannot verify" });
         }
@@ -247,9 +250,14 @@ async function generateAndSaveOTP(req, res) {
         }
       }
 
-      return res.status(200).json({ status: 200, msg: "OTP Saved Successfully" });
+      return res
+        .status(200)
+        .json({ status: 200, msg: "OTP Saved Successfully" });
     } else {
-      return res.json({ status: 500, msg: "Please provide valid mobile number" });
+      return res.json({
+        status: 500,
+        msg: "Please provide valid mobile number",
+      });
     }
   } catch (error) {
     console.error("Error:", error);
@@ -257,23 +265,19 @@ async function generateAndSaveOTP(req, res) {
   }
 }
 
-
 const validatephoneOTP = async (req, res) => {
   try {
-
     const mobileNo = req.body.mobileNo;
     const otp = req.body.otp;
     const fullName = req.body.fullName;
     const userName = req.body.fullName;
 
     if (mobileNo !== "" && mobileNo.length === 10) {
-   
       try {
         const getRecords = await common.GetRecords("Signup_otp", "*", {
           mobileNo,
         });
-        
-     
+
         if (getRecords.status && getRecords.data[0].otp == otp) {
           const signupResult = await usersignup(
             mobileNo,
@@ -281,7 +285,7 @@ const validatephoneOTP = async (req, res) => {
             userName,
             otp
           ); // You may need to adjust the arguments based on your usersignup function
-        
+
           if (signupResult.status) {
             const token = jwt.sign(
               { id: signupResult.data.insertId },
@@ -343,7 +347,7 @@ const update = async (req, res) => {
     const benificiaryName = req.body.benificiaryName;
     const ifscCode = req.body.ifscCode;
     const mobileNo = req.body.mobileNo;
-    const gender=req.body.gender 
+    const gender = req.body.gender;
 
     const updateResult = await common.UpdateRecords(
       config.userTable,
@@ -356,7 +360,7 @@ const update = async (req, res) => {
         benificiaryName,
         ifscCode,
         mobileNo,
-        gender
+        gender,
       },
       mobileNo
     );
@@ -374,10 +378,9 @@ const update = async (req, res) => {
 
 const saveInterest = async (req, res) => {
   try {
-  
-    const { mobileNo,  selectedInterests} = req.body;
-    const Interest =  selectedInterests.map((item) => item).join(" ");
-   
+    const { mobileNo, selectedInterests } = req.body;
+    const Interest = selectedInterests.map((item) => item).join(" ");
+
     const updateResult = await common.UpdateRecords(
       config.userTable,
       { Interest },
@@ -385,7 +388,6 @@ const saveInterest = async (req, res) => {
     );
 
     if (updateResult.status) {
-    
       return res
         .status(200)
         .json({ msg: "DONEEE", updateResult: updateResult.data });
@@ -406,7 +408,7 @@ const saveInterest = async (req, res) => {
 const contact = async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: "smtp.gmail.com",
       port: 587,
       auth: {
         user: process.env.email,
@@ -422,7 +424,6 @@ const contact = async (req, res) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    
 
     res.send({ status: 200, msg: "Successful" });
   } catch (error) {
@@ -430,7 +431,6 @@ const contact = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 module.exports = {
   login,

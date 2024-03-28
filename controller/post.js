@@ -1,5 +1,7 @@
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
+
+
 exports.postComment = async (req, res) => {
   try {
     let text = req.body.text;
@@ -88,10 +90,18 @@ exports.hitlike = async (req, res) => {
     const addedlikes = await common.AddRecords("Likes", obj);
     console.log("addded likesss are", addedlikes);
     if (addedlikes) {
-      return {
-        status: 200,
-        msg: "Updated the Like",
+      const noti ={
+        msg: ` ${userName} started following you`,
+        userId
+       }
+       const notisend = await common.AddRecords("Notification",noti);
+      if (notisend.status) {
+        console.log("Started to follow");
+        return res
+        .status(200)
+        .send({ msg: "Contest Created Successfully", status: 200 });
       };
+     
     } else {
       return {
         status: 401,
@@ -211,10 +221,9 @@ exports.deletecontest = async (req, res) => {
 
 exports.gettrendingtemplate = async (req, res) => {
   try {
-    console.log(1);
     const gettrendtemp = await common.GetRecords("Trending_Template", "", "");
     if (gettrendtemp.status)
-      return res.send({
+      return res.status(200).send({
         msg: "Trending Templates are fetched Completely",
         status: 200,
         trendingtemplate: gettrendtemp.data,
@@ -225,21 +234,6 @@ exports.gettrendingtemplate = async (req, res) => {
   }
 };
 
-exports.createnotification = async (req, res) => {
-  try {
-    const { text, userId } = req.body;
-    const notification = await common.AddRecords("Notification", req.body);
-    if (notification.status)
-      return res.send({
-        msg: "Created notification Successfully",
-        status: 200,
-      });
-    else
-      return res.send({
-        msg: "Facing problem in creating the notification",
-        status: 401,
-      });
-  } catch (err) {
-    console.log("Facing error ", err);
-  }
-};
+
+
+

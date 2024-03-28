@@ -81,6 +81,7 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
+    console.log("creatinggg post ", req.file);
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
 
@@ -359,7 +360,7 @@ exports.follow = async (req, res) => {
         msg: `${userName} started following you`,
         userId: Follow_id,
       };
-      const notisend = await common.AddRecords("Notification");
+      const notisend = await common.AddRecords("Notification", noti);
       if (notisend.status) {
         console.log("Started to follow");
       }
@@ -663,9 +664,21 @@ exports.createcontest = async (req, res) => {
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
     if (addcontest) {
-      return res
-        .status(200)
-        .send({ msg: "Contest Created Successfully", status: 200 });
+      const noti = {
+        msg: ` New Contest is Live. Apply Now to the contest ${contestName}`,
+        userId: 0,
+      };
+      const notisend = await common.AddRecords("Notification", noti);
+      if (notisend.status) {
+        console.log("Started to follow");
+        return res
+          .status(200)
+          .send({ msg: "Contest Created Successfully", status: 200 });
+      }
+
+      // return res
+      //   .status(200)
+      //   .send({ msg: "Contest Created Successfully", status: 200 });
     } else {
       return res.status(401).send({ msg: "Facing problem in backend" });
     }
@@ -708,5 +721,28 @@ exports.applycontest = async (req, res) => {
     }
   } catch (err) {
     return res.status(501).send({ msg: err });
+  }
+};
+
+exports.getnotification = async (req, res) => {
+  console.log('getting the notification data ',req.query.Id)
+  try {
+    const userId = req.query.Id;
+    const notification = await common.GetRecords("Notification", "", {
+      userId,
+    });
+    console.log(notification);
+    if (notification.status === 200) {
+      console.log("templates of users is");
+      return res
+        .status(200)
+        .send({ status: 200, notification: notification.data });
+    } else {
+      res
+        .status(500)
+        .send({ msg: "Facing Error while fetching notifications" });
+    }
+  } catch (err) {
+    console.log("Error while fetching ", err);
   }
 };
