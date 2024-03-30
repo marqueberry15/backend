@@ -79,7 +79,7 @@ exports.getAllComments = async (req, res) => {
 };
 
 exports.hitlike = async (req, res) => {
-  console.log("hitting the like api", req.body);
+ 
   try {
     const { postId, userId, userName } = req.body;
     const obj = {
@@ -88,7 +88,7 @@ exports.hitlike = async (req, res) => {
       userName,
     };
     const addedlikes = await common.AddRecords("Likes", obj);
-    console.log("addded likesss are", addedlikes);
+
     if (addedlikes) {
       const noti ={
         msg: ` ${userName} started following you`,
@@ -96,7 +96,7 @@ exports.hitlike = async (req, res) => {
        }
        const notisend = await common.AddRecords("Notification",noti);
       if (notisend.status) {
-        console.log("Started to follow");
+       
         return res
         .status(200)
         .send({ msg: "Contest Created Successfully", status: 200 });
@@ -119,7 +119,7 @@ exports.getlike = async (req, res) => {
   try {
     const getlikes = await common.GetRecords("Likes", "", "");
     if (getlikes.status == 200) {
-      console.log("likess are", getlikes.data);
+     
       return res.status(200).send({ status: 200, likes: getlikes.data });
     } else
       return res
@@ -156,7 +156,7 @@ exports.unlike = async (req, res) => {
 
 exports.getfollowuserName = async (req, res) => {
   try {
-    console.log(1, req.query);
+    
     const userName = req.query.userName;
     const sql = `SELECT userName 
     FROM User 
@@ -165,7 +165,7 @@ exports.getfollowuserName = async (req, res) => {
 
     let getUser = await common.customQuery(sql);
 
-    console.log("getUserrrr is", getUser);
+  
     if (getUser.status) {
       let response = {
         status: 200,
@@ -187,7 +187,7 @@ exports.getfollowuserName = async (req, res) => {
 
 exports.getcontest = async (req, res) => {
   try {
-    console.log(1);
+  
     const getcontest = await common.GetRecords("Contest", "", "");
     if (getcontest.status)
       return res.send({
@@ -198,7 +198,7 @@ exports.getcontest = async (req, res) => {
     else
       return res.send({ msg: "Failed to fetch contest details ", status: 401 });
   } catch (err) {
-    console.log("Errro is ", err);
+   
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
 };
@@ -229,7 +229,7 @@ exports.gettrendingtemplate = async (req, res) => {
         trendingtemplate: gettrendtemp.data,
       });
   } catch (err) {
-    console.log("Error is ", err);
+ 
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
 };

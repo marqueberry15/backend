@@ -87,6 +87,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
   }
 };
 const login = async (req, res) => {
+  console.log('loggining in')
   try {
     const mobileNo = req.body.mobileNo || "";
 
@@ -141,17 +142,17 @@ const login = async (req, res) => {
 
 const validateOTP = async (req, res) => {
   try {
-    console.log("validat otp ", req.body);
+   
 
     let mobileNo = req.body.mobileNo ? req.body.mobileNo : "";
     let otp = req.body.otp ? req.body.otp : "";
 
     if (mobileNo != "" && mobileNo.length == 10) {
-      console.log('iff')
+  
       let GetRecords = await common.GetRecords(config.userTable, "", {
         mobileNo,
       });
-    console.log('get records is',GetRecords)
+  
       let token = jwt.sign(
         { id: GetRecords.data[0].Id },
         `'${config.JwtSupersecret}'`,
@@ -161,7 +162,7 @@ const validateOTP = async (req, res) => {
       );
 
       if (GetRecords.data[0].otp == otp) {
-        console.log('otp matched')
+      
         let response = {
           status: 200,
           msg: "Successful",
