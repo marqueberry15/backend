@@ -117,7 +117,8 @@ exports.hitlike = async (req, res) => {
 };
 exports.getlike = async (req, res) => {
   try {
-    const getlikes = await common.GetRecords("Likes", "", "");
+    const postId= req.query.postId
+    const getlikes = await common.GetRecords("Likes", "", postId);
     if (getlikes.status == 200) {
      
       return res.status(200).send({ status: 200, likes: getlikes.data });
