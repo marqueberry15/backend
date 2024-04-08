@@ -44,6 +44,70 @@ const fakeNumbers = [
   "4811319861",
 ];
 
+// const usersignup = async (mobileNo, fullName, userName, otp, referal) => {
+//   try {
+//     const currentDate = new Date();
+//     const user = await common.GetRecords(config.userTable, "", { mobileNo });
+//     const username = await common.GetRecords(config.userTable, "", {
+//       userName,
+//     });
+//     if (user.status) {
+//       const response = {
+//         status: 401,
+//         msg: "Phone No. Already registered.",
+//       };
+//       res.send(response);
+//     }
+
+//     const timestamp = currentDate.getTime();
+//     const created_at = moment()
+//       .tz("Asia/Kolkata")
+//       .format("YYYY-MM-DD HH:mm:ss");
+
+//     const newUser = {
+//       fullName: fullName,
+//       userName: userName,
+//       refer_id: `${userName}_${timestamp}`,
+//       created_on: created_at,
+//       mobileNo: mobileNo,
+//       otp: otp,
+//     };
+
+//     const insertResult = await common.AddRecords(config.userTable, newUser);
+
+//     if (insertResult.status) {
+//       const referaluser = await common.GetRecords(config.userTable, "", {
+//         referal,
+//       });
+
+//       const referal_list = referaluser.Referal;
+//       if (!referal_list) {
+//         referal_list = referal;
+//       } else if (referal_list && referal_list.trim() === "") {
+//         referal_list = referal;
+//       } else {
+//         referal_list += ` ${referal}`;
+//       }
+
+//       console.log(referal_list);
+
+//       const addreferallist = await common.updateObj(config.userTable, "", {
+//         Referal: referal_list,
+//       });
+
+//       if (addreferallist.status) {
+//         console.log("added referal column succesfully");
+//         return insertResult;
+//       }
+//     } else {
+//       return null;
+//     }
+//   } catch (error) {
+//     console.error("Error in usersignup:", error.message);
+//     return null;
+//   }
+// };
+
 const usersignup = async (mobileNo, fullName, userName, otp) => {
   try {
     const currentDate = new Date();
@@ -87,7 +151,7 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
   }
 };
 const login = async (req, res) => {
-  console.log('loggining in')
+  console.log("loggining in");
   try {
     const mobileNo = req.body.mobileNo || "";
 
@@ -142,17 +206,14 @@ const login = async (req, res) => {
 
 const validateOTP = async (req, res) => {
   try {
-   
-
     let mobileNo = req.body.mobileNo ? req.body.mobileNo : "";
     let otp = req.body.otp ? req.body.otp : "";
 
     if (mobileNo != "" && mobileNo.length == 10) {
-  
       let GetRecords = await common.GetRecords(config.userTable, "", {
         mobileNo,
       });
-  
+
       let token = jwt.sign(
         { id: GetRecords.data[0].Id },
         `'${config.JwtSupersecret}'`,
@@ -162,7 +223,6 @@ const validateOTP = async (req, res) => {
       );
 
       if (GetRecords.data[0].otp == otp) {
-      
         let response = {
           status: 200,
           msg: "Successful",
@@ -184,6 +244,7 @@ const validateOTP = async (req, res) => {
 };
 
 async function generateAndSaveOTP(req, res) {
+  console.log("otptt isss  getting otp for signup");
   try {
     const mobileNo = req.body.mobileNo || "";
 
@@ -194,10 +255,12 @@ async function generateAndSaveOTP(req, res) {
         generateOtp = 1111;
       } else {
         generateOtp = Math.floor(1000 + Math.random() * 9000);
+        console.log("generated otp is ", generateOtp);
 
         const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
         const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
         const sendMsg = await axios.get(url);
+        console.log("send msg isss", sendMsg);
 
         if (sendMsg.status !== 200) {
           // Handle error if OTP sending fails
@@ -284,7 +347,7 @@ const validatephoneOTP = async (req, res) => {
             mobileNo,
             fullName,
             userName,
-            otp
+            otp,
           ); // You may need to adjust the arguments based on your usersignup function
 
           if (signupResult.status) {

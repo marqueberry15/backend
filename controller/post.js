@@ -1,7 +1,6 @@
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 
-
 exports.postComment = async (req, res) => {
   try {
     let text = req.body.text;
@@ -79,7 +78,8 @@ exports.getAllComments = async (req, res) => {
 };
 
 exports.hitlike = async (req, res) => {
- 
+  console.log("hittt like");
+
   try {
     const { postId, userId, userName } = req.body;
     const obj = {
@@ -87,21 +87,23 @@ exports.hitlike = async (req, res) => {
       userId,
       userName,
     };
+    console.log("hittt like");
     const addedlikes = await common.AddRecords("Likes", obj);
-
+    console.log("hittt like");
     if (addedlikes) {
-      const noti ={
+      const noti = {
         msg: ` ${userName} started following you`,
-        userId
-       }
-       const notisend = await common.AddRecords("Notification",noti);
-      if (notisend.status) {
-       
-        return res
-        .status(200)
-        .send({ msg: "Contest Created Successfully", status: 200 });
+        userId,
       };
-     
+      const notisend = await common.AddRecords("Notification", noti);
+      console.log("hittt like");
+      if (notisend.status) {
+        console.log("hittt like");
+
+        return res
+          .status(200)
+          .send({ msg: "Contest Created Successfully", status: 200 });
+      }
     } else {
       return {
         status: 401,
@@ -117,14 +119,35 @@ exports.hitlike = async (req, res) => {
 };
 exports.getlike = async (req, res) => {
   try {
-    const postId= req.query.postId
-    const getlikes = await common.GetRecords("Likes", "", postId);
+    console.log("");
+    const postId = req.query.postId;
+    const getlikes = await common.GetRecords("Likes", "", { postId });
     if (getlikes.status == 200) {
-     
+      console.log("no. of likesss areee", getlikes.data.length);
+
       return res.status(200).send({ status: 200, likes: getlikes.data });
     } else
       return res
         .status(401)
+        .send({ status: 401, msg: "Cannot get likes record" });
+  } catch (err) {
+    return res
+      .status(501)
+      .send({ msg: "Error while fetching the  likes data" });
+  }
+};
+
+exports.userlike = async (req, res) => {
+  try {
+    console.log("get user like");
+    const userName = req.query.userName;
+    const getlikes = await common.GetRecords("Likes", "", userName);
+    console.log("get likesss", getlikes);
+    if (getlikes.status == 200) {
+      return res.status(200).send({ status: 200, likes: getlikes.data });
+    } else
+      return res
+        .status(200)
         .send({ status: 401, msg: "Cannot get likes record" });
   } catch (err) {
     return res
@@ -157,7 +180,6 @@ exports.unlike = async (req, res) => {
 
 exports.getfollowuserName = async (req, res) => {
   try {
-    
     const userName = req.query.userName;
     const sql = `SELECT userName 
     FROM User 
@@ -166,7 +188,6 @@ exports.getfollowuserName = async (req, res) => {
 
     let getUser = await common.customQuery(sql);
 
-  
     if (getUser.status) {
       let response = {
         status: 200,
@@ -188,7 +209,6 @@ exports.getfollowuserName = async (req, res) => {
 
 exports.getcontest = async (req, res) => {
   try {
-  
     const getcontest = await common.GetRecords("Contest", "", "");
     if (getcontest.status)
       return res.send({
@@ -199,7 +219,6 @@ exports.getcontest = async (req, res) => {
     else
       return res.send({ msg: "Failed to fetch contest details ", status: 401 });
   } catch (err) {
-   
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
 };
@@ -230,11 +249,6 @@ exports.gettrendingtemplate = async (req, res) => {
         trendingtemplate: gettrendtemp.data,
       });
   } catch (err) {
- 
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
 };
-
-
-
-

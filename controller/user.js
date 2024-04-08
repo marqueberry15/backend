@@ -81,7 +81,6 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
-   
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
 
@@ -137,6 +136,20 @@ exports.getPost = async (req, res) => {
     return res.status(500).json({ Error: err });
   }
 };
+exports.getallPost = async (req, res) => {
+  try {
+    const mobileNo = req.query.mobileNo;
+
+    const postdetails = await common.GetRecords("Post", "", "");
+    if (postdetails.status === 200) {
+      return res.status(200).send({ status: 200, posts: postdetails.data });
+    }
+  } catch (err) {
+    return res.status(500).json({ Error: err });
+  }
+};
+
+exports.relevantpost = async (req, res) => {};
 
 exports.deletePost = async (req, res) => {
   try {
@@ -296,7 +309,7 @@ const uploadTemplate = async (req, res, file) => {
         fileName,
         type,
       };
-     
+
       const updatedUser = await common.AddRecords(
         "Trending_Template",
         template
@@ -361,7 +374,6 @@ exports.follow = async (req, res) => {
       };
       const notisend = await common.AddRecords("Notification", noti);
       if (notisend.status) {
-       
       }
       let response = {
         status: 200,
@@ -375,9 +387,7 @@ exports.follow = async (req, res) => {
       };
       res.send(response);
     }
-  } catch (err) {
-
-  }
+  } catch (err) {}
 };
 
 exports.getfollow = async (req, res) => {
@@ -387,13 +397,12 @@ exports.getfollow = async (req, res) => {
     const getfollower = await common.GetRecords("Follow", "", {
       userName: Follow_Id,
     });
-  
+
     if (getfollower.status == 200) {
       return res.status(200).send({ status: 200, followers: getfollower.data });
     } else
       return res.status(401).send({ msg: "Cannot found the follower details" });
   } catch (err) {
-  
     return res.status(501).send({ msg: "Error while fetching the details" });
   }
 };
@@ -403,20 +412,18 @@ exports.getfollowers = async (req, res) => {
     const Follow_id = req.query.Id;
 
     const getfollower = await common.GetRecords("Follow", "", { Follow_id });
-   
+
     if (getfollower.status == 200) {
       return res.status(200).send({ status: 200, followers: getfollower.data });
     } else
       return res.status(401).send({ msg: "Cannot found the follower details" });
   } catch (err) {
-   
     return res.status(501).send({ msg: "Error while fetching the details" });
   }
 };
 
 exports.getFollowerList = async (req, res) => {
   try {
-   
     let user_id = req.query.Id;
     let follower_user_ids = req.query.arr;
 
@@ -431,14 +438,12 @@ exports.getFollowerList = async (req, res) => {
       };
       return res.send(response);
     }
-   
 
     // let follower_user_ids_str = follower_user_ids.join(",");
 
     const commaSeparatedString = follower_user_ids
       .map((value) => `'${value}'`)
       .join(", ");
-   
 
     // let sql = `SELECT User.Id, User.userName, User.fullName FROM Follow LEFT JOIN User ON Follow.Follow_id = User.Id WHERE Follow.Follow_id IN (63,65,64,67);`;
     let sql = `SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.userName In (${commaSeparatedString});`;
@@ -466,7 +471,6 @@ exports.getFollowerList = async (req, res) => {
 
 exports.getFollowingList = async (req, res) => {
   try {
-
     let user_id = req.query.Id;
     let follower_user_ids = req.query.arr;
 
@@ -481,7 +485,7 @@ exports.getFollowingList = async (req, res) => {
       };
       return res.send(response);
     }
-   
+
     const commaSeparatedString = follower_user_ids
       .map((value) => `'${value}'`)
       .join(", ");
@@ -510,7 +514,6 @@ exports.getFollowingList = async (req, res) => {
 };
 
 exports.deletefollow = async (req, res) => {
-
   const userName = req.body.userName;
   const Follow_user = req.body.Id_name;
   const sql = `DELETE FROM Follow
@@ -553,15 +556,13 @@ exports.updatewallpaper = async (req, res) => {
 };
 
 exports.userTemplate = async (req, res) => {
-
   try {
-
     const { date, time } = getCurrentDateTime();
-  
+
     const fileName = `${date}_${time}`;
-   
+
     const result = await connectFTP(req.file.buffer, fileName, "UserTemplate");
-  
+
     if (result) {
       const updatedUser = await common.AddRecords("User_Template", {
         fileName,
@@ -589,15 +590,14 @@ exports.userTemplate = async (req, res) => {
 };
 
 exports.applycampaign = async (req, res) => {
-
   try {
     const { date, time } = getCurrentDateTime();
     const { campaign_name, userName } = req.body;
-   
+
     const fileName = `${date}_${time}_${campaign_name}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "Campaign");
-   
+
     if (result) {
       const updatedUser = await common.AddRecords("Campaign", {
         fileName,
@@ -626,16 +626,14 @@ exports.applycampaign = async (req, res) => {
 };
 
 exports.getUserTemplate = async (req, res) => {
-
   try {
     const user = req.query.user;
- 
+
     const templatedetails = await common.GetRecords("User_Template", "", {
       user,
     });
-  
+
     if (templatedetails.status === 200) {
-    
       return res
         .status(200)
         .send({ status: 200, templates: templatedetails.data });
@@ -648,7 +646,7 @@ exports.getUserTemplate = async (req, res) => {
 exports.createcontest = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
-  
+
     const fileName = `${date}_${time}_${req.body.contestName}`;
 
     const { Description, prizeMoney, contestName } = req.body;
@@ -668,7 +666,6 @@ exports.createcontest = async (req, res) => {
       };
       const notisend = await common.AddRecords("Notification", noti);
       if (notisend.status) {
-      
         return res
           .status(200)
           .send({ msg: "Contest Created Successfully", status: 200 });
@@ -686,14 +683,12 @@ exports.createcontest = async (req, res) => {
 };
 
 exports.applycontest = async (req, res) => {
- 
   try {
- 
     const { date, time } = getCurrentDateTime();
     const { contestName, userName } = req.body;
 
     const fileName = `${date}_${time}_${userName}`;
-   
+
     const result = await connectFTP(req.file.buffer, fileName, "ContestApply");
 
     if (result) {
@@ -723,14 +718,12 @@ exports.applycontest = async (req, res) => {
 };
 
 exports.getnotification = async (req, res) => {
-
   try {
     const userId = req.query.Id;
     const notification = await common.GetRecords("Notification", "", {
       userId,
     });
     if (notification.status === 200) {
-     
       return res
         .status(200)
         .send({ status: 200, notification: notification.data });
@@ -739,28 +732,52 @@ exports.getnotification = async (req, res) => {
         .status(500)
         .send({ msg: "Facing Error while fetching notifications" });
     }
-  } catch (err) {
- 
-  }
+  } catch (err) {}
 };
 
 exports.getresult = async (req, res) => {
-
   try {
-  
     const result = await common.GetRecords("Result", "", "");
-   
+
     if (result.status === 200) {
-  
-      return res
-        .status(200)
-        .send({ status: 200, result: result.data });
+      return res.status(200).send({ status: 200, result: result.data });
     } else {
       res
         .status(500)
         .send({ msg: "Facing Error while fetching notifications" });
     }
-  } catch (err) {
- 
-  }
+  } catch (err) {}
+};
+
+exports.getrelevant = async (req, res) => {
+  const userName = req.query.userName;
+  const sql = `SELECT * 
+  FROM Post 
+  WHERE username IN (
+      SELECT Username 
+      FROM User 
+      WHERE ID IN (
+          SELECT Follow_id 
+          FROM Follow 
+          WHERE userName = '${userName}'
+      )
+  )`;
+
+  let getUser = await common.customQuery(sql);
+
+    if (getUser.data.length > 0) {
+      let response = {
+        status: 200,
+        msg: "Data Available",
+        data: getUser.data,
+      };
+      res.send(response);
+    } else {
+      let response = {
+        status: 500,
+        msg: "No data available",
+      };
+      res.send(response);
+    }
+
 };
