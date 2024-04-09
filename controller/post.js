@@ -90,10 +90,20 @@ exports.hitlike = async (req, res) => {
     console.log("hittt like");
     const addedlikes = await common.AddRecords("Likes", obj);
     console.log("hittt like");
+    // if (addedlikes) {
+    //   const noti = {
+    //     msg: ` ${userName} started following you`,
+    //     userId,
+    //   };
+    let sql = `SELECT User.ProfileDp FROM User Where User.userName In '${userName}';`;
+   const getdp = await common.customQuery(sql);
+   
     if (addedlikes) {
       const noti = {
-        msg: ` ${userName} started following you`,
-        userId,
+        msg: `${userName} started following you`,
+        userId: Follow_id,
+        Dp:getdp.data[0].ProfileDp
+
       };
       const notisend = await common.AddRecords("Notification", noti);
       console.log("hittt like");
