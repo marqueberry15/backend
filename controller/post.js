@@ -1,5 +1,6 @@
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
+const { post } = require("../routes/app");
 
 exports.postComment = async (req, res) => {
   try {
@@ -24,6 +25,11 @@ exports.postComment = async (req, res) => {
     let addRecord = await common.AddRecords("Comment", addobj);
 
     if (addRecord) {
+      let sqlupdate = `UPDATE Post
+      SET CommentCount = CommentCount + 1 Where Id=${Post_Id};
+      `;
+      await common.customQuery(sqlupdate);
+
       let response = {
         status: 200,
         msg: "Successfully added comment to the database",
@@ -89,23 +95,36 @@ exports.hitlike = async (req, res) => {
     };
     console.log("hittt like");
     const addedlikes = await common.AddRecords("Likes", obj);
-    console.log("hittt like");
-    // if (addedlikes) {
-    //   const noti = {
-    //     msg: ` ${userName} started following you`,
-    //     userId,
-    //   };
-    let sql = `SELECT User.ProfileDp FROM User Where User.userName In '${userName}';`;
-   const getdp = await common.customQuery(sql);
-   
-    if (addedlikes) {
-      const noti = {
-        msg: `${userName} started following you`,
-        userId: Follow_id,
-        Dp:getdp.data[0].ProfileDp
+    console.log("hittt like", addedlikes);
 
+    let sql = `SELECT User.ProfileDp FROM User Where User.userName = '${userName}';`;
+    const getdp = await common.customQuery(sql);
+    console.log("getting dp responseeeee issssss", getdp);
+
+    if (addedlikes.status == 1) {
+      let sqlupdate = `UPDATE Post
+       SET LikesCount = LikesCount + 1 Where Id=${postId};
+       `;
+      await common.customQuery(sqlupdate);
+      let Dp;
+      if (getdp.status == 200) {
+        Dp = getdp.data[0].ProfileDp;
+      } else {
+        Dp = "";
+      }
+
+      let usersql = `SELECT User.Id FROM User WHERE User.userName = (SELECT Post.userName FROM Post WHERE Id = ${postId})`;
+      const getuserId = await common.customQuery(usersql);
+      console.log("getuserIddd ", getuserId);
+      console.log("usersql statment", usersql);
+      const noti = {
+        msg: `${userName} Liked  your Post`,
+        userId: getuserId.data[0].Id,
+        Dp,
       };
+      console.log("notification object isss ", noti);
       const notisend = await common.AddRecords("Notification", noti);
+
       console.log("hittt like");
       if (notisend.status) {
         console.log("hittt like");
@@ -131,8 +150,10 @@ exports.getlike = async (req, res) => {
   try {
     console.log("");
     const postId = req.query.postId;
+    
     const getlikes = await common.GetRecords("Likes", "", { postId });
     if (getlikes.status == 200) {
+
       console.log("no. of likesss areee", getlikes.data.length);
 
       return res.status(200).send({ status: 200, likes: getlikes.data });
@@ -140,6 +161,14 @@ exports.getlike = async (req, res) => {
       return res
         .status(401)
         .send({ status: 401, msg: "Cannot get likes record" });
+
+    // const sql = `select top(3) From User Where User.Id In (Select User.Id from Likes where postId=${postId})`;
+    // const sql= `SELECT TOP 3 ProfileDp
+    // FROM User
+    // WHERE User.Id IN (SELECT User.Id FROM Likes WHERE postId=${postId})
+    // `
+    // const result = await common.customQuery(sql);
+    // console.log(result, "resultttttt");
   } catch (err) {
     return res
       .status(501)
@@ -169,20 +198,49 @@ exports.userlike = async (req, res) => {
 exports.unlike = async (req, res) => {
   try {
     const { postId, userId } = req.query;
-    const unlike = await common.deleteRecords("Likes", { Id });
-    if (unlike) {
-      let response = {
-        status: 200,
-        msg: "Unliked  successfully.",
-      };
-      res.send(response);
-    } else {
-      let response = {
-        status: 500,
-        msg: "Something went wrong",
-      };
-      res.send(response);
-    }
+    console.log("postttttt idddddddd", postId, userId);
+    const sql = `DELETE FROM Likes
+    WHERE postId = ${postId}
+    AND userId = ${userId};
+    `;
+
+    console.log("sql is s ", sql);
+
+    let unlikeuser = await common.customQuery(sql);
+    console.log("unlikeee userrrrrrrrrrrr", unlikeuser);
+    // if (unlikeuser.status==1) {
+    // console.log("iff condition satisfied")
+
+    //   let sqlupdate = `UPDATE Post
+    //   SET LikesCount = LikesCount - 1
+    //   WHERE Id = ${postId}`;
+
+    //   const deltelike=await common.customQuery(sqlupdate);
+    //   console.log('delte likee isss',deltelike)
+    //   let response = {
+    //     status: 200,
+    //     msg: "Unliked  successfully.",
+    //   };
+    //   res.send(response);
+    // } else {
+    //   let response = {
+    //     status: 500,
+    //     msg: "Something went wrong",
+    //   };
+    //   res.send(response);
+    // }
+
+    let sqlupdate = `UPDATE Post
+      SET LikesCount = LikesCount - 1
+      WHERE Id = ${postId}`;
+
+    const deltelike = await common.customQuery(sqlupdate);
+    console.log("delte likee isss", deltelike);
+    let response = {
+      status: 200,
+      msg: "Unliked  successfully.",
+    };
+    res.send(response);
   } catch (err) {
     return res.status(501).send({ msg: "Error while fetching data" });
   }

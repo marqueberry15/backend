@@ -139,17 +139,21 @@ exports.getPost = async (req, res) => {
 exports.getallPost = async (req, res) => {
   try {
     const mobileNo = req.query.mobileNo;
+    const sql = `SELECT *
+    FROM Post
+    ORDER BY  LikesCount DESC, CommentCount DESC, date DESC ;
+    `;
+  
 
-    const postdetails = await common.GetRecords("Post", "", "");
-    if (postdetails.status === 200) {
+    const postdetails = await common.customQuery(sql);
+    if (postdetails.status == 200 ) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
+    //return res.status(200).send({ status: 200, posts: postdetails.data })
   } catch (err) {
     return res.status(500).json({ Error: err });
   }
 };
-
-exports.relevantpost = async (req, res) => {};
 
 exports.deletePost = async (req, res) => {
   try {
@@ -343,6 +347,7 @@ exports.getTemplate = async (req, res) => {
 };
 
 exports.follow = async (req, res) => {
+  console.log(req.body, "req bodydddddddddd isssssssssssssss");
   try {
     let userName = req.body.userName;
     let Follow_id = req.body.follow_id;
@@ -352,12 +357,13 @@ exports.follow = async (req, res) => {
       Follow_id,
     });
 
-    if (existingRecord) {
+    if (existingRecord.status) {
+      console.log("existing gggggggg recorrrrrrrrrrrrrrr", existingRecord);
       let response = {
         status: 400,
         msg: "Duplicate record. This user is already being followed.",
       };
-      res.send(response);
+      return res.send(response);
     }
 
     const addobj = {
@@ -366,17 +372,19 @@ exports.follow = async (req, res) => {
     };
 
     let addRecord = await common.AddRecords("Follow", addobj);
-    
-    let sql = `SELECT User.ProfileDp FROM User Where User.userName In '${userName}';`;
-   const getdp = await common.customQuery(sql);
-   
+
+    let sql = `SELECT User.ProfileDp FROM User Where User.userName = '${userName}';`;
+    const getdp = await common.customQuery(sql);
+    console.log("geteeeee dpddddddddddd isss", getdp);
+
     if (addRecord) {
       const noti = {
         msg: `${userName} started following you`,
         userId: Follow_id,
-        Dp:getdp.data[0].ProfileDp
-
+        Dp: getdp.data[0].ProfileDp,
       };
+      console.log("getee dppp fu;;; objjecttt", noti);
+
       const notisend = await common.AddRecords("Notification", noti);
       if (notisend.status) {
       }
@@ -756,33 +764,58 @@ exports.getresult = async (req, res) => {
 
 exports.getrelevant = async (req, res) => {
   const userName = req.query.userName;
-  const sql = `SELECT * 
-  FROM Post 
+  const sql = `SELECT *
+  FROM Post
   WHERE username IN (
-      SELECT Username 
-      FROM User 
+      SELECT Username
+      FROM User
       WHERE ID IN (
-          SELECT Follow_id 
-          FROM Follow 
+          SELECT Follow_id
+          FROM Follow
           WHERE userName = '${userName}'
       )
-  )`;
+  )
+  ORDER BY  LikesCount DESC, CommentCount DESC, date DESC ;
+  `;
 
   let getUser = await common.customQuery(sql);
 
-    if (getUser.data.length > 0) {
-      let response = {
-        status: 200,
-        msg: "Data Available",
-        data: getUser.data,
-      };
-      res.send(response);
-    } else {
-      let response = {
-        status: 500,
-        msg: "No data available",
-      };
-      res.send(response);
-    }
-
+  if (getUser.data.length > 0) {
+    let response = {
+      status: 200,
+      msg: "Data Available",
+      data: getUser.data,
+    };
+    res.send(response);
+  } else {
+    let response = {
+      status: 500,
+      msg: "No data available",
+    };
+    res.send(response);
+  }
 };
+
+exports.balance = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const getbalance = await common.GetRecords("Wallet", "", { userId });
+    if (getbalance.status) {
+      return res.send({ status: 200, balance: getbalance.data[0] }).status(200);
+    } else return res.send({ status: 405, balance: 0 });
+  } catch (err) {
+    return res.status(500).send({
+      status: 500,
+      msg: "Getting error while fetching the result for the wallet balance",
+    });
+  }
+};
+
+exports.walletotp = async (req, res) => {};
+
+exports.correctdate= async(req,res)=>{
+
+const postquery= 'Select date F'
+
+
+}

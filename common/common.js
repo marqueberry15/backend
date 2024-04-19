@@ -29,8 +29,6 @@ module.exports = {
           sql += " WHERE " + conditions.join(" AND ");
         }
   
-        console.log('sql statement is ', sql);
-  
         try {
           dbConnection.query(sql, Object.values(whereConditions), async (err, result) => {
             if (err) {

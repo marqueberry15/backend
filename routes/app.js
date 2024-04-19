@@ -2,7 +2,7 @@ const express = require("express")
 const route =express.Router()
 const upload=require("../middleware/mutler")
 const {login,generateAndSaveOTP, validatephoneOTP,validateOTP, getCampaign,update,saveInterest,contact}=require("../controller/app")
-const { updateprofile,userDetail,createPost,getPost, deletePost, allUsers, getinterest, createPosts, createTemplates, getTemplate, follow, getfollow, getfollowers, getFollowingList, getFollowerList, deletefollow, updatewallpaper, userTemplate, applycampaign, getUserTemplate, createcontest, applycontest, getnotification, getresult, getallPost, getrelevant} = require("../controller/user")
+const { updateprofile,userDetail,createPost,getPost, deletePost, allUsers, getinterest, createPosts, createTemplates, getTemplate, follow, getfollow, getfollowers, getFollowingList, getFollowerList, deletefollow, updatewallpaper, userTemplate, applycampaign, getUserTemplate, createcontest, applycontest, getnotification, getresult, getallPost, getrelevant, balance} = require("../controller/user")
 const { postComment, getAllComments, getfollowuserName, hitlike, getlike, unlike,  getcontest, deletecontest, gettrendingtemplate, userlike } = require("../controller/post")
 route.post("/generateotp",generateAndSaveOTP)
 route.post("/validatephone",validatephoneOTP)
@@ -48,6 +48,8 @@ route.get("/getresult",getresult)
 route.get("/userlikes",userlike)
 route.get("/getallpost",getallPost)
 route.get("/getrelevantpost",getrelevant)
+route.get("/getbalance",balance)
+
 
 
 module.exports=route
