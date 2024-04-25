@@ -571,6 +571,59 @@ const contact = async (req, res) => {
   }
 };
 
+const verify = async (req, res) => {
+  const mobileNo = req.body.mobileNo;
+  if (mobileNo) {
+    const generateOtp = Math.floor(1000 + Math.random() * 9000);
+
+    const message = `Hey Creator, Your OTP for Withdrawl is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
+    const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
+
+    const sendMsg = await axios.get(url);
+    console.log("genrreated otpt tt isss", generateOtp);
+    return res
+      .status(200)
+      .send({ otp: generateOtp, msg: "Successfully send the otp" });
+  } else {
+    return res.status(500).send({ msg: "Cannot send Otp" });
+  }
+};
+
+const withdrawmail = async (req, res) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      auth: {
+        user: process.env.email,
+        pass: process.env.password2,
+      },
+    });
+    const mailOptions = {
+      from: process.env.email,
+      to: [
+        "info@marqueberry.com",
+        "amit@marqueberry.com",
+        "deepanshu@marqueberry.com",
+        "ritesh@marqueberry.com",
+       // "sushma.rani@marqueberry.com"
+      ],
+      cc: ["sushma.rani@marqueberry.com", "prateek.bhardwaj@marqueberry.com"],
+      subject: "Money Withdraw REquest",
+      text: `
+      
+      Adoro App User ${req.body.fullName} wants to withdraw an amount of ${req.body.withdrawAmount} with Bank Details as mentioned here Below \n
+      BenificiaryName: ${req.body.benificiaryName}\n AccountNo: ${req.body.accountNo}\nIfsc Code: ${req.body.ifscCode}\nBankName: ${req.body.bankName}`,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    //console.log("infoof isssssss", info,info.status);
+    res.send({ status: 200, msg: "Successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   login,
   generateAndSaveOTP,
@@ -580,4 +633,6 @@ module.exports = {
   update,
   saveInterest,
   contact,
+  verify,
+  withdrawmail,
 };

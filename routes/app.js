@@ -10,6 +10,8 @@ const {
   update,
   saveInterest,
   contact,
+  verify,
+  withdrawmail,
 } = require("../controller/app");
 const {
   updateprofile,
@@ -101,5 +103,7 @@ route.get("/getrelevantpost", getrelevant);
 route.get("/getbalance", balance);
 route.post("/hide", hide);
 route.post("/block", blockuser);
+route.post("/walletotp", verify);
+route.post("/walletmail", withdrawmail);
 
 module.exports = route;
