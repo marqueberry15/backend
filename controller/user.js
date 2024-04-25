@@ -3,7 +3,12 @@ const { PassThrough } = require("stream");
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const config = require("../config/config");
-
+// const ffmpeg = require('ffmpeg');
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const ffmpeg = require("fluent-ffmpeg");
+ffmpeg.setFfmpegPath(ffmpegPath);
+const axios = require("axios");
+const thumbsupply = require("thumbsupply");
 const configr = {
   host: "154.41.233.75",
   port: process.env.ftpport,
@@ -81,11 +86,27 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
+    console.log("filenameeeee", req.file);
     const { date, time } = getCurrentDateTime();
-    const fileName = `${date}_${time}`;
 
     const type = req.file.mimetype.split("/")[0];
-    const result = await connectFTP(req.file.buffer, fileName, "UserPost");
+    const ext = req.file.mimetype.split("/")[1];
+    const fileName = `${date}_${time}.${ext}`;
+
+    //const result = await connectFTP(req.file.buffer, fileName, "UserPost");
+
+    // if (type === "video") {
+    //   // Generate thumbnail for video
+    //   try {
+    //     await extractThumbnailAndUpload("UserPost", fileName, "VideoThumbnail");
+    //     console.log("thumbnail stored");
+    //     thumbnailFileName = `${fileName}`;
+    //     // No need to read the thumbnail file into buffer
+    //   } catch (error) {
+    //     console.error("Error generating thumbnail:", error);
+    //     thumbnailFileName = ""; // Reset thumbnail file name if error occurs
+    //   }
+    // }
 
     const post = {
       mobileNo: req.body.mobileNo,
@@ -96,7 +117,8 @@ exports.createPost = async (req, res) => {
       date: `${date}_${time}`,
       profile: req.body.profile ? req.body.profile : "",
       fullName: req.body.fullName ? req.body.fullName : "",
-      userNAme: req.body.userName ? req.body.userName : "",
+      userName: req.body.userName ? req.body.userName : "",
+     // thumbnailFileName,
     };
 
     if (result) {
@@ -123,6 +145,58 @@ exports.createPost = async (req, res) => {
     return res.status(501).send({ msg: err });
   }
 };
+async function extractThumbnailAndUpload(videoUri, videoFileName, ftpFolder) {
+  console.log("thumbnail params", videoUri, videoFileName, ftpFolder);
+
+  // return new Promise(async (resolve, reject) => {
+  //   const ftpClient = new ftp.Client();
+
+  //   const thumbnailStream = new PassThrough();
+
+  //   try {
+  //     await ftpClient.access(configr);
+
+  //     ffmpeg()
+  //       .input(`https://www.adoro.social/UserPost/2024-04-22_17:35:07:615.mp4`)
+  //       .outputOptions(['-vf', 'thumbnail,scale=640:360'])
+  //       .outputFormat('image2pipe')
+  //       .on('error', (err) => reject(err))
+  //       .on('end', () => resolve())
+  //       .pipe(thumbnailStream);
+
+  //     thumbnailStream.on('end', async () => {
+  //       thumbnailStream.end();
+  //       resolve();
+  //     });
+
+  //     thumbnailStream.on('error', (err) => {
+  //       thumbnailStream.end();
+  //       reject(err);
+  //     });
+
+  //     const thumbnailFileName = `${videoFileName}_thumbnail.jpg`;
+  //     const remotePath = `${ftpFolder}/${thumbnailFileName}`; // Construct remote path
+  //     thumbnailStream.pipe(ftpClient.putStream(thumbnailStream, remotePath));
+  //   } catch (err) {
+  //     reject(err);
+  //   }
+  // });
+  const timestamp = Date.now();
+
+  thumbsupply
+    .generateThumbnail(
+      `https://www.adoro.social/UserPost/2024-04-23_15:36:33:146.mp4`,
+      {
+        timestamp,
+        forceCreate: true,
+        mimetype: "video/mp4",
+        buffer: true,
+      }
+    )
+    .then((thumb) => {
+      console.log(thumb);
+    });
+}
 
 exports.getPost = async (req, res) => {
   try {
@@ -138,18 +212,40 @@ exports.getPost = async (req, res) => {
 };
 exports.getallPost = async (req, res) => {
   try {
-    const mobileNo = req.query.mobileNo;
+    const userId = req.query.userId;
     const sql = `SELECT *
     FROM Post
-    ORDER BY  LikesCount DESC, CommentCount DESC, date DESC ;
+    Where userName NOT IN (
+      SELECT BlockedUserName
+      FROM Block
+      WHERE UserId = ${userId}
+    ) AND Id NOT IN (
+      SELECT PostId
+      FROM Hide_Post
+      WHERE UserId = ${userId}
+    ) 
+    ORDER BY  date DESC, LikesCount DESC, CommentCount DESC ;
     `;
-  
+
+    //   const query = `
+    //   SELECT *
+    //   FROM ${table}
+    //   WHERE category IN ('${categories.join("', '")}')
+    //     AND userName NOT IN (
+    //       SELECT BlockedUserName
+    //       FROM Block
+    //       WHERE UserId = ${userId}
+    //     ) AND Id NOT IN (
+    //       SELECT PostId
+    //       FROM Hide_Post
+    //       WHERE UserId = ${userId}
+    //     )  ORDER By date DESC;
+    // `;
 
     const postdetails = await common.customQuery(sql);
-    if (postdetails.status == 200 ) {
+    if (postdetails.status == 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
-    //return res.status(200).send({ status: 200, posts: postdetails.data })
   } catch (err) {
     return res.status(500).json({ Error: err });
   }
@@ -194,12 +290,17 @@ exports.allUsers = async (req, res) => {
 
 exports.getinterest = async (req, res) => {
   try {
+    console.log("req paramaaaaaaaaaaaaaa issssssssss", req.query);
     const Interest = req.query.interest;
 
     const interestsArray = Interest.split(" ");
 
-    const postdetails = await common.GetPosts("Post", "", interestsArray);
-
+    const postdetails = await common.GetPosts(
+      "Post",
+      "",
+      interestsArray,
+      req.query.UserId
+    );
     if (postdetails.status === 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     } else {
@@ -764,18 +865,23 @@ exports.getresult = async (req, res) => {
 
 exports.getrelevant = async (req, res) => {
   const userName = req.query.userName;
+  const userId = req.query.userId;
   const sql = `SELECT *
   FROM Post
-  WHERE username IN (
+  WHERE userName IN (
       SELECT Username
       FROM User
       WHERE ID IN (
           SELECT Follow_id
           FROM Follow
-          WHERE userName = '${userName}'
+          WHERE userName = '${userName} '
       )
+  ) AND userName NOT IN (
+    SELECT BlockedUserName
+    FROM Block
+    WHERE UserId = ${userId}
   )
-  ORDER BY  LikesCount DESC, CommentCount DESC, date DESC ;
+  ORDER BY date DESC, LikesCount DESC, CommentCount DESC ;
   `;
 
   let getUser = await common.customQuery(sql);
@@ -813,9 +919,6 @@ exports.balance = async (req, res) => {
 
 exports.walletotp = async (req, res) => {};
 
-exports.correctdate= async(req,res)=>{
-
-const postquery= 'Select date F'
-
-
-}
+exports.correctdate = async (req, res) => {
+  const postquery = "Select date F";
+};

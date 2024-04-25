@@ -108,7 +108,7 @@ const fakeNumbers = [
 //   }
 // };
 
-const usersignup = async (mobileNo, fullName, userName, otp) => {
+const usersignup = async (mobileNo, fullName, userName, otp, ownerUser) => {
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
@@ -141,6 +141,13 @@ const usersignup = async (mobileNo, fullName, userName, otp) => {
     const insertResult = await common.AddRecords(config.userTable, newUser);
 
     if (insertResult.status) {
+      if (ownerUser) {
+        const Result = await common.AddRecords(Referal, {
+          userName,
+          ownerUser,
+        });
+      }
+
       return insertResult;
     } else {
       return null;
@@ -329,13 +336,80 @@ async function generateAndSaveOTP(req, res) {
   }
 }
 
+// const validatephoneOTP = async (req, res) => {
+//   try {
+//     const mobileNo = req.body.mobileNo;
+//     const otp = req.body.otp;
+//     const fullName = req.body.fullName;
+//     const userName = req.body.userName;
+
+//     if (mobileNo !== "" && mobileNo.length === 10) {
+//       try {
+//         const getRecords = await common.GetRecords("Signup_otp", "*", {
+//           mobileNo,
+//         });
+
+//         if (getRecords.status && getRecords.data[0].otp == otp) {
+//           const signupResult = await usersignup(
+//             mobileNo,
+//             fullName,
+//             userName,
+//             otp,
+//           ); // You may need to adjust the arguments based on your usersignup function
+
+//           if (signupResult.status) {
+//             const token = jwt.sign(
+//               { id: signupResult.data.insertId },
+//               config.JwtSupersecret,
+//               {
+//                 expiresIn: 86400,
+//               }
+//             );
+//             const response = {
+//               status: 200,
+//               msg: "Successful",
+//               token: token,
+//               data: { mobileNo, fullName, userName, otp },
+//             };
+//             res.send(response);
+//           } else {
+//             const response = {
+//               status: 500,
+//               msg: "Error in user registration",
+//             };
+//             res.send(response);
+//           }
+//         } else {
+//           return res.json({ status: 500, msg: "Invalid Otp" });
+//         }
+//       } catch (err) {
+//         res.json({ status: 500, msg: "Internal Server Error" });
+//       }
+//     } else {
+//       const response = {
+//         status: 400,
+//         msg: "Invalid mobile number",
+//       };
+
+//       res.send(response);
+//     }
+//   } catch (error) {
+//     console.error("Error in validateOTP:", error.message);
+//     res.send({ status: 500, msg: "Internal Server Error" });
+//   }
+// };
+
 const validatephoneOTP = async (req, res) => {
   try {
     const mobileNo = req.body.mobileNo;
     const otp = req.body.otp;
     const fullName = req.body.fullName;
-    const userName = req.body.fullName;
-
+    const userName = req.body.userName;
+    const referal = req.body.referral;
+    let ownerUser = "";
+    if (referal) {
+      ownerUser = referal.split("=")[-1];
+    }
     if (mobileNo !== "" && mobileNo.length === 10) {
       try {
         const getRecords = await common.GetRecords("Signup_otp", "*", {
@@ -348,6 +422,7 @@ const validatephoneOTP = async (req, res) => {
             fullName,
             userName,
             otp,
+            ownerUser
           ); // You may need to adjust the arguments based on your usersignup function
 
           if (signupResult.status) {

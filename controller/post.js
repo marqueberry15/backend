@@ -150,10 +150,9 @@ exports.getlike = async (req, res) => {
   try {
     console.log("");
     const postId = req.query.postId;
-    
+
     const getlikes = await common.GetRecords("Likes", "", { postId });
     if (getlikes.status == 200) {
-
       console.log("no. of likesss areee", getlikes.data.length);
 
       return res.status(200).send({ status: 200, likes: getlikes.data });
@@ -319,4 +318,23 @@ exports.gettrendingtemplate = async (req, res) => {
   } catch (err) {
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
+};
+
+exports.hide = async (req, res) => {
+  const { PostId, UserId } = req.body;
+  console.log(req.body, "req body isssssssss");
+  const result = await common.AddRecords("Hide_Post", req.body);
+  if (result.status == 1) {
+    console.log("Added Successfully");
+    return res.status(200).send({ msg: "added" });
+  } else return res.status(501).send({ Msg: "Facing Prblem" });
+};
+
+exports.blockuser = async (req, res) => {
+  console.log(req.body, "req body isssssssss");
+  const result = await common.AddRecords("Block", req.body);
+  if (result.status == 1) {
+    console.log("Added Successfully");
+    return res.status(200).send({ msg: "added" });
+  } else return res.status(501).send({ Msg: "Facing Prblem" });
 };

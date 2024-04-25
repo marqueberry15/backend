@@ -17,32 +17,36 @@ module.exports = {
     try {
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
-  
+
         fields = _.isEmpty(fields) ? "*" : fields;
-  
+
         whereConditions = _.isEmpty(whereConditions) ? {} : whereConditions;
-  
+
         let sql = `SELECT ${fields} FROM ${table}`;
         const conditionKeys = Object.keys(whereConditions);
         if (conditionKeys.length > 0) {
-          const conditions = conditionKeys.map(key => `${key} = ?`);
+          const conditions = conditionKeys.map((key) => `${key} = ?`);
           sql += " WHERE " + conditions.join(" AND ");
         }
-  
+
         try {
-          dbConnection.query(sql, Object.values(whereConditions), async (err, result) => {
-            if (err) {
-              console.log(err);
-              reject(responseCode.dbErrorResponse(err));
+          dbConnection.query(
+            sql,
+            Object.values(whereConditions),
+            async (err, result) => {
+              if (err) {
+                console.log(err);
+                reject(responseCode.dbErrorResponse(err));
+              }
+              if (result && result.length > 0) {
+                responseObj = responseCode.fetchRecordSuccessResponse(result);
+                resolve(responseObj);
+              } else {
+                responseObj = responseCode.recordNotFoundResponse();
+                resolve(responseObj);
+              }
             }
-            if (result && result.length > 0) {
-              responseObj = responseCode.fetchRecordSuccessResponse(result);
-              resolve(responseObj);
-            } else {
-              responseObj = responseCode.recordNotFoundResponse();
-              resolve(responseObj);
-            }
-          });
+          );
         } catch (error) {
           reject(error);
         }
@@ -184,16 +188,40 @@ module.exports = {
       return err;
     }
   },
-  GetPosts: async (table, fields, categories) => {
+  GetPosts: async (table, fields, categories, userId) => {
     try {
-      console.log(table, fields, categories);
+      console.log(table, fields, categories, userId);
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
 
         fields = _.isEmpty(fields) ? "*" : fields;
-        const query = `SELECT * FROM ${table} WHERE category IN ('${categories.join(
-          "', '"
-        )}');`;
+        const query = `
+  SELECT *
+  FROM ${table}
+  WHERE category IN ('${categories.join("', '")}')
+    AND userName NOT IN (
+      SELECT BlockedUserName
+      FROM Block
+      WHERE UserId = ${userId}
+    ) AND Id NOT IN (
+      SELECT PostId
+      FROM Hide_Post
+      WHERE UserId = ${userId}
+    )  ORDER By date DESC;
+`;
+        // const query = `
+        //   SELECT *
+        //   FROM ${table}
+        //   WHERE category IN ('${categories.join("', '")}')
+        //     AND userName NOT IN (
+        //       SELECT BlockedUserName
+        //       FROM Block
+        //       WHERE UserId = ${userId}
+        //     )
+        //   ORDER BY date DESC;
+        // `;
+
+        console.log(query);
 
         try {
           dbConnection.query(query, async (err, result) => {
@@ -278,7 +306,7 @@ module.exports = {
   },
 
   customQuery: async (sql) => {
-    console.log('query is ',sql)
+    console.log("query is ", sql);
     try {
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
