@@ -338,3 +338,44 @@ exports.blockuser = async (req, res) => {
     return res.status(200).send({ msg: "added" });
   } else return res.status(501).send({ Msg: "Facing Prblem" });
 };
+
+exports.allpost = async (req, res) => {
+  console.log("getting recordsssss");
+  const postdetails = await common.GetRecords("Post", "", { Status: 0 });
+  console.log("posttt", postdetails);
+  return res.status(200).send({ data: postdetails.data });
+};
+
+exports.updatepost = async (req, res) => {
+ try{
+  const Id = req.body.Id;
+  const sql =`Update Post SEt Status=1 where Id=${Id}`
+  const updatedetail= await common.customQuery(sql)
+    return res.status(200).send({msg:"Update Done Successfully"})
+ }
+ catch(err){
+  return res.send(500).send({msg:"Not updated"})
+ }
+
+};
+
+exports.delpost = async (req, res) => {
+  try{
+   const Id = req.query.Id;
+   console.log("ID for deletion isssssss",Id)
+  
+   const deletedetail= await common.deleteRecords('Post',`Id = ${Id}`)
+   console.log('deleeeeee',deletedetail)
+     if (deletedetail.status==1){
+      return res.status(200).send({msg:"Delete Done Successfully"})
+     }
+     else{
+      return res.send(401).send({msg:"Not Deleted"})
+
+     }
+  }
+  catch(err){
+   return res.send(500).send({msg:"Not Deleted"})
+  }
+ 
+ };

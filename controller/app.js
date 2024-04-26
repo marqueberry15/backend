@@ -405,11 +405,8 @@ const validatephoneOTP = async (req, res) => {
     const otp = req.body.otp;
     const fullName = req.body.fullName;
     const userName = req.body.userName;
-    const referal = req.body.referral;
-    let ownerUser = "";
-    if (referal) {
-      ownerUser = referal.split("=")[-1];
-    }
+    const ownerUser = req.body.referral;
+   
     if (mobileNo !== "" && mobileNo.length === 10) {
       try {
         const getRecords = await common.GetRecords("Signup_otp", "*", {

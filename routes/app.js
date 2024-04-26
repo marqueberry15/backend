@@ -55,6 +55,9 @@ const {
   userlike,
   hide,
   blockuser,
+  allpost,
+  updatepost,
+  delpost,
 } = require("../controller/post");
 route.post("/generateotp", generateAndSaveOTP);
 route.post("/validatephone", validatephoneOTP);
@@ -105,5 +108,9 @@ route.post("/hide", hide);
 route.post("/block", blockuser);
 route.post("/walletotp", verify);
 route.post("/walletmail", withdrawmail);
+route.get("/allpost",allpost)
+route.post("/approvepost",updatepost)
+route.delete("/rejectpost", delpost)
+
 
 module.exports = route;
