@@ -58,6 +58,7 @@ const {
   allpost,
   updatepost,
   delpost,
+  getBrandCampaign,
 } = require("../controller/post");
 route.post("/generateotp", generateAndSaveOTP);
 route.post("/validatephone", validatephoneOTP);
@@ -111,6 +112,7 @@ route.post("/walletmail", withdrawmail);
 route.get("/allpost",allpost)
 route.post("/approvepost",updatepost)
 route.delete("/rejectpost", delpost)
+route.get("/getBrandCampaign", getBrandCampaign)
 
 
 module.exports = route;

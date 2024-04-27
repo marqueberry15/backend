@@ -379,3 +379,17 @@ exports.delpost = async (req, res) => {
   }
  
  };
+
+ exports.getBrandCampaign= async(req, res) => {
+  console.log('fgbbbbbbbbb',req.query.Id)
+
+  try {
+    const campaigndetails = await common.GetRecords("Campaign", "", {campaign_name:req.query.Id});
+    console.log(campaigndetails,'cccccccccccccccccc')
+   if (campaigndetails.status==200){
+    return res.json({ status: 200, campaigndetails: campaigndetails });
+   }
+  } catch (err) {
+    return res.status(500).json({ Error: err });
+  }
+}

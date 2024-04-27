@@ -465,6 +465,7 @@ const validatephoneOTP = async (req, res) => {
 };
 
 async function getCampaign(req, res) {
+
   try {
     const campaigndetails = await common.GetCampaign("BrandInfo", "", "");
     return res.json({ status: 200, campaigndetails: campaigndetails });
