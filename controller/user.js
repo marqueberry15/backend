@@ -118,6 +118,7 @@ exports.createPost = async (req, res) => {
       profile: req.body.profile ? req.body.profile : "",
       fullName: req.body.fullName ? req.body.fullName : "",
       userName: req.body.userName ? req.body.userName : "",
+      Status:0
      // thumbnailFileName,
     };
 
