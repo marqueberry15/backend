@@ -93,7 +93,7 @@ exports.createPost = async (req, res) => {
     const ext = req.file.mimetype.split("/")[1];
     const fileName = `${date}_${time}.${ext}`;
 
-    //const result = await connectFTP(req.file.buffer, fileName, "UserPost");
+    const result = await connectFTP(req.file.buffer, fileName, "UserPost");
 
     // if (type === "video") {
     //   // Generate thumbnail for video
