@@ -139,13 +139,48 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser) => {
     };
 
     const insertResult = await common.AddRecords(config.userTable, newUser);
-
-    if (insertResult.status) {
-      if (ownerUser) {
-        const Result = await common.AddRecords(Referal, {
-          userName,
-          ownerUser,
+    console.log("insertt REsultttttttttt", insertResult);
+    if (insertResult.status==1) {
+      if (ownerUser != "") {
+        const ownerExist = await common.GetRecords("User", "", {
+          userName: ownerUser,
         });
+
+        if (ownerExist.status == 200) {
+          await common.AddRecords("Referal", {
+            userName,
+            ownerUser,
+          });
+
+          await common.AddRecords("Wallet", {
+            UserId: insertResult.data.insertId,
+            mobileNo,
+            balance: 100,
+            userName
+          });
+
+          const ownerWallet = await common.GetRecords("Wallet", "", {
+         userName: ownerUser
+          });
+          console.log('ownerrrwallettttt',ownerWallet)
+          if (ownerWallet.status == 200) {
+
+            const sql = `UPDATE Wallet SET balance = balance + 100 WHERE userName = '${ownerUser}'`;
+
+            const ressql=await common.customQuery(sql);
+            console.log('res sql',ressql)
+          } else {
+            const userwallet = await common.GetRecords("User", "", {
+            userName:ownerUser
+            });
+            console.log('user wallet',userwallet)
+
+            const query = `INSERT INTO Wallet ( UserId, mobileNo, balance, userName) VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},100,${ownerUser})`;
+            const resquery=await common.customQuery(query)
+            console.log(resquery)
+
+          }
+        }
       }
 
       return insertResult;
@@ -400,13 +435,14 @@ async function generateAndSaveOTP(req, res) {
 // };
 
 const validatephoneOTP = async (req, res) => {
+  console.log("req bodyyyyyyyy ", req.body);
   try {
     const mobileNo = req.body.mobileNo;
     const otp = req.body.otp;
     const fullName = req.body.fullName;
     const userName = req.body.userName;
     const ownerUser = req.body.referral;
-   
+
     if (mobileNo !== "" && mobileNo.length === 10) {
       try {
         const getRecords = await common.GetRecords("Signup_otp", "*", {
@@ -445,7 +481,7 @@ const validatephoneOTP = async (req, res) => {
             res.send(response);
           }
         } else {
-          return res.json({ status: 500, msg: "Invalid Otp" });
+          return res.json({ status: 404, msg: "Invalid Otp" });
         }
       } catch (err) {
         res.json({ status: 500, msg: "Internal Server Error" });
@@ -465,7 +501,6 @@ const validatephoneOTP = async (req, res) => {
 };
 
 async function getCampaign(req, res) {
-
   try {
     const campaigndetails = await common.GetCampaign("BrandInfo", "", "");
     return res.json({ status: 200, campaigndetails: campaigndetails });
@@ -604,7 +639,7 @@ const withdrawmail = async (req, res) => {
         "amit@marqueberry.com",
         "deepanshu@marqueberry.com",
         "ritesh@marqueberry.com",
-       // "sushma.rani@marqueberry.com"
+        // "sushma.rani@marqueberry.com"
       ],
       cc: ["sushma.rani@marqueberry.com", "prateek.bhardwaj@marqueberry.com"],
       subject: "Money Withdraw REquest",
