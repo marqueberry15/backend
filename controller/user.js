@@ -9,6 +9,7 @@ const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
 const axios = require("axios");
 const thumbsupply = require("thumbsupply");
+const { update } = require("./app");
 const configr = {
   host: "154.41.233.75",
   port: process.env.ftpport,
@@ -94,6 +95,7 @@ exports.createPost = async (req, res) => {
     const fileName = `${date}_${time}.${ext}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
+    console.log('osteddd')
 
     // if (type === "video") {
     //   // Generate thumbnail for video
@@ -123,11 +125,13 @@ exports.createPost = async (req, res) => {
     };
 
     if (result) {
+      console.log('result')
       const updatedUser = await common.AddRecords(
         "Post",
         post,
         req.body.mobileNo
       );
+      console.log('post',updatedUser)
       if (updatedUser) {
         return res.send({
           status: 200,
@@ -228,6 +232,25 @@ exports.getallPost = async (req, res) => {
     ORDER BY  date DESC, LikesCount DESC, CommentCount DESC ;
     `;
 
+    // const sql =`SELECT *
+    // FROM (
+    //     SELECT *,
+    //            YEARWEEK(STR_TO_DATE(date, '%Y-%m-%d_%H:%i:%s:%f')) AS week_number
+    //     FROM Post
+    //     WHERE userName NOT IN (
+    //               SELECT BlockedUserName
+    //               FROM Block
+    //               WHERE UserId = ${userId}
+    //             ) 
+    //     AND Id NOT IN (
+    //               SELECT PostId
+    //               FROM Hide_Post
+    //               WHERE UserId = ${userId}
+    //             ) 
+    // ) 
+    // ORDER BY date DESC, LikesCount DESC, CommentCount DESC, date DESC;
+    //        `
+
     //   const query = `
     //   SELECT *
     //   FROM ${table}
@@ -243,6 +266,8 @@ exports.getallPost = async (req, res) => {
     //     )  ORDER By date DESC;
     // `;
 
+  
+  
     const postdetails = await common.customQuery(sql);
     if (postdetails.status == 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
@@ -763,6 +788,7 @@ exports.createcontest = async (req, res) => {
     const { date, time } = getCurrentDateTime();
 
     const fileName = `${date}_${time}_${req.body.contestName}`;
+    
 
     const { Description, prizeMoney, contestName } = req.body;
     const result = await connectFTP(req.file.buffer, fileName, "Contest");
@@ -772,6 +798,7 @@ exports.createcontest = async (req, res) => {
       prizeMoney,
       contestName,
       fileName,
+      date:`${date}_${time}`,
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
     if (addcontest) {
