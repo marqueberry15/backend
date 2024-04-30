@@ -232,40 +232,6 @@ exports.getallPost = async (req, res) => {
     ORDER BY  date DESC, LikesCount DESC, CommentCount DESC ;
     `;
 
-    // const sql =`SELECT *
-    // FROM (
-    //     SELECT *,
-    //            YEARWEEK(STR_TO_DATE(date, '%Y-%m-%d_%H:%i:%s:%f')) AS week_number
-    //     FROM Post
-    //     WHERE userName NOT IN (
-    //               SELECT BlockedUserName
-    //               FROM Block
-    //               WHERE UserId = ${userId}
-    //             ) 
-    //     AND Id NOT IN (
-    //               SELECT PostId
-    //               FROM Hide_Post
-    //               WHERE UserId = ${userId}
-    //             ) 
-    // ) 
-    // ORDER BY date DESC, LikesCount DESC, CommentCount DESC, date DESC;
-    //        `
-
-    //   const query = `
-    //   SELECT *
-    //   FROM ${table}
-    //   WHERE category IN ('${categories.join("', '")}')
-    //     AND userName NOT IN (
-    //       SELECT BlockedUserName
-    //       FROM Block
-    //       WHERE UserId = ${userId}
-    //     ) AND Id NOT IN (
-    //       SELECT PostId
-    //       FROM Hide_Post
-    //       WHERE UserId = ${userId}
-    //     )  ORDER By date DESC;
-    // `;
-
   
   
     const postdetails = await common.customQuery(sql);
