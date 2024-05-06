@@ -41,6 +41,7 @@ const {
   getallPost,
   getrelevant,
   balance,
+  deleteusertemplate,
 } = require("../controller/user");
 const {
   postComment,
@@ -113,6 +114,7 @@ route.get("/allpost",allpost)
 route.post("/approvepost",updatepost)
 route.delete("/rejectpost", delpost)
 route.get("/getBrandCampaign", getBrandCampaign)
+route.delete("/deletetemplate",deleteusertemplate)
 
 
 module.exports = route;

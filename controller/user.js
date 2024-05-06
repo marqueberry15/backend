@@ -95,7 +95,7 @@ exports.createPost = async (req, res) => {
     const fileName = `${date}_${time}.${ext}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
-    console.log('osteddd')
+    console.log("osteddd");
 
     // if (type === "video") {
     //   // Generate thumbnail for video
@@ -120,18 +120,18 @@ exports.createPost = async (req, res) => {
       profile: req.body.profile ? req.body.profile : "",
       fullName: req.body.fullName ? req.body.fullName : "",
       userName: req.body.userName ? req.body.userName : "",
-      Status:0
-     // thumbnailFileName,
+      Status: 0,
+      // thumbnailFileName,
     };
 
     if (result) {
-      console.log('result')
+      console.log("result");
       const updatedUser = await common.AddRecords(
         "Post",
         post,
         req.body.mobileNo
       );
-      console.log('post',updatedUser)
+      console.log("post", updatedUser);
       if (updatedUser) {
         return res.send({
           status: 200,
@@ -216,6 +216,7 @@ exports.getPost = async (req, res) => {
   }
 };
 exports.getallPost = async (req, res) => {
+  console.log("trendingggg");
   try {
     const userId = req.query.userId;
     const sql = `SELECT *
@@ -232,9 +233,8 @@ exports.getallPost = async (req, res) => {
     ORDER BY  date DESC, LikesCount DESC, CommentCount DESC ;
     `;
 
-  
-  
     const postdetails = await common.customQuery(sql);
+    console.log("postdetailssssss", postdetails);
     if (postdetails.status == 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
@@ -754,7 +754,6 @@ exports.createcontest = async (req, res) => {
     const { date, time } = getCurrentDateTime();
 
     const fileName = `${date}_${time}_${req.body.contestName}`;
-    
 
     const { Description, prizeMoney, contestName } = req.body;
     const result = await connectFTP(req.file.buffer, fileName, "Contest");
@@ -764,7 +763,7 @@ exports.createcontest = async (req, res) => {
       prizeMoney,
       contestName,
       fileName,
-      date:`${date}_${time}`,
+      date: `${date}_${time}`,
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
     if (addcontest) {
@@ -916,3 +915,17 @@ exports.walletotp = async (req, res) => {};
 exports.correctdate = async (req, res) => {
   const postquery = "Select date F";
 };
+
+exports.deleteusertemplate = async (req,res)=>{
+  try{
+    await common.deleteRecords("User_Template",{Id:req.query.Id})
+  res.status(200).send({msg:"Deleted Successfully"})
+  }
+  catch(err){
+    res.status(500).send({msg:"Facing Error in Deleting"})
+  }
+
+
+
+
+}
