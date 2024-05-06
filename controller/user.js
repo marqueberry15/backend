@@ -918,14 +918,16 @@ exports.correctdate = async (req, res) => {
 
 exports.deleteusertemplate = async (req,res)=>{
   try{
-    await common.deleteRecords("User_Template",{Id:req.query.Id})
+    await common.deleteRecords("User_Template",`Id = ${req.query.Id}`)
   res.status(200).send({msg:"Deleted Successfully"})
   }
   catch(err){
     res.status(500).send({msg:"Facing Error in Deleting"})
   }
+}
+
+exports.deleteuser = async(req,res)=>{
 
 
-
-
+  tr
 }
