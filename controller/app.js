@@ -666,6 +666,35 @@ const withdrawmail = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+const sendresponse = async(req,res)=>{
+  console.log('suppportttttttttttt',req.body)
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      auth: {
+        user: process.env.email,
+        pass: process.env.password2,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.email,
+      to: req.body.email,
+      subject: "Adoro Support",
+      text:req.body.response,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+ 
+    res.status(200).send({ status: 200, msg: "Successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+
+
+}
 
 module.exports = {
   login,
@@ -678,4 +707,5 @@ module.exports = {
   contact,
   verify,
   withdrawmail,
+  sendresponse
 };

@@ -12,6 +12,7 @@ const {
   contact,
   verify,
   withdrawmail,
+  sendresponse
 } = require("../controller/app");
 const {
   updateprofile,
@@ -66,6 +67,8 @@ const {
   updatetemplate,
   saveResult,
   getallusers,
+  support,
+  
 } = require("../controller/post");
 route.post("/generateotp", generateAndSaveOTP);
 route.post("/validatephone", validatephoneOTP);
@@ -127,5 +130,7 @@ route.post("/approvetemplate", updatetemplate);
 route.post("/rejecttemplate", deltemplate);
 route.post("/saveresult", saveResult);
 route.get("/user",getallusers);
+route.get("/support",support)
+route.post("/sendresponse",sendresponse)
 
 module.exports = route;

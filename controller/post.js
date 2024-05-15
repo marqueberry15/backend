@@ -1,6 +1,7 @@
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const { post } = require("../routes/app");
+const response = require("../constant/response");
 
 exports.postComment = async (req, res) => {
   try {
@@ -470,3 +471,25 @@ exports.getallusers = async (req, res) => {
       .send({ msg: "Facing error in fetching the details" });
   }
 };
+
+exports.support = async(req,res)=>{
+
+  try {
+    const getdetails = await common.GetRecords("Support", "", "");
+
+    if (getdetails.status == 200) {
+      return res.status(200).send({ status: 200, queries: getdetails.data });
+    } else
+      return res
+        .status(401)
+        .send({ msg: "Facing error in fetching the details" });
+  } catch (err) {
+    console.log("errror is ", err);
+    return res
+      .status(500)
+      .send({ msg: "Facing error in fetching the details" });
+  }
+
+}
+
+
