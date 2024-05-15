@@ -591,9 +591,9 @@ const contact = async (req, res) => {
 
     const mailOptions = {
       from: process.env.email,
-      to: "sushma.rani@marqueberry.com",
-      subject: "Form Submission",
-      text: `Name: ${req.body.full_name}\nEmail: ${req.body.email}\nMessage: ${req.body.message}\nMobile: ${req.body.mobileNo}`,
+      to: "info@marqueberry.com",
+      subject: "Adoro Support",
+      text: `Name: ${req.body.fullName}\nEmail: ${req.body.email}\nMessage: ${req.body.message}`,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -602,7 +602,7 @@ const contact = async (req, res) => {
       fullName:req.body.full_name,
       email:req.body.email,
       message: req.body.message,
-      mobileNo: req.body.mobileNo
+     
     })
 
     
