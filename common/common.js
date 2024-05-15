@@ -23,6 +23,7 @@ module.exports = {
         whereConditions = _.isEmpty(whereConditions) ? {} : whereConditions;
 
         let sql = `SELECT ${fields} FROM ${table}`;
+        console.log('wheree conditon ussssssss',whereConditions)
         const conditionKeys = Object.keys(whereConditions);
         if (conditionKeys.length > 0) {
           const conditions = conditionKeys.map((key) => `${key} = ?`);
@@ -30,7 +31,9 @@ module.exports = {
         }
 
         try {
+          console.log('sql query isssssss',sql)
           dbConnection.query(
+
             sql,
             Object.values(whereConditions),
             async (err, result) => {

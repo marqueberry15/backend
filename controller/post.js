@@ -347,49 +347,126 @@ exports.allpost = async (req, res) => {
 };
 
 exports.updatepost = async (req, res) => {
- try{
-  const Id = req.body.Id;
-  const sql =`Update Post SEt Status=1 where Id=${Id}`
-  const updatedetail= await common.customQuery(sql)
-    return res.status(200).send({msg:"Update Done Successfully"})
- }
- catch(err){
-  return res.send(500).send({msg:"Not updated"})
- }
-
+  try {
+    const Id = req.body.Id;
+    const sql = `Update Post SEt Status=1 where Id=${Id}`;
+    const updatedetail = await common.customQuery(sql);
+    return res.status(200).send({ msg: "Update Done Successfully" });
+  } catch (err) {
+    return res.send(500).send({ msg: "Not updated" });
+  }
 };
 
 exports.delpost = async (req, res) => {
-  try{
-   const Id = req.query.Id;
-   console.log("ID for deletion isssssss",Id)
-  
-   const deletedetail= await common.deleteRecords('Post',`Id = ${Id}`)
-   console.log('deleeeeee',deletedetail)
-     if (deletedetail.status==1){
-      return res.status(200).send({msg:"Delete Done Successfully"})
-     }
-     else{
-      return res.send(401).send({msg:"Not Deleted"})
+  try {
+    const Id = req.query.Id;
+    console.log("ID for deletion isssssss", Id);
 
-     }
+    const deletedetail = await common.deleteRecords("Post", `Id = ${Id}`);
+    console.log("deleeeeee", deletedetail);
+    if (deletedetail.status == 1) {
+      return res.status(200).send({ msg: "Delete Done Successfully" });
+    } else {
+      return res.send(401).send({ msg: "Not Deleted" });
+    }
+  } catch (err) {
+    return res.send(500).send({ msg: "Not Deleted" });
   }
-  catch(err){
-   return res.send(500).send({msg:"Not Deleted"})
-  }
- 
- };
+};
 
- exports.getBrandCampaign= async(req, res) => {
-  console.log('fgbbbbbbbbb',req.query.Id)
+exports.getBrandCampaign = async (req, res) => {
+  console.log("fgbbbbbbbbb", req.query.Id);
 
   try {
-    const campaigndetails = await common.GetRecords("Campaign", "", {campaign_name:req.query.Id});
-    console.log(campaigndetails,'cccccccccccccccccc')
-   if (campaigndetails.status==200){
-    return res.json({ status: 200, campaigndetails: campaigndetails });
-   }
+    const campaigndetails = await common.GetRecords("Campaign", "", {
+      campaign_name: req.query.Id,
+    });
+    console.log(campaigndetails, "cccccccccccccccccc");
+    if (campaigndetails.status == 200) {
+      return res.json({ status: 200, campaigndetails: campaigndetails });
+    }
   } catch (err) {
     return res.status(500).json({ Error: err });
   }
-}
+};
+
+exports.contestapplicants = async (req, res) => {
+  console.log("query isssssss", req.query.Id);
+  const contestName = req.query.Id;
+  try {
+    const getdetails = await common.customQuery(
+      `SELECT * FROM Contest_Apply WHERE contestName = '${contestName}'`
+    );
+
+    if (getdetails.status == 200) {
+      return res.status(200).send({ status: 200, applicants: getdetails.data });
+    }
+  } catch (err) {
+    console.log("Error while fetching iss ", err);
+    res.status(500).send({ msg: "Cannot get the applicants result" });
+  }
+};
+
+exports.getalltemplates = async (req, res) => {
+  try {
+    const getdetails = await common.GetRecords("User_Template", "", "");
+
+    if (getdetails.status == 200) {
+      return res.status(200).send({ status: 200, templates: getdetails.data });
+    }
+  } catch (err) {
+    console.log("Error while fetching iss ", err);
+    res.status(500).send({ msg: "Cannot get the applicants result" });
+  }
+};
+
+exports.updatetemplate = async (req, res) => {
+  try {
+    const Id = req.body.Id;
+    const sql = `Update User_Template Set Approval=1 where Id=${Id}`;
+    const updatedetail = await common.customQuery(sql);
+    return res.status(200).send({ msg: "Update Done Successfully" });
+  } catch (err) {
+    return res.send(500).send({ msg: "Not updated" });
+  }
+};
+
+exports.deltemplate = async (req, res) => {
+  try {
+    const Id = req.body.Id;
+    const deletedetail = await common.deleteRecords(
+      "User_Template",
+      `Id = ${Id}`
+    );
+    if (deletedetail.status == 1) {
+      return res.status(200).send({ msg: "Delete Done Successfully" });
+    } else {
+      return res.send(401).send({ msg: "Not Deleted" });
+    }
+  } catch (err) {
+    return res.send(500).send({ msg: "Not Deleted" });
+  }
+};
+
+exports.saveResult = async (req, res) => {
+  console.log("dfvfdvdfss", req.body);
+  return res.status(200).send({ msg: "klkkkkkk" });
+};
+
+exports.getallusers = async (req, res) => {
+  try {
+    const getdetails = await common.GetRecords("User", "", "");
+
+    if (getdetails.status == 200) {
+      return res.status(200).send({ status: 200, templates: getdetails.data });
+    } else
+      return res
+        .status(401)
+        .send({ msg: "Facing error in fetching the details" });
+  } catch (err) {
+    console.log("errror is ", err);
+    return res
+      .status(500)
+      .send({ msg: "Facing error in fetching the details" });
+  }
+};

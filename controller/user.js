@@ -751,28 +751,33 @@ exports.getUserTemplate = async (req, res) => {
 
 exports.createcontest = async (req, res) => {
   try {
+    console.log(1)
     const { date, time } = getCurrentDateTime();
 
     const fileName = `${date}_${time}_${req.body.contestName}`;
 
-    const { Description, prizeMoney, contestName } = req.body;
+    const { Description, contestName } = req.body;
     const result = await connectFTP(req.file.buffer, fileName, "Contest");
 
     const contestobj = {
       Description,
-      prizeMoney,
       contestName,
       fileName,
       date: `${date}_${time}`,
+      time_limit:req.body.time
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
+    console.log(2)
     if (addcontest) {
       const noti = {
         msg: ` New Contest is Live. Apply Now to the contest ${contestName}`,
         userId: 0,
       };
+      console.log(3)
       const notisend = await common.AddRecords("Notification", noti);
+      console.log(4)
       if (notisend.status) {
+        console.log(5)
         return res
           .status(200)
           .send({ msg: "Contest Created Successfully", status: 200 });
@@ -867,7 +872,7 @@ exports.getrelevant = async (req, res) => {
       WHERE ID IN (
           SELECT Follow_id
           FROM Follow
-          WHERE userName = '${userName} '
+          WHERE userName = '${userName}'
       )
   ) AND userName NOT IN (
     SELECT BlockedUserName
@@ -916,18 +921,21 @@ exports.correctdate = async (req, res) => {
   const postquery = "Select date F";
 };
 
-exports.deleteusertemplate = async (req,res)=>{
-  try{
-    await common.deleteRecords("User_Template",`Id = ${req.query.Id}`)
-  res.status(200).send({msg:"Deleted Successfully"})
+exports.deleteusertemplate = async (req, res) => {
+  try {
+    await common.deleteRecords("User_Template", `Id = ${req.query.Id}`);
+    res.status(200).send({ msg: "Deleted Successfully" });
+  } catch (err) {
+    res.status(500).send({ msg: "Facing Error in Deleting" });
   }
-  catch(err){
-    res.status(500).send({msg:"Facing Error in Deleting"})
+};
+
+exports.deleteuser = async (req, res) => {
+  try {
+    await common.deleteRecords("User", `Id=${req.query.Id}`);
+    await common.deleteRecords("Post", `userName=${req.query.userName}`);
+    res.status(200).send({ msg: "Deleted User Successfully" });
+  } catch (err) {
+    res.status(500).send({ msg: "Cannot Delete" });
   }
-}
-
-exports.deleteuser = async(req,res)=>{
-
-
-  tr
-}
+};

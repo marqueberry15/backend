@@ -60,6 +60,12 @@ const {
   updatepost,
   delpost,
   getBrandCampaign,
+  contestapplicants,
+  getalltemplates,
+  deltemplate,
+  updatetemplate,
+  saveResult,
+  getallusers,
 } = require("../controller/post");
 route.post("/generateotp", generateAndSaveOTP);
 route.post("/validatephone", validatephoneOTP);
@@ -110,11 +116,16 @@ route.post("/hide", hide);
 route.post("/block", blockuser);
 route.post("/walletotp", verify);
 route.post("/walletmail", withdrawmail);
-route.get("/allpost",allpost)
-route.post("/approvepost",updatepost)
-route.delete("/rejectpost", delpost)
-route.get("/getBrandCampaign", getBrandCampaign)
-route.delete("/deletetemplate",deleteusertemplate)
-
+route.get("/allpost", allpost);
+route.post("/approvepost", updatepost);
+route.delete("/rejectpost", delpost);
+route.get("/getBrandCampaign", getBrandCampaign);
+route.delete("/deletetemplate", deleteusertemplate);
+route.get("/contestapplicants", contestapplicants);
+route.get("/alltemplates", getalltemplates);
+route.post("/approvetemplate", updatetemplate);
+route.post("/rejecttemplate", deltemplate);
+route.post("/saveresult", saveResult);
+route.get("/user",getallusers);
 
 module.exports = route;

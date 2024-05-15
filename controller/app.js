@@ -578,6 +578,7 @@ const saveInterest = async (req, res) => {
 };
 
 const contact = async (req, res) => {
+  console.log('reeeeeee',req.body)
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -590,14 +591,23 @@ const contact = async (req, res) => {
 
     const mailOptions = {
       from: process.env.email,
-      to: "info@marqueberry.com",
+      to: "sushma.rani@marqueberry.com",
       subject: "Form Submission",
       text: `Name: ${req.body.full_name}\nEmail: ${req.body.email}\nMessage: ${req.body.message}\nMobile: ${req.body.mobileNo}`,
     };
 
     const info = await transporter.sendMail(mailOptions);
+    await common.AddRecords("Support",{
 
-    res.send({ status: 200, msg: "Successful" });
+      fullName:req.body.full_name,
+      email:req.body.email,
+      message: req.body.message,
+      mobileNo: req.body.mobileNo
+    })
+
+    
+
+    res.status(200).send({ status: 200, msg: "Successful" });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
