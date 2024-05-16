@@ -42,6 +42,12 @@ const fakeNumbers = [
   "2811319861",
   "3811319861",
   "4811319861",
+  "7878323604",
+  "9878323604",
+  "8878323604",
+  "6878323604",
+  "5878323604",
+
 ];
 
 // const usersignup = async (mobileNo, fullName, userName, otp, referal) => {
