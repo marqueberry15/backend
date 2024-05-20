@@ -114,7 +114,7 @@ const fakeNumbers = [
 //   }
 // };
 
-const usersignup = async (mobileNo, fullName, userName, otp, ownerUser) => {
+const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId ) => {
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
@@ -142,6 +142,7 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser) => {
       created_on: created_at,
       mobileNo: mobileNo,
       otp: otp,
+      instaId
     };
 
     const insertResult = await common.AddRecords(config.userTable, newUser);
@@ -448,6 +449,7 @@ const validatephoneOTP = async (req, res) => {
     const fullName = req.body.fullName;
     const userName = req.body.userName;
     const ownerUser = req.body.referral;
+    const instaId= req.body. instaUsername;
 
     if (mobileNo !== "" && mobileNo.length === 10) {
       try {
@@ -461,7 +463,9 @@ const validatephoneOTP = async (req, res) => {
             fullName,
             userName,
             otp,
-            ownerUser
+            ownerUser,
+            instaId
+
           ); // You may need to adjust the arguments based on your usersignup function
 
           if (signupResult.status) {

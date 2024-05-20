@@ -68,6 +68,7 @@ const {
   saveResult,
   getallusers,
   support,
+  complete,
   
 } = require("../controller/post");
 route.post("/generateotp", generateAndSaveOTP);
@@ -132,5 +133,6 @@ route.post("/saveresult", saveResult);
 route.get("/user",getallusers);
 route.get("/support",support)
 route.post("/sendresponse",sendresponse)
+
 
 module.exports = route;
