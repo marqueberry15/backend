@@ -415,4 +415,32 @@ module.exports = {
       return await error;
     }
   },
+  Update: async (table, updateObject, where) => {
+    try {
+      let responseObj = {};
+      const sql = `UPDATE ${table} SET ? WHERE Id = ?`;
+      console.log(sql, where);
+
+      const result = await new Promise((resolve, reject) => {
+        dbConnection.query(sql, [updateObject, where], (err, result) => {
+          if (err) {
+            console.error("Error:", err);
+            reject(responseCode.dbErrorResponse(err));
+          } else {
+            console.log("Result:", result);
+            resolve(result);
+          }
+        });
+      });
+
+      if (!_.isEmpty(result)) {
+        responseObj = await responseCode.recordUpdatedSuccessResponse();
+      }
+
+      return responseObj;
+    } catch (error) {
+      console.error("Error:", error);
+      return await error;
+    }
+  },
 };

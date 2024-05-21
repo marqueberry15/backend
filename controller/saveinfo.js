@@ -84,6 +84,29 @@ const saveinfo = async (req, res) => {
   }
 };
 
+const updateinfo = async (req, res) => {
+  try {
+
+    console.log('body and paramsssssss',req.body,req.params)
+    const updateQuery =
+    "UPDATE `BrandInfo` SET `brand_guidlines` = ?, `brand_name` = ?, `campaign_name` = ?, `gif` = ?, `static_meme` = ?, `time_limit` = ?, `video_meme` = ? WHERE `Id` = ?";
+await connectDB.query(updateQuery, [
+    req.body.brand_guidlines,
+    req.body.brand_name,
+    req.body.campaign_name,
+    req.body.gif,
+    req.body.static_meme,
+    req.body.time_limit,
+    req.body.video_meme,
+    req.params.Id 
+]);
+
+    res.status(200).send({ message: "Image saved successfully", status: 200 });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ message: "Internal server error", status: 500 });
+  }
+};
 
 
-module.exports = { saveinfo };
+module.exports = { saveinfo,updateinfo };

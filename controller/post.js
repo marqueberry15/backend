@@ -472,8 +472,7 @@ exports.getallusers = async (req, res) => {
   }
 };
 
-exports.support = async(req,res)=>{
-
+exports.support = async (req, res) => {
   try {
     const getdetails = await common.GetRecords("Support", "", "");
 
@@ -489,8 +488,20 @@ exports.support = async(req,res)=>{
       .status(500)
       .send({ msg: "Facing error in fetching the details" });
   }
+};
 
-}
-
-
-
+exports.updatecontest = async (req, res) => {
+  console.log("bioddddddddddddd", req.body, req.params);
+  const updateobj = {
+    contestName:req.body.contestName,
+    Description:req.body.Description,
+    time_limit:req.body.time
+  }
+  try {
+    await common.Update("Contest",updateobj,req.params.Id)
+    return res.status(200).send({msg:"Updated Successfully"})
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ msg: "Failed to Update Details" });
+  }
+};

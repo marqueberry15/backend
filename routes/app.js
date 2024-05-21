@@ -69,6 +69,7 @@ const {
   getallusers,
   support,
   complete,
+  updatecontest,
   
 } = require("../controller/post");
 route.post("/generateotp", generateAndSaveOTP);
@@ -133,6 +134,7 @@ route.post("/saveresult", saveResult);
 route.get("/user",getallusers);
 route.get("/support",support)
 route.post("/sendresponse",sendresponse)
+route.put("/updatecontest/:Id", upload.single("file"),updatecontest)
 
 
 module.exports = route;
