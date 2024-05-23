@@ -707,55 +707,35 @@ exports.applycampaign = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
     const { campaign_name, userName } = req.body;
+    console.log('req.body isssssss',req.body,campaign_name,userName)
 
     const fileName = `${date}_${time}_${campaign_name}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "Campaign");
 
     if (result) {
+      const insertQuery = `INSERT INTO Campaign (campaign_name, fileName, type, time, userName) VALUES (?, ?, ?, ?, ?)`;
 
-const insertQuery =`INSERT INTO 'Campaign' ('campaign_name', 'fileName',type','time',userName') VALUES (?,?,?,?,?)`;
+      await connectDB.query(insertQuery, [
+        campaign_name,
+        fileName,
+        req.file.mimetype,
+        time,
+        userName,
+      ]);
 
-await connectDB.query(insertQuery, [
- campaign_name,
- fileName,
- req.file.mimetype,
- time,
- userName
-
-]);
-    //   const updatedUser = await common.AddRecords("Campaign", {
-    //     fileName,
-    //     campaign_name,
-    //     time,
-    //     type: req.file.mimetype,
-    //     userName,
-    //   });
-    //   if (updatedUser) {
-    //     return res.send({
-    //       status: 200,
-    //       msg: "Picture Uploaded Succesfully",
-    //       file: fileName,
-    //     });
-    //   } else
-    //     return res.send({ status: 401, msg: "Error in Picture Uploading" });
-    // } else {
-    //   return res.send({
-    //     status: 500,
-    //     msg: "Facing Problem in Uploading Picture",
-    //   });
-
-    return res.send({
-           status: 200,
-           msg: "Picture Uploaded Succesfully",
-             file: fileName,
-           });
-
+      return res.send({
+        status: 200,
+        msg: "Picture Uploaded Successfully",
+        file: fileName,
+      });
     }
   } catch (err) {
-    return res.status(501).send({ msg: err });
+    console.error('Error occurred:', err);
+    return res.status(500).send({ msg: 'Internal Server Error', error: err.message });
   }
 };
+
 
 exports.getUserTemplate = async (req, res) => {
   try {
