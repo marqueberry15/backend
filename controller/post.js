@@ -379,7 +379,7 @@ exports.getBrandCampaign = async (req, res) => {
   console.log("fgbbbbbbbbb", req.query.Id);
 
   try {
-    const sql =  `SELECT * FROM Campaign WHERE brand_name =(Select brand_name From BrandInfo where Id= ${req.query.Id})`
+    const sql =  `SELECT * FROM Campaign WHERE campaign_name =(Select campaign_name From BrandInfo where Id= ${req.query.Id})`
     const campaigndetails = await common.customQuery(sql);
     console.log(campaigndetails, "cccccccccccccccccc");
     if (campaigndetails.status == 200) {
