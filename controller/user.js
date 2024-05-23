@@ -4,6 +4,7 @@ const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const config = require("../config/config");
 // const ffmpeg = require('ffmpeg');
+const connectDB= require("../config/db")
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -14,6 +15,13 @@ const configr = {
   host: "154.41.233.75",
   port: process.env.ftpport,
   user: "u394360389.Admin",
+  password: process.env.ftppassword,
+};
+
+const configur = {
+  host: process.env.ftphost,
+  port: process.env.ftpport,
+  user: process.env.ftpuser,
   password: process.env.ftppassword,
 };
 
@@ -705,26 +713,44 @@ exports.applycampaign = async (req, res) => {
     const result = await connectFTP(req.file.buffer, fileName, "Campaign");
 
     if (result) {
-      const updatedUser = await common.AddRecords("Campaign", {
-        fileName,
-        campaign_name,
-        time,
-        type: req.file.mimetype,
-        userName,
-      });
-      if (updatedUser) {
-        return res.send({
-          status: 200,
-          msg: "Picture Uploaded Succesfully",
-          file: fileName,
-        });
-      } else
-        return res.send({ status: 401, msg: "Error in Picture Uploading" });
-    } else {
-      return res.send({
-        status: 500,
-        msg: "Facing Problem in Uploading Picture",
-      });
+
+const insertQuery =`INSERT INTO 'Campaign' ('campaign_name', 'fileName',type','time',userName') VALUES (?,?,?,?,?)`;
+
+await connectDB.query(insertQuery, [
+ campaign_name,
+ fileName,
+ req.file.mimetype,
+ time,
+ userName
+
+]);
+    //   const updatedUser = await common.AddRecords("Campaign", {
+    //     fileName,
+    //     campaign_name,
+    //     time,
+    //     type: req.file.mimetype,
+    //     userName,
+    //   });
+    //   if (updatedUser) {
+    //     return res.send({
+    //       status: 200,
+    //       msg: "Picture Uploaded Succesfully",
+    //       file: fileName,
+    //     });
+    //   } else
+    //     return res.send({ status: 401, msg: "Error in Picture Uploading" });
+    // } else {
+    //   return res.send({
+    //     status: 500,
+    //     msg: "Facing Problem in Uploading Picture",
+    //   });
+
+    return res.send({
+           status: 200,
+           msg: "Picture Uploaded Succesfully",
+             file: fileName,
+           });
+
     }
   } catch (err) {
     return res.status(501).send({ msg: err });

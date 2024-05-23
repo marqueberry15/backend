@@ -379,9 +379,8 @@ exports.getBrandCampaign = async (req, res) => {
   console.log("fgbbbbbbbbb", req.query.Id);
 
   try {
-    const campaigndetails = await common.GetRecords("Campaign", "", {
-      campaign_name: req.query.Id,
-    });
+    const sql =  `SELECT * FROM Campaign WHERE brand_name =(Select brand_name From BrandInfo where Id= ${req.query.Id})`
+    const campaigndetails = await common.customQuery(sql);
     console.log(campaigndetails, "cccccccccccccccccc");
     if (campaigndetails.status == 200) {
       return res.json({ status: 200, campaigndetails: campaigndetails });
@@ -396,7 +395,8 @@ exports.contestapplicants = async (req, res) => {
   const contestName = req.query.Id;
   try {
     const getdetails = await common.customQuery(
-      `SELECT * FROM Contest_Apply WHERE contestName = '${contestName}'`
+      `SELECT * FROM Contest_Apply WHERE contestName = (SELECT contestName FROM Contest WHERE Id = ${contestName});`
+
     );
 
     if (getdetails.status == 200) {
