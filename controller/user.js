@@ -853,18 +853,17 @@ exports.getnotification = async (req, res) => {
   } catch (err) {}
 };
 
-exports.getresult = async (req, res) => {
+exports.getResult = async (req, res) => {
   try {
-    const result = await common.GetRecords("Result", "", "");
 
-    if (result.status === 200) {
-      return res.status(200).send({ status: 200, result: result.data });
-    } else {
-      res
-        .status(500)
-        .send({ msg: "Facing Error while fetching notifications" });
-    }
-  } catch (err) {}
+    console.log('ttttttttttttttttttttttttttt')
+    const results = await common.GetRecords("Result","","");
+    console.log('Fetched results:', results);
+    res.status(200).send({"results":results});
+  } catch (err) {
+    console.error('Error fetching results:', err.message);
+    res.status(500).send({ msg: "Error fetching results" });
+  }
 };
 
 exports.getrelevant = async (req, res) => {

@@ -38,11 +38,11 @@ const {
   createcontest,
   applycontest,
   getnotification,
-  getresult,
   getallPost,
   getrelevant,
   balance,
   deleteusertemplate,
+  getResult,
 } = require("../controller/user");
 const {
   postComment,
@@ -112,7 +112,7 @@ route.delete("/deletecontest", deletecontest);
 route.get("/gettrendingtemplate", gettrendingtemplate);
 route.post("/applycontest", upload.single("file"), applycontest);
 route.get("/getnotification", getnotification);
-route.get("/getresult", getresult);
+route.get("/getresult", getResult);
 route.get("/userlikes", userlike);
 route.get("/getallpost", getallPost);
 route.get("/getrelevantpost", getrelevant);

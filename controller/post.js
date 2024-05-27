@@ -2,6 +2,7 @@ const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const { post } = require("../routes/app");
 const response = require("../constant/response");
+const connectDB = require("../config/db")
 
 exports.postComment = async (req, res) => {
   try {
@@ -379,12 +380,11 @@ exports.getBrandCampaign = async (req, res) => {
   console.log("fgbbbbbbbbb", req.query.Id);
 
   try {
-    const sql =  `SELECT * FROM Campaign WHERE campaign_name =(Select campaign_name From BrandInfo where Id= ${req.query.Id})`
-    const campaigndetails = await common.customQuery(sql);
-    console.log(campaigndetails, "cccccccccccccccccc");
-    if (campaigndetails.status == 200) {
-      return res.json({ status: 200, campaigndetails: campaigndetails });
-    }
+    const sql =  "SELECT * FROM `Campaign` WHERE `campaign_name` =(Select `campaign_name` From `BrandInfo` where `Id` = ?)"
+    const [rows] = await connectDB.execute(sql, [req.query.Id]);
+    
+    console.log(rows, "cccccccccccccccccc");
+    return res.json({ status: 200, campaigndetails: rows });
   } catch (err) {
     return res.status(500).json({ Error: err });
   }
@@ -450,9 +450,27 @@ exports.deltemplate = async (req, res) => {
 };
 
 exports.saveResult = async (req, res) => {
-  console.log("dfvfdvdfss", req.body);
-  return res.status(200).send({ msg: "klkkkkkk" });
+  try {
+    console.log('Request body:', req.body);
+
+    const data = { Array: req.body.data["Array"] };
+    console.log('Formatted data:', data);
+
+    const newRecord = {
+      campaign: req.body.campaign,
+      data: JSON.stringify(data), // Convert data to JSON string if the column type is TEXT or VARCHAR
+      Name: req.body.Name
+    };
+    console.log('New record to insert:', newRecord);
+
+    await common.AddRecords("Result", newRecord);
+    res.status(200).send({ msg: "Declared Result Successfully" });
+  } catch (err) {
+    console.error('Error in saving result:', err.message); // Log the error message
+    res.status(500).send({ msg: "Error in saving result" });
+  }
 };
+
 
 exports.getallusers = async (req, res) => {
   try {
