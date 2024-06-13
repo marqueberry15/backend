@@ -295,12 +295,13 @@ exports.getinterest = async (req, res) => {
 
     const interestsArray = Interest.split(" ");
 
-    const postdetails = await common.GetPosts(
-      "Post",
-      "",
-      interestsArray,
-      req.query.UserId
-    );
+    // const postdetails = await common.GetPosts(
+    //   "Post",
+    //   "",
+    //   interestsArray,
+    //   req.query.UserId
+    // );
+    const postdetails = await common.GetRecords("Post","","")
     if (postdetails.status === 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     } else {
@@ -437,6 +438,7 @@ const uploadTemplate = async (req, res, file) => {
 };
 
 exports.getTemplate = async (req, res) => {
+  console.log('ggggggggggg')
   try {
     const postdetails = await common.GetRecords("Template_Image", "", "");
     if (postdetails.status === 200) {

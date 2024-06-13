@@ -1,7 +1,8 @@
 const connectDB = require("../config/db");
 const bcrypt = require("bcrypt");
-const getCurrentDateTime=require("./datetime")
+const getCurrentDateTime = require("./datetime");
 const register = async (req, res) => {
+  console.log("ccccccccccccccccc", req.body);
   try {
     const { first_name, last_name, mobileNo, email, password, company_name } =
       req.body;
@@ -18,10 +19,13 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const query =
+    const checkUserExistsQuery =
+      "SELECT COUNT(*) AS count FROM `User` WHERE `Email` = ? OR `Phone` = ?";
+    const insertUserQuery =
       "INSERT INTO `User` (`Firstname`, `Lastname`, `Email`, `Phone`, `Password`, `Comapnyname`) VALUES (?, ?, ?, ?, ?, ?)";
-    const params = [
+
+    const paramsCheck = [email, mobileNo];
+    const paramsInsert = [
       first_name,
       last_name,
       email,
@@ -30,11 +34,19 @@ const register = async (req, res) => {
       company_name,
     ];
 
-    await connectDB.execute(query, params);
+    const [rows] = await connectDB.execute(checkUserExistsQuery, paramsCheck);
+
+    if (rows[0].count > 0) {
+      console.log('duuuuuu')
+      return res
+        .status(401)
+        .send({ status: 401, msg: "Email Id or Mobile No. already exist" });
+    }
+    await connectDB.execute(insertUserQuery, paramsInsert);
 
     return res.status(200).json({ message: "Registration successful" });
   } catch (error) {
-    console.error(error);
+    console.error("errorrrrrr issssssssssss", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -68,9 +80,7 @@ const login = async (req, res) => {
 
     await connectDB
       .execute(query2, param2)
-      .then((res) => {
-      
-      })
+      .then((res) => {})
       .catch((err) => {
         console.log(err);
       });
@@ -85,7 +95,6 @@ const changepassword = async (req, res) => {
   const { email, old_pass, new_pass } = req.body;
 
   try {
-    
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
 
     const [rows] = await connectDB.execute(query, [email]);
@@ -109,7 +118,6 @@ const changepassword = async (req, res) => {
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-  
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

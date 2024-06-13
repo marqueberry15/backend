@@ -523,3 +523,6 @@ exports.updatecontest = async (req, res) => {
     return res.status(500).send({ msg: "Failed to Update Details" });
   }
 };
+
+
+
