@@ -946,3 +946,6 @@ exports.deleteuser = async (req, res) => {
     res.status(500).send({ msg: "Cannot Delete" });
   }
 };
+
+
+
