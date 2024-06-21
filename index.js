@@ -31,6 +31,10 @@ app.use(cors({
 }));
 app.use(express.static(path.resolve(__dirname, "public")));
 
+// key_id : 'rzp_live_qTUOVmZMoxYeMC',
+// key_secret:  'mxjPnHF0YptMXOFrgMSZ5mzS',
+
+
 app.use("/user", route);
 app.use("/mail", route2);
 app.use("/brand", route3);

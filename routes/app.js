@@ -72,6 +72,7 @@ const {
   updatecontest,
   
 } = require("../controller/post");
+const { payment, success } = require("../controller/saveinfo");
 route.post("/generateotp", generateAndSaveOTP);
 route.post("/validatephone", validatephoneOTP);
 route.post("/login", login);
