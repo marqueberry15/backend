@@ -12,14 +12,14 @@ const connectDB = require("./config/db");
 const route6 = require("./routes/app");
 
 // Firebase Admin SDK
-const { initializeApp, applicationDefault, cert } = require("firebase-admin/app");
-const { getMessaging } = require("firebase-admin/messaging");
-const serviceAccount = require("./adoro-3079a-firebase-adminsdk-n856c-91da9aa7fb.json");
+// const { initializeApp, applicationDefault, cert } = require("firebase-admin/app");
+// const { getMessaging } = require("firebase-admin/messaging");
+// const serviceAccount = require("./adoro-3079a-firebase-adminsdk-n856c-91da9aa7fb.json");
 
-initializeApp({
-  credential: cert(serviceAccount),
-  projectId: 'adoro-3079a',
-});
+// initializeApp({
+//   credential: cert(serviceAccount),
+//   projectId: 'adoro-3079a',
+// });
 
 app.use(bodyparser.json({ limit: "100mb", extended: true }));
 app.use(bodyparser.urlencoded({ limit: "100mb", extended: true }));
