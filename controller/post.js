@@ -3,6 +3,8 @@ const common = require("../common/common");
 const { post } = require("../routes/app");
 const response = require("../constant/response");
 const connectDB = require("../config/db")
+const { getMessaging } = require("firebase-admin/messaging");
+
 
 exports.postComment = async (req, res) => {
   try {
@@ -525,4 +527,28 @@ exports.updatecontest = async (req, res) => {
 };
 
 
+exports.notification = async (req,res)=>{
+  console.log('heeeeeeeeeee')
+  const registrationToken = 'dfl97H9VTeuzdzwquLsL76:APA91bErEZ9V79-hl5pRv4twZmCdjYKnZcPe7n15B6l25FB21Tp9mO-Hpf5Qqjs3jsZHRswJrze2GlChQ3k1ZJSOWKR7xOzTtmb2wPk4wW0gOpzZi6KNcOM62dmkqiYoNke-97eQzh1h';
+
+  const message = {
+    notification: {
+      title: 'Pareeeee',
+      body: 'heoo world',
+    },
+    token: registrationToken,
+  };
+
+  getMessaging().send(message)
+    .then((response) => {
+      console.log('Successfully sent message:', response);
+      res.status(200).send('Successfully sent message: ' + response);
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+      res.status(500).send('Error sending message: ' + error);
+    });
+
+
+}
 

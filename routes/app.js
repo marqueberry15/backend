@@ -12,7 +12,7 @@ const {
   contact,
   verify,
   withdrawmail,
-  sendresponse
+  sendresponse,
 } = require("../controller/app");
 const {
   updateprofile,
@@ -70,7 +70,7 @@ const {
   support,
   complete,
   updatecontest,
-  
+  notification,
 } = require("../controller/post");
 const { payment, success } = require("../controller/saveinfo");
 route.post("/generateotp", generateAndSaveOTP);
@@ -132,10 +132,11 @@ route.get("/alltemplates", getalltemplates);
 route.post("/approvetemplate", updatetemplate);
 route.post("/rejecttemplate", deltemplate);
 route.post("/saveresult", saveResult);
-route.get("/user",getallusers);
-route.get("/support",support)
-route.post("/sendresponse",sendresponse)
-route.put("/updatecontest/:Id", upload.single("file"),updatecontest)
+route.get("/user", getallusers);
+route.get("/support", support);
+route.post("/sendresponse", sendresponse);
+route.put("/updatecontest/:Id", upload.single("file"), updatecontest);
+route.post("/send", notification);
 
 
 module.exports = route;
