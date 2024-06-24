@@ -15,7 +15,7 @@ const route6 = require("./routes/app");
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 //const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-91da9aa7fb.json");
-const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-91da9aa7fb.json")
+const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-1d89ec43cf.json")
 initializeApp({
   credential: cert(serviceAccount),
   projectId: 'adoro-3079a',

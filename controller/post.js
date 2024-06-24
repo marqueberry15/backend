@@ -533,8 +533,8 @@ exports.notification = async (req,res)=>{
 
   const message = {
     notification: {
-      title: 'Pareeeee',
-      body: 'heoo world',
+      title: req.body.title,
+      body: req.body.body,
     },
     token: registrationToken,
   };
