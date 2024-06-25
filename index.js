@@ -14,8 +14,10 @@ const route6 = require("./routes/app");
 // Firebase Admin SDK
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
-//const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-91da9aa7fb.json");
-const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-7f4f865415.json")
+
+// Correctly set the path for the serviceAccount file
+const serviceAccount = require(path.resolve(__dirname, "public/adoro-3079a-firebase-adminsdk-n856c-5112757dc9.json"));
+
 initializeApp({
   credential: cert(serviceAccount),
   projectId: 'adoro-3079a',
