@@ -19,9 +19,9 @@ const { getMessaging } = require("firebase-admin/messaging");
 
 
 // const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-6416d7a366.json")
-
+console.log(process.env.FIREBASE_SERVICE_ACCOUNT_KEY,'keeeeeeeeeeeeeee')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-
+console.log(serviceAccount,'rrefdsss')
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
