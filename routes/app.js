@@ -136,7 +136,7 @@ route.get("/user", getallusers);
 route.get("/support", support);
 route.post("/sendresponse", sendresponse);
 route.put("/updatecontest/:Id", upload.single("file"), updatecontest);
-//route.post("/send", notification);
+route.post("/send", notification);
 
 
 module.exports = route;
