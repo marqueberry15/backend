@@ -71,12 +71,12 @@ module.exports = {
               reject(responseCode.dbErrorResponse(err));
             } else !_.isEmpty(result);
             {
-              // console.log(result)
+            
               responseObj = await responseCode.recordAddedSuccessResponse(
                 result
               );
             }
-            // console.log(responseObj)
+            
             resolve(responseObj);
           });
         } catch (error) {
@@ -212,17 +212,7 @@ module.exports = {
       WHERE UserId = ${userId}
     )  ORDER By date DESC;
 `;
-        // const query = `
-        //   SELECT *
-        //   FROM ${table}
-        //   WHERE category IN ('${categories.join("', '")}')
-        //     AND userName NOT IN (
-        //       SELECT BlockedUserName
-        //       FROM Block
-        //       WHERE UserId = ${userId}
-        //     )
-        //   ORDER BY date DESC;
-        // `;
+       
 
         console.log(query);
 

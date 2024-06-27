@@ -11,17 +11,10 @@ const app = express();
 const connectDB = require("./config/db");
 const route6 = require("./routes/app");
 
-// Firebase Admin SDK
+
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 
-// Correctly set the path for the serviceAccount file
-const serviceAccount = require(path.resolve(__dirname, "./public/adoro-3079a-firebase-adminsdk-n856c-5112757dc9.json"));
-
-initializeApp({
-  credential: cert(serviceAccount),
-  projectId: 'adoro-3079a',
-});
 
 app.use(bodyparser.json({ limit: "100mb", extended: true }));
 app.use(bodyparser.urlencoded({ limit: "100mb", extended: true }));
@@ -33,8 +26,15 @@ app.use(cors({
 }));
 app.use(express.static(path.resolve(__dirname, "public")));
 
-// key_id : 'rzp_live_qTUOVmZMoxYeMC',
-// key_secret:  'mxjPnHF0YptMXOFrgMSZ5mzS',
+const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-5112757dc9.json");
+
+
+initializeApp({
+  credential: cert(serviceAccount),
+  projectId: 'adoro-3079a',
+});
+
+
 
 
 app.use("/user", route);
