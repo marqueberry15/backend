@@ -19,6 +19,7 @@ const route6 = require("./routes/app");
 
 
 // const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-6416d7a366.json")
+<<<<<<< HEAD
 // console.log(process.env.FIREBASE_SERVICE_ACCOUNT_KEY,'keeeeeeeeeeeeeee')
 // const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 // console.log(serviceAccount,'rrefdsss')
@@ -26,6 +27,15 @@ const route6 = require("./routes/app");
 // admin.initializeApp({
 //   credential: admin.credential.cert(serviceAccount)
 // });
+=======
+console.log(process.env.FIREBASE_SERVICE_ACCOUNT_KEY,'keeeeeeeeeeeeeee')
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+console.log(serviceAccount,'rrefdsss')
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+>>>>>>> 5648a6a (Update index.js)
 
 app.use(bodyparser.json({ limit: "100mb", extended: true }));
 app.use(bodyparser.urlencoded({ limit: "100mb", extended: true }));
