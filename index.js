@@ -12,13 +12,15 @@ const connectDB = require("./config/db");
 const route6 = require("./routes/app");
 
 
-const { initializeApp, cert } = require("firebase-admin/app");
+var admin = require("firebase-admin");
+
+
 const { getMessaging } = require("firebase-admin/messaging");
-//const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-91da9aa7fb.json");
-const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-7f4f865415.json")
-initializeApp({
-  credential: cert(serviceAccount),
-  projectId: 'adoro-3079a',
+
+
+const serviceAccount= require("./public/adoro-3079a-firebase-adminsdk-n856c-6416d7a366.json")
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
 });
 
 app.use(bodyparser.json({ limit: "100mb", extended: true }));
@@ -30,17 +32,6 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.static(path.resolve(__dirname, "public")));
-
-const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-5112757dc9.json");
-
-
-initializeApp({
-  credential: cert(serviceAccount),
-  projectId: 'adoro-3079a',
-});
-
-
-
 
 app.use("/user", route);
 app.use("/mail", route2);
