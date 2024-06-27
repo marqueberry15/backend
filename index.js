@@ -16,7 +16,7 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 
 // Correctly set the path for the serviceAccount file
-const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-5112757dc9.json"));
+const serviceAccount = require("./public/adoro-3079a-firebase-adminsdk-n856c-5112757dc9.json");
 
 initializeApp({
   credential: cert(serviceAccount),
