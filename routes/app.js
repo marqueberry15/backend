@@ -71,6 +71,7 @@ const {
   complete,
   updatecontest,
   notification,
+  report,
 } = require("../controller/post");
 const { payment, success } = require("../controller/saveinfo");
 route.post("/generateotp", generateAndSaveOTP);
@@ -137,6 +138,7 @@ route.get("/support", support);
 route.post("/sendresponse", sendresponse);
 route.put("/updatecontest/:Id", upload.single("file"), updatecontest);
 route.post("/send", notification);
+route.put("/report",report)
 
 
 module.exports = route;

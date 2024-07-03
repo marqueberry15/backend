@@ -557,3 +557,15 @@ const registrationToken='evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwi
 
 }
 
+exports.report = async(req,res)=>{
+
+ try{
+  await common.customQuery(`UPDATE Post SET Status=0  WHERE Id= ${req.body.Id}`)
+  return res.send({msg:"Reported Successfully"})
+ }
+catch(err){
+  console.log(err,'facingg')
+  return res.status(500).send({msg:"Facing Problem"})
+}
+}
+
