@@ -7,6 +7,7 @@ const connectDB = require("../config/db");
 const stream = require("stream");
 const { PassThrough } = require("stream");
 
+
 const config = {
   host: process.env.ftphost,
   port: process.env.ftpport,
@@ -68,6 +69,8 @@ function generateBrandIdentifier(brandName) {
   const timestamp = Date.now();
   return `${brandName}_${timestamp}`;
 }
+
+
 const managerlogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -76,7 +79,7 @@ const managerlogin = async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const query = "SELECT * FROM `Admin` WHERE `Email` = ?";
+    const query = "SELECT * FROM `Manager` WHERE `Email` = ?";
     const [rows] = await connectDB2.execute(query, [email]);
 
     if (rows.length === 0) {
@@ -205,7 +208,6 @@ const casestudy = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 
 module.exports = { login,managerlogin, save, approval, blog, cases, blogstudy,casestudy };
