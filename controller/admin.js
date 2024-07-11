@@ -68,6 +68,33 @@ function generateBrandIdentifier(brandName) {
   const timestamp = Date.now();
   return `${brandName}_${timestamp}`;
 }
+const managerlogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const query = "SELECT * FROM `Admin` WHERE `Email` = ?";
+    const [rows] = await connectDB2.execute(query, [email]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const user = rows[0];
+
+    if (user.Password === password) {
+      return res.status(200).json({ msg: "Logged In Successfully" });
+    }
+
+    res.status(401).json({ msg: "Password did not match correctly" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const save = async (req, res) => {
   try {
@@ -181,4 +208,6 @@ const casestudy = async (req, res) => {
 
 
 
-module.exports = { login, save, approval, blog, cases, blogstudy,casestudy };
+module.exports = { login,managerlogin, save, approval, blog, cases, blogstudy,casestudy };
+
+
