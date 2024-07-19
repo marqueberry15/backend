@@ -82,12 +82,16 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
     };
 
     const insertResult = await common.AddRecords(config.userTable, newUser);
+    //console.log(1,insertResult)
    
-    if (insertResult.status==1) {
+    if (insertResult.status) {
+      
       if (ownerUser != "") {
+        console.log(2)
         const ownerExist = await common.GetRecords("User", "", {
           userName: ownerUser,
         });
+        console.log(3,ownerExist)
 
         if (ownerExist.status == 200) {
           await common.AddRecords("Referal", {
@@ -105,18 +109,26 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
           const ownerWallet = await common.GetRecords("Wallet", "", {
          userName: ownerUser
           });
+          console.log(1,ownerWallet)
+
+
           if (ownerWallet.status == 200) {
+            console.log(2)
 
             const sql = `UPDATE Wallet SET balance = balance + 5 WHERE userName = '${ownerUser}'`;
 
             const ressql=await common.customQuery(sql);
+            console.log(3,ressql)
           } else {
+            console.log(4)
             const userwallet = await common.GetRecords("User", "", {
             userName:ownerUser
             });
+            console.log(5,userwallet)
 
-            const query = `INSERT INTO Wallet ( UserId, mobileNo, balance, userName) VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},100,${ownerUser})`;
+            const query = `INSERT INTO Wallet ( UserId, mobileNo, balance, userName) VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},5,${ownerUser})`;
             const resquery=await common.customQuery(query)
+            console.log(6,resquery)
 
           }
         }
