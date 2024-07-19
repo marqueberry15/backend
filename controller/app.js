@@ -124,9 +124,9 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
             const userwallet = await common.GetRecords("User", "", {
             userName:ownerUser
             });
-            console.log(5,userwallet)
+            console.log(5,userwallet.data[0])
 
-            const query = `INSERT INTO Wallet ( UserId, mobileNo, balance, userName) VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},5,${ownerUser})`;
+            const query = `INSERT INTO Wallet ( 'UserId', 'mobileNo', 'balance', 'userName') VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},5,${ownerUser})`;
             const resquery=await common.customQuery(query)
             console.log(6,resquery)
 
