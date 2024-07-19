@@ -93,7 +93,7 @@ exports.getAllComments = async (req, res) => {
 };
 
 exports.hitlike = async (req, res) => {
-  console.log("hittt like");
+ 
 
   try {
     const { postId, userId, userName } = req.body;
@@ -102,13 +102,12 @@ exports.hitlike = async (req, res) => {
       userId,
       userName,
     };
-    console.log("hittt like");
+ 
     const addedlikes = await common.AddRecords("Likes", obj);
-    console.log("hittt like", addedlikes);
-
+ 
     let sql = `SELECT User.ProfileDp FROM User Where User.userName = '${userName}';`;
     const getdp = await common.customQuery(sql);
-    console.log("getting dp responseeeee issssss", getdp);
+    
 
     if (addedlikes.status == 1) {
       let sqlupdate = `UPDATE Post
@@ -124,20 +123,18 @@ exports.hitlike = async (req, res) => {
 
       let usersql = `SELECT User.Id FROM User WHERE User.userName = (SELECT Post.userName FROM Post WHERE Id = ${postId})`;
       const getuserId = await common.customQuery(usersql);
-      console.log("getuserIddd ", getuserId);
-      console.log("usersql statment", usersql);
+     
       const noti = {
         msg: `${userName} Liked  your Post`,
         userId: getuserId.data[0].Id,
         Dp,
       };
-      console.log("notification object isss ", noti);
+     
       const notisend = await common.AddRecords("Notification", noti);
 
-      console.log("hittt like");
+     
       if (notisend.status) {
-        console.log("hittt like");
-
+       
         return res
           .status(200)
           .send({ msg: "Contest Created Successfully", status: 200 });
@@ -157,26 +154,19 @@ exports.hitlike = async (req, res) => {
 };
 exports.getlike = async (req, res) => {
   try {
-    console.log("");
+   
     const postId = req.query.postId;
 
     const getlikes = await common.GetRecords("Likes", "", { postId });
     if (getlikes.status == 200) {
-      console.log("no. of likesss areee", getlikes.data.length);
-
+     
       return res.status(200).send({ status: 200, likes: getlikes.data });
     } else
       return res
         .status(401)
         .send({ status: 401, msg: "Cannot get likes record" });
 
-    // const sql = `select top(3) From User Where User.Id In (Select User.Id from Likes where postId=${postId})`;
-    // const sql= `SELECT TOP 3 ProfileDp
-    // FROM User
-    // WHERE User.Id IN (SELECT User.Id FROM Likes WHERE postId=${postId})
-    // `
-    // const result = await common.customQuery(sql);
-    // console.log(result, "resultttttt");
+    
   } catch (err) {
     return res
       .status(501)
@@ -186,10 +176,10 @@ exports.getlike = async (req, res) => {
 
 exports.userlike = async (req, res) => {
   try {
-    console.log("get user like");
+   
     const userName = req.query.userName;
     const getlikes = await common.GetRecords("Likes", "", userName);
-    console.log("get likesss", getlikes);
+   
     if (getlikes.status == 200) {
       return res.status(200).send({ status: 200, likes: getlikes.data });
     } else
@@ -206,16 +196,14 @@ exports.userlike = async (req, res) => {
 exports.unlike = async (req, res) => {
   try {
     const { postId, userId } = req.query;
-    console.log("postttttt idddddddd", postId, userId);
+   
     const sql = `DELETE FROM Likes
     WHERE postId = ${postId}
     AND userId = ${userId};
     `;
 
-    console.log("sql is s ", sql);
-
+    
     let unlikeuser = await common.customQuery(sql);
-    console.log("unlikeee userrrrrrrrrrrr", unlikeuser);
     // if (unlikeuser.status==1) {
     // console.log("iff condition satisfied")
 
@@ -243,7 +231,7 @@ exports.unlike = async (req, res) => {
       WHERE Id = ${postId}`;
 
     const deltelike = await common.customQuery(sqlupdate);
-    console.log("delte likee isss", deltelike);
+ 
     let response = {
       status: 200,
       msg: "Unliked  successfully.",
@@ -331,7 +319,7 @@ exports.gettrendingtemplate = async (req, res) => {
 
 exports.hide = async (req, res) => {
   const { PostId, UserId } = req.body;
-  console.log(req.body, "req body isssssssss");
+ 
   const result = await common.AddRecords("Hide_Post", req.body);
   if (result.status == 1) {
     console.log("Added Successfully");
@@ -340,18 +328,17 @@ exports.hide = async (req, res) => {
 };
 
 exports.blockuser = async (req, res) => {
-  console.log(req.body, "req body isssssssss");
+
   const result = await common.AddRecords("Block", req.body);
   if (result.status == 1) {
-    console.log("Added Successfully");
+   
     return res.status(200).send({ msg: "added" });
   } else return res.status(501).send({ Msg: "Facing Prblem" });
 };
 
 exports.allpost = async (req, res) => {
-  console.log("getting recordsssss");
+
   const postdetails = await common.GetRecords("Post", "", { Status: 0 });
-  console.log("posttt", postdetails);
   return res.status(200).send({ data: postdetails.data });
 };
 
@@ -369,10 +356,8 @@ exports.updatepost = async (req, res) => {
 exports.delpost = async (req, res) => {
   try {
     const Id = req.query.Id;
-    console.log("ID for deletion isssssss", Id);
+   const deletedetail = await common.deleteRecords("Post", `Id = ${Id}`);
 
-    const deletedetail = await common.deleteRecords("Post", `Id = ${Id}`);
-    console.log("deleeeeee", deletedetail);
     if (deletedetail.status == 1) {
       return res.status(200).send({ msg: "Delete Done Successfully" });
     } else {
@@ -384,13 +369,12 @@ exports.delpost = async (req, res) => {
 };
 
 exports.getBrandCampaign = async (req, res) => {
-  console.log("fgbbbbbbbbb", req.query.Id);
-
+ 
   try {
     const sql =  "SELECT * FROM `Campaign` WHERE `campaign_name` =(Select `campaign_name` From `BrandInfo` where `Id` = ?)"
     const [rows] = await connectDB.execute(sql, [req.query.Id]);
     
-    console.log(rows, "cccccccccccccccccc");
+   
     return res.json({ status: 200, campaigndetails: rows });
   } catch (err) {
     return res.status(500).json({ Error: err });
@@ -398,7 +382,7 @@ exports.getBrandCampaign = async (req, res) => {
 };
 
 exports.contestapplicants = async (req, res) => {
-  console.log("query isssssss", req.query.Id);
+ 
   const contestName = req.query.Id;
   try {
     const getdetails = await common.customQuery(
@@ -410,7 +394,7 @@ exports.contestapplicants = async (req, res) => {
       return res.status(200).send({ status: 200, applicants: getdetails.data });
     }
   } catch (err) {
-    console.log("Error while fetching iss ", err);
+   
     res.status(500).send({ msg: "Cannot get the applicants result" });
   }
 };
@@ -423,7 +407,7 @@ exports.getalltemplates = async (req, res) => {
       return res.status(200).send({ status: 200, templates: getdetails.data });
     }
   } catch (err) {
-    console.log("Error while fetching iss ", err);
+   
     res.status(500).send({ msg: "Cannot get the applicants result" });
   }
 };
@@ -458,17 +442,16 @@ exports.deltemplate = async (req, res) => {
 
 exports.saveResult = async (req, res) => {
   try {
-    console.log('Request body:', req.body);
+
 
     const data = { Array: req.body.data["Array"] };
-    console.log('Formatted data:', data);
-
+   
     const newRecord = {
       campaign: req.body.campaign,
       data: JSON.stringify(data), // Convert data to JSON string if the column type is TEXT or VARCHAR
       Name: req.body.Name
     };
-    console.log('New record to insert:', newRecord);
+   
 
     await common.AddRecords("Result", newRecord);
     res.status(200).send({ msg: "Declared Result Successfully" });
@@ -516,7 +499,7 @@ exports.support = async (req, res) => {
 };
 
 exports.updatecontest = async (req, res) => {
-  console.log("bioddddddddddddd", req.body, req.params);
+  
   const updateobj = {
     contestName:req.body.contestName,
     Description:req.body.Description,
@@ -533,10 +516,12 @@ exports.updatecontest = async (req, res) => {
 
 
 exports.notification = async (req,res)=>{
-  console.log('heeeeeeeeeee')
+ 
 // const registrationToken = 'dfl97H9VTeuzdzwquLsL76:APA91bErEZ9V79-hl5pRv4twZmCdjYKnZcPe7n15B6l25FB21Tp9mO-Hpf5Qqjs3jsZHRswJrze2GlChQ3k1ZJSOWKR7xOzTtmb2wPk4wW0gOpzZi6KNcOM62dmkqiYoNke-97eQzh1h';
 const registrationToken='evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwiNshpt3g69uoswfGTMlprTtpJKENfUyRPkfFOLjvju3k24McFpTtVS8r_ZW0m83-_QX5Dux-O5sc8vyzG9s-LKUuY_VsaPeGt_PcF2avvQ6ii'
-  const message = {
+//const registrationToken= 'fh3ApEF5Szih5V7B65TDln:APA91bFNLrPpDm-FQSecdJUgzHMVFiNK1bc12CdpYBweP7Ie-v1RJx27aCJZRDNZN2ccmTnsiLpmCDai5h5heiCIERMa-8SAj56lPPoEdedEEXUwreuRh5s1ZOSf17XbntFTiOD2JJ2l'  
+console.log('heyyyyyy')
+const message = {
     notification: {
       title: req.body.title,
       body: req.body.body,
@@ -546,11 +531,11 @@ const registrationToken='evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwi
 
   getMessaging().send(message)
     .then((response) => {
-      console.log('Successfully sent message:', response);
+      
       res.status(200).send('Successfully sent message: ' + response);
     })
     .catch((error) => {
-      console.log('Error sending message:', error);
+      
       res.status(500).send('Error sending message: ' + error);
     });
 

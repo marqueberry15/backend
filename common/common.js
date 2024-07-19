@@ -23,7 +23,7 @@ module.exports = {
         whereConditions = _.isEmpty(whereConditions) ? {} : whereConditions;
 
         let sql = `SELECT ${fields} FROM ${table}`;
-        console.log('wheree conditon ussssssss',whereConditions)
+      
         const conditionKeys = Object.keys(whereConditions);
         if (conditionKeys.length > 0) {
           const conditions = conditionKeys.map((key) => `${key} = ?`);
@@ -31,7 +31,6 @@ module.exports = {
         }
 
         try {
-          console.log('sql query isssssss',sql)
           dbConnection.query(
 
             sql,
@@ -91,15 +90,13 @@ module.exports = {
     try {
       let responseObj = {};
       const sql = `UPDATE ${table} SET ? WHERE mobileNo = ?`;
-      console.log(sql, mobileNo);
-
+      
       const result = await new Promise((resolve, reject) => {
         dbConnection.query(sql, [updateObject, mobileNo], (err, result) => {
           if (err) {
             console.error("Error:", err);
             reject(responseCode.dbErrorResponse(err));
           } else {
-            console.log("Result:", result);
             resolve(result);
           }
         });
@@ -154,14 +151,14 @@ module.exports = {
         let responseObj = {};
         let sql = `DELETE FROM ${table} WHERE ${where}`;
         try {
-          console.log(sql);
+         
           dbConnection.query(sql, async (err, result) => {
             if (err) {
               console.log(err);
               reject(responseCode.dbErrorResponse(err));
             } else !_.isEmpty(result);
             {
-              console.log(result);
+             
               responseObj = await responseCode.recordDeleteSuccessResponse(
                 result
               );
@@ -178,14 +175,11 @@ module.exports = {
   },
   GetCampaign: async (table, where, fields) => {
     try {
-      console.log(3);
-
       const details = await connectDB.execute(
         "SELECT * FROM BrandInfo Where `Status`= ? ",
         ["Accepted"]
       );
-      console.log(4);
-      console.log("details", details[0]);
+     
       return details[0];
     } catch (err) {
       return err;
@@ -193,7 +187,7 @@ module.exports = {
   },
   GetPosts: async (table, fields, categories, userId) => {
     try {
-      console.log(table, fields, categories, userId);
+    
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
 
@@ -214,7 +208,7 @@ module.exports = {
 `;
        
 
-        console.log(query);
+       
 
         try {
           dbConnection.query(query, async (err, result) => {
@@ -285,7 +279,7 @@ module.exports = {
         `'${config.JwtSupersecret}'`,
         async (err, decoded) => {
           if (err) {
-            console.log("=========", err);
+          
             resolve(responseCode.UnauthorizedUser(err));
           }
           if (decoded && decoded.id) {
@@ -299,7 +293,7 @@ module.exports = {
   },
 
   customQuery: async (sql) => {
-    console.log("query is ", sql);
+  
     try {
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
@@ -327,16 +321,14 @@ module.exports = {
   },
   sendNotification: async (messageObj) => {
     return new Promise(async (resolve, reject) => {
-      console.log(messageObj);
+     
       admin
         .messaging()
         .send(messageObj)
         .then((response) => {
-          console.log("Notification sent successfully:", response);
           resolve(response);
         })
         .catch((error) => {
-          console.error("Error sending notification:", error);
           resolve("");
         });
     });
@@ -357,7 +349,7 @@ module.exports = {
             if (err) {
               throw err;
             } else {
-              console.log(result);
+              
               if (result.length > 0) {
                 let currentBalance = result[0].balance
                   ? parseInt(result[0].balance)
@@ -386,7 +378,6 @@ module.exports = {
                 let sqlforin = `INSERT INTO wallet (user_id, balance, created_at, updated_on)
                         VALUES ('${id}', '${newBalance}', '${currentD}', '${currentD}');
                         `;
-                console.log(sqlforin);
                 dbConnection.query(sqlforin, async (err, result) => {
                   if (err) {
                     throw err;
@@ -409,15 +400,12 @@ module.exports = {
     try {
       let responseObj = {};
       const sql = `UPDATE ${table} SET ? WHERE Id = ?`;
-      console.log(sql, where);
 
       const result = await new Promise((resolve, reject) => {
         dbConnection.query(sql, [updateObject, where], (err, result) => {
           if (err) {
-            console.error("Error:", err);
             reject(responseCode.dbErrorResponse(err));
           } else {
-            console.log("Result:", result);
             resolve(result);
           }
         });

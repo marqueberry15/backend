@@ -95,7 +95,7 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
-    console.log("filenameeeee", req.file);
+   
     const { date, time } = getCurrentDateTime();
 
     const type = req.file.mimetype.split("/")[0];
@@ -103,20 +103,7 @@ exports.createPost = async (req, res) => {
     const fileName = `${date}_${time}.${ext}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
-    console.log("osteddd");
-
-    // if (type === "video") {
-    //   // Generate thumbnail for video
-    //   try {
-    //     await extractThumbnailAndUpload("UserPost", fileName, "VideoThumbnail");
-    //     console.log("thumbnail stored");
-    //     thumbnailFileName = `${fileName}`;
-    //     // No need to read the thumbnail file into buffer
-    //   } catch (error) {
-    //     console.error("Error generating thumbnail:", error);
-    //     thumbnailFileName = ""; // Reset thumbnail file name if error occurs
-    //   }
-    // }
+   
 
     const post = {
       mobileNo: req.body.mobileNo,
@@ -133,13 +120,12 @@ exports.createPost = async (req, res) => {
     };
 
     if (result) {
-      console.log("result");
+    
       const updatedUser = await common.AddRecords(
         "Post",
         post,
         req.body.mobileNo
       );
-      console.log("post", updatedUser);
       if (updatedUser) {
         return res.send({
           status: 200,
@@ -159,7 +145,6 @@ exports.createPost = async (req, res) => {
   }
 };
 async function extractThumbnailAndUpload(videoUri, videoFileName, ftpFolder) {
-  console.log("thumbnail params", videoUri, videoFileName, ftpFolder);
 
   // return new Promise(async (resolve, reject) => {
   //   const ftpClient = new ftp.Client();
@@ -224,7 +209,7 @@ exports.getPost = async (req, res) => {
   }
 };
 exports.getallPost = async (req, res) => {
-  console.log("trendingggg");
+
   try {
     const userId = req.query.userId;
     const sql = `SELECT *
@@ -242,7 +227,7 @@ exports.getallPost = async (req, res) => {
     `;
 
     const postdetails = await common.customQuery(sql);
-    console.log("postdetailssssss", postdetails);
+
     if (postdetails.status == 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
@@ -290,7 +275,6 @@ exports.allUsers = async (req, res) => {
 
 exports.getinterest = async (req, res) => {
   try {
-    console.log("req paramaaaaaaaaaaaaaa issssssssss", req.query);
     const Interest = req.query.interest;
 
     const interestsArray = Interest.split(" ");
@@ -438,7 +422,7 @@ const uploadTemplate = async (req, res, file) => {
 };
 
 exports.getTemplate = async (req, res) => {
-  console.log('ggggggggggg')
+
   try {
     const postdetails = await common.GetRecords("Template_Image", "", "");
     if (postdetails.status === 200) {
@@ -450,7 +434,6 @@ exports.getTemplate = async (req, res) => {
 };
 
 exports.follow = async (req, res) => {
-  console.log(req.body, "req bodydddddddddd isssssssssssssss");
   try {
     let userName = req.body.userName;
     let Follow_id = req.body.follow_id;
@@ -461,7 +444,6 @@ exports.follow = async (req, res) => {
     });
 
     if (existingRecord.status) {
-      console.log("existing gggggggg recorrrrrrrrrrrrrrr", existingRecord);
       let response = {
         status: 400,
         msg: "Duplicate record. This user is already being followed.",
@@ -478,7 +460,6 @@ exports.follow = async (req, res) => {
 
     let sql = `SELECT User.ProfileDp FROM User Where User.userName = '${userName}';`;
     const getdp = await common.customQuery(sql);
-    console.log("geteeeee dpddddddddddd isss", getdp);
 
     if (addRecord) {
       const noti = {
@@ -486,7 +467,6 @@ exports.follow = async (req, res) => {
         userId: Follow_id,
         Dp: getdp.data[0].ProfileDp,
       };
-      console.log("getee dppp fu;;; objjecttt", noti);
 
       const notisend = await common.AddRecords("Notification", noti);
       if (notisend.status) {
@@ -561,7 +541,6 @@ exports.getFollowerList = async (req, res) => {
       .map((value) => `'${value}'`)
       .join(", ");
 
-    // let sql = `SELECT User.Id, User.userName, User.fullName FROM Follow LEFT JOIN User ON Follow.Follow_id = User.Id WHERE Follow.Follow_id IN (63,65,64,67);`;
     let sql = `SELECT User.Id, User.userName, User.fullName, User.ProfileDp FROM User Where User.userName In (${commaSeparatedString});`;
 
     let getUser = await common.customQuery(sql);
@@ -709,7 +688,6 @@ exports.applycampaign = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
     const { campaign_name, userName } = req.body;
-    console.log('req.body isssssss',req.body,campaign_name,userName)
 
     const fileName = `${date}_${time}_${campaign_name}`;
 
@@ -759,7 +737,6 @@ exports.getUserTemplate = async (req, res) => {
 
 exports.createcontest = async (req, res) => {
   try {
-    console.log(1)
     const { date, time } = getCurrentDateTime();
 
     const fileName = `${date}_${time}_${req.body.contestName}`;
@@ -775,17 +752,16 @@ exports.createcontest = async (req, res) => {
       time_limit:req.body.time
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
-    console.log(2)
+   
     if (addcontest) {
       const noti = {
         msg: ` New Contest is Live. Apply Now to the contest ${contestName}`,
         userId: 0,
       };
-      console.log(3)
       const notisend = await common.AddRecords("Notification", noti);
-      console.log(4)
+    
       if (notisend.status) {
-        console.log(5)
+       
         return res
           .status(200)
           .send({ msg: "Contest Created Successfully", status: 200 });
@@ -858,12 +834,12 @@ exports.getnotification = async (req, res) => {
 exports.getResult = async (req, res) => {
   try {
 
-    console.log('ttttttttttttttttttttttttttt')
+   
     const results = await common.GetRecords("Result","","");
-    console.log('Fetched results:', results);
+ 
     res.status(200).send({"results":results});
   } catch (err) {
-    console.error('Error fetching results:', err.message);
+   
     res.status(500).send({ msg: "Error fetching results" });
   }
 };

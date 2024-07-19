@@ -122,7 +122,7 @@ const payment = async(req,res)=>{
         // key_id: process.env.RAZORPAY_KEY_ID,
         // key_secret: process.env.RAZORPAY_SECRET,
     });
-    console.log(1111)
+   
 
     const options = {
         amount: req.body.amount, 
@@ -131,7 +131,7 @@ const payment = async(req,res)=>{
     };
 
     const order = await instance.orders.create(options);
-    console.log(order)
+  
 
     if (!order) return res.status(500).send("Some error occured");
 
@@ -146,8 +146,7 @@ const payment = async(req,res)=>{
 
 
 const success = async(req,res)=>{
-  console.log('bodyyy',req.body)
-
+ 
   try {
     const {
       orderCreationId,
@@ -156,31 +155,20 @@ const success = async(req,res)=>{
       razorpaySignature,
     } = req.body;
 
-console.log(1)
-    const shasum = crypto.createHmac('sha256', 'mxjPnHF0YptMXOFrgMSZ5mzS');
-    console.log(2)
-    shasum.update(`${orderCreationId}|${razorpayPaymentId}`);
-    console.log(3)
-    const digest = shasum.digest('hex');
-    console.log(4)
 
+    const shasum = crypto.createHmac('sha256', 'mxjPnHF0YptMXOFrgMSZ5mzS');
+   
+    shasum.update(`${orderCreationId}|${razorpayPaymentId}`);
+
+    const digest = shasum.digest('hex');
+   
     if (digest !== razorpaySignature)
-      {console.log(5)
+      {
       return res.status(400).json({ msg: 'Transaction not legit!' });
       }
-      console.log(6)
-    // const newPayment = PaymentDetails({
-    //   razorpayDetails: {
-    //     orderId: razorpayOrderId,
-    //     paymentId: razorpayPaymentId,
-    //     signature: razorpaySignature,
-    //   },
-    //   success: true,
-    // });
-    console.log(7)
+    
 
-   // await newPayment.save();
-console.log(8)
+   
     res.json({
       msg: 'success',
       orderId: razorpayOrderId,

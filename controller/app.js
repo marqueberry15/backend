@@ -50,70 +50,6 @@ const fakeNumbers = [
 
 ];
 
-// const usersignup = async (mobileNo, fullName, userName, otp, referal) => {
-//   try {
-//     const currentDate = new Date();
-//     const user = await common.GetRecords(config.userTable, "", { mobileNo });
-//     const username = await common.GetRecords(config.userTable, "", {
-//       userName,
-//     });
-//     if (user.status) {
-//       const response = {
-//         status: 401,
-//         msg: "Phone No. Already registered.",
-//       };
-//       res.send(response);
-//     }
-
-//     const timestamp = currentDate.getTime();
-//     const created_at = moment()
-//       .tz("Asia/Kolkata")
-//       .format("YYYY-MM-DD HH:mm:ss");
-
-//     const newUser = {
-//       fullName: fullName,
-//       userName: userName,
-//       refer_id: `${userName}_${timestamp}`,
-//       created_on: created_at,
-//       mobileNo: mobileNo,
-//       otp: otp,
-//     };
-
-//     const insertResult = await common.AddRecords(config.userTable, newUser);
-
-//     if (insertResult.status) {
-//       const referaluser = await common.GetRecords(config.userTable, "", {
-//         referal,
-//       });
-
-//       const referal_list = referaluser.Referal;
-//       if (!referal_list) {
-//         referal_list = referal;
-//       } else if (referal_list && referal_list.trim() === "") {
-//         referal_list = referal;
-//       } else {
-//         referal_list += ` ${referal}`;
-//       }
-
-//       console.log(referal_list);
-
-//       const addreferallist = await common.updateObj(config.userTable, "", {
-//         Referal: referal_list,
-//       });
-
-//       if (addreferallist.status) {
-//         console.log("added referal column succesfully");
-//         return insertResult;
-//       }
-//     } else {
-//       return null;
-//     }
-//   } catch (error) {
-//     console.error("Error in usersignup:", error.message);
-//     return null;
-//   }
-// };
-
 const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId ) => {
   try {
     const currentDate = new Date();
@@ -146,7 +82,7 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
     };
 
     const insertResult = await common.AddRecords(config.userTable, newUser);
-    console.log("insertt REsultttttttttt", insertResult);
+   
     if (insertResult.status==1) {
       if (ownerUser != "") {
         const ownerExist = await common.GetRecords("User", "", {
@@ -162,29 +98,25 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
           await common.AddRecords("Wallet", {
             UserId: insertResult.data.insertId,
             mobileNo,
-            balance: 100,
+            balance: 5,
             userName
           });
 
           const ownerWallet = await common.GetRecords("Wallet", "", {
          userName: ownerUser
           });
-          console.log('ownerrrwallettttt',ownerWallet)
           if (ownerWallet.status == 200) {
 
-            const sql = `UPDATE Wallet SET balance = balance + 100 WHERE userName = '${ownerUser}'`;
+            const sql = `UPDATE Wallet SET balance = balance + 5 WHERE userName = '${ownerUser}'`;
 
             const ressql=await common.customQuery(sql);
-            console.log('res sql',ressql)
           } else {
             const userwallet = await common.GetRecords("User", "", {
             userName:ownerUser
             });
-            console.log('user wallet',userwallet)
 
             const query = `INSERT INTO Wallet ( UserId, mobileNo, balance, userName) VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},100,${ownerUser})`;
             const resquery=await common.customQuery(query)
-            console.log(resquery)
 
           }
         }
@@ -200,7 +132,7 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
   }
 };
 const login = async (req, res) => {
-  console.log("loggining in");
+  
   try {
     const mobileNo = req.body.mobileNo || "";
 
@@ -293,7 +225,6 @@ const validateOTP = async (req, res) => {
 };
 
 async function generateAndSaveOTP(req, res) {
-  console.log("otptt isss  getting otp for signup");
   try {
     const mobileNo = req.body.mobileNo || "";
 
@@ -304,12 +235,10 @@ async function generateAndSaveOTP(req, res) {
         generateOtp = 1111;
       } else {
         generateOtp = Math.floor(1000 + Math.random() * 9000);
-        console.log("generated otp is ", generateOtp);
 
         const message = `Hey Creator, Your OTP for signUp is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
         const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
         const sendMsg = await axios.get(url);
-        console.log("send msg isss", sendMsg);
 
         if (sendMsg.status !== 200) {
           // Handle error if OTP sending fails
@@ -378,71 +307,9 @@ async function generateAndSaveOTP(req, res) {
   }
 }
 
-// const validatephoneOTP = async (req, res) => {
-//   try {
-//     const mobileNo = req.body.mobileNo;
-//     const otp = req.body.otp;
-//     const fullName = req.body.fullName;
-//     const userName = req.body.userName;
-
-//     if (mobileNo !== "" && mobileNo.length === 10) {
-//       try {
-//         const getRecords = await common.GetRecords("Signup_otp", "*", {
-//           mobileNo,
-//         });
-
-//         if (getRecords.status && getRecords.data[0].otp == otp) {
-//           const signupResult = await usersignup(
-//             mobileNo,
-//             fullName,
-//             userName,
-//             otp,
-//           ); // You may need to adjust the arguments based on your usersignup function
-
-//           if (signupResult.status) {
-//             const token = jwt.sign(
-//               { id: signupResult.data.insertId },
-//               config.JwtSupersecret,
-//               {
-//                 expiresIn: 86400,
-//               }
-//             );
-//             const response = {
-//               status: 200,
-//               msg: "Successful",
-//               token: token,
-//               data: { mobileNo, fullName, userName, otp },
-//             };
-//             res.send(response);
-//           } else {
-//             const response = {
-//               status: 500,
-//               msg: "Error in user registration",
-//             };
-//             res.send(response);
-//           }
-//         } else {
-//           return res.json({ status: 500, msg: "Invalid Otp" });
-//         }
-//       } catch (err) {
-//         res.json({ status: 500, msg: "Internal Server Error" });
-//       }
-//     } else {
-//       const response = {
-//         status: 400,
-//         msg: "Invalid mobile number",
-//       };
-
-//       res.send(response);
-//     }
-//   } catch (error) {
-//     console.error("Error in validateOTP:", error.message);
-//     res.send({ status: 500, msg: "Internal Server Error" });
-//   }
-// };
 
 const validatephoneOTP = async (req, res) => {
-  console.log("req bodyyyyyyyy ", req.body);
+ 
   try {
     const mobileNo = req.body.mobileNo;
     const otp = req.body.otp;
@@ -574,7 +441,7 @@ const saveInterest = async (req, res) => {
         .status(200)
         .json({ msg: "DONEEE", updateResult: updateResult.data });
     } else {
-      console.error("Update failed:", updateResult.error);
+     
       return res
         .status(500)
         .json({ error: "Internal Server Error", updateResult: null });
@@ -588,7 +455,7 @@ const saveInterest = async (req, res) => {
 };
 
 const contact = async (req, res) => {
-  console.log('reeeeeee',req.body)
+  
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -633,7 +500,7 @@ const verify = async (req, res) => {
     const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
 
     const sendMsg = await axios.get(url);
-    console.log("genrreated otpt tt isss", generateOtp);
+    
     return res
       .status(200)
       .send({ otp: generateOtp, msg: "Successfully send the otp" });
@@ -669,7 +536,7 @@ const withdrawmail = async (req, res) => {
       BenificiaryName: ${req.body.benificiaryName}\n AccountNo: ${req.body.accountNo}\nIfsc Code: ${req.body.ifscCode}\nBankName: ${req.body.bankName}`,
     };
     const info = await transporter.sendMail(mailOptions);
-    //console.log("infoof isssssss", info,info.status);
+  
     res.send({ status: 200, msg: "Successful" });
   } catch (error) {
     console.error(error);
@@ -677,7 +544,7 @@ const withdrawmail = async (req, res) => {
   }
 };
 const sendresponse = async(req,res)=>{
-  console.log('suppportttttttttttt',req.body)
+
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",

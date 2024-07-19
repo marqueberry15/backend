@@ -2,7 +2,7 @@ const connectDB = require("../config/db");
 const bcrypt = require("bcrypt");
 const getCurrentDateTime = require("./datetime");
 const register = async (req, res) => {
-  console.log("ccccccccccccccccc", req.body);
+ 
   try {
     const { first_name, last_name, mobileNo, email, password, company_name } =
       req.body;
@@ -37,7 +37,7 @@ const register = async (req, res) => {
     const [rows] = await connectDB.execute(checkUserExistsQuery, paramsCheck);
 
     if (rows[0].count > 0) {
-      console.log('duuuuuu')
+     
       return res
         .status(401)
         .send({ status: 401, msg: "Email Id or Mobile No. already exist" });
