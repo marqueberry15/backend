@@ -295,6 +295,7 @@ module.exports = {
   customQuery: async (sql) => {
   
     try {
+      console.log('sql is ',sql)
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
 
