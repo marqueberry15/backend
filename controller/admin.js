@@ -136,6 +136,45 @@ const save = async (req, res) => {
   }
 };
 
+
+const update = async (req, res) => {
+  try {
+    const type = req.params.type;
+    const {  header, content } = req.body;
+    let fileName = req.body.file; 
+    if (req.file) {
+      fileName = generateBrandIdentifier(header);
+      const path = type === "Blog" ? "marqueberryblog" : "marqueberrycasestudy";
+      const result = await connectFTP(req.file.buffer, fileName, path);
+
+      if (result === 0) {
+        return res.status(500).json({ error: "Error uploading logo" });
+      }
+    }
+
+    const { date, time } = getCurrentDateTime();
+
+    const updateQuery = `
+      UPDATE ${type}
+      SET Header = ?, Content = ?, Image = ?, Date = ?, Time = ?
+      WHERE Header = ?
+    `;
+
+    await connectDB2.execute(updateQuery, [
+      header,
+      content,
+      fileName || null, // Use new fileName if provided, otherwise keep existing
+      date,
+      time,
+      header,
+    ]);
+
+    res.status(200).json({ msg: "Updated Successfully" });
+  } catch (error) {
+    console.error("Error updating data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 const approval = async (req, res) => {
   const { action } = req.params; 
   const { Id } = req.body; 
@@ -210,6 +249,6 @@ const casestudy = async (req, res) => {
 };
 
 
-module.exports = { login,managerlogin, save, approval, blog, cases, blogstudy,casestudy };
+module.exports = { login,managerlogin, save, approval, blog, cases, blogstudy,casestudy, update };
 
 
