@@ -88,8 +88,6 @@ const saveinfo = async (req, res) => {
 
 const updateinfo = async (req, res) => {
   try {
-
-    console.log('body and paramsssssss',req.body,req.params)
     const updateQuery =
     "UPDATE `BrandInfo` SET `brand_guidlines` = ?, `brand_name` = ?, `campaign_name` = ?, `gif` = ?, `static_meme` = ?, `time_limit` = ?, `video_meme` = ? WHERE `Id` = ?";
 await connectDB.query(updateQuery, [

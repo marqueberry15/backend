@@ -45,29 +45,6 @@ app.use("/app/user", route6);
 
 const PORT = process.env.PORT || 8000;
 
-// app.post("/send", function (req, res) {
-//   //const registrationToken = 'dfl97H9VTeuzdzwquLsL76:APA91bErEZ9V79-hl5pRv4twZmCdjYKnZcPe7n15B6l25FB21Tp9mO-Hpf5Qqjs3jsZHRswJrze2GlChQ3k1ZJSOWKR7xOzTtmb2wPk4wW0gOpzZi6KNcOM62dmkqiYoNke-97eQzh1h';
-// const registrationToken= 'evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwiNshpt3g69uoswfGTMlprTtpJKENfUyRPkfFOLjvju3k24McFpTtVS8r_ZW0m83-_QX5Dux-O5sc8vyzG9s-LKUuY_VsaPeGt_PcF2avvQ6ii'
-
-//   const message = {
-//     notification: {
-//       title: 'Pareeeee',
-//       body: 'heoo world',
-//     },
-//     token: registrationToken,
-//   };
-
-//   getMessaging().send(message)
-//     .then((response) => {
-//       console.log('Successfully sent message:', response);
-//       res.status(200).send('Successfully sent message: ' + response);
-//     })
-//     .catch((error) => {
-//       console.log('Error sending message:', error);
-//       res.status(500).send('Error sending message: ' + error);
-//     });
-// });
-
 app.listen(PORT, () => {
   console.log(`server is running on http://localhost:${PORT}`);
 });

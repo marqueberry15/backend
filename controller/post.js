@@ -359,6 +359,8 @@ exports.delpost = async (req, res) => {
    const deletedetail = await common.deleteRecords("Post", `Id = ${Id}`);
 
     if (deletedetail.status == 1) {
+      
+
       return res.status(200).send({ msg: "Delete Done Successfully" });
     } else {
       return res.send(401).send({ msg: "Not Deleted" });
@@ -518,9 +520,10 @@ exports.updatecontest = async (req, res) => {
 exports.notification = async (req,res)=>{
  
 // const registrationToken = 'dfl97H9VTeuzdzwquLsL76:APA91bErEZ9V79-hl5pRv4twZmCdjYKnZcPe7n15B6l25FB21Tp9mO-Hpf5Qqjs3jsZHRswJrze2GlChQ3k1ZJSOWKR7xOzTtmb2wPk4wW0gOpzZi6KNcOM62dmkqiYoNke-97eQzh1h';
-const registrationToken='evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwiNshpt3g69uoswfGTMlprTtpJKENfUyRPkfFOLjvju3k24McFpTtVS8r_ZW0m83-_QX5Dux-O5sc8vyzG9s-LKUuY_VsaPeGt_PcF2avvQ6ii'
+//const registrationToken='evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwiNshpt3g69uoswfGTMlprTtpJKENfUyRPkfFOLjvju3k24McFpTtVS8r_ZW0m83-_QX5Dux-O5sc8vyzG9s-LKUuY_VsaPeGt_PcF2avvQ6ii'
 //const registrationToken= 'fh3ApEF5Szih5V7B65TDln:APA91bFNLrPpDm-FQSecdJUgzHMVFiNK1bc12CdpYBweP7Ie-v1RJx27aCJZRDNZN2ccmTnsiLpmCDai5h5heiCIERMa-8SAj56lPPoEdedEEXUwreuRh5s1ZOSf17XbntFTiOD2JJ2l'  
 console.log('heyyyyyy')
+const registrationToken='fxfPndB-Ro2Wx5CEQ0obj4:APA91bEyaXSkDnWQI4jqXfAYCR_mgAaWwSWUvKnlBOwi9ktnARM0MPEarC5D65PV3HIIt5MYrgskIqh1j15EMhBS2AVpUhnkDnux_Gdb2qfkucKjOM3ekfUXy4pM5HV92-3PVxzB14hl'
 const message = {
     notification: {
       title: req.body.title,
