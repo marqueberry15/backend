@@ -209,12 +209,15 @@ exports.getPost = async (req, res) => {
   }
 };
 exports.getallPost = async (req, res) => {
-
   try {
     const userId = req.query.userId;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    console.log('ggggggggggggggggggggg',userId,limit,offset)
+    
     const sql = `SELECT *
     FROM Post
-    Where userName NOT IN (
+    WHERE userName NOT IN (
       SELECT BlockedUserName
       FROM Block
       WHERE UserId = ${userId}
@@ -223,11 +226,12 @@ exports.getallPost = async (req, res) => {
       FROM Hide_Post
       WHERE UserId = ${userId}
     ) 
-    ORDER BY  date DESC, LikesCount DESC, CommentCount DESC ;
+    ORDER BY date DESC, LikesCount DESC, CommentCount DESC
+    LIMIT ${limit} OFFSET ${offset};
     `;
-
+    
     const postdetails = await common.customQuery(sql);
-
+    
     if (postdetails.status == 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
@@ -847,41 +851,55 @@ exports.getResult = async (req, res) => {
 exports.getrelevant = async (req, res) => {
   const userName = req.query.userName;
   const userId = req.query.userId;
+  const limit = parseInt(req.query.limit) || 20;
+  const offset = parseInt(req.query.offset) || 0;
+
   const sql = `SELECT *
-  FROM Post
-  WHERE userName IN (
-      SELECT Username
-      FROM User
-      WHERE ID IN (
-          SELECT Follow_id
-          FROM Follow
-          WHERE userName = '${userName}'
-      )
-  ) AND userName NOT IN (
-    SELECT BlockedUserName
-    FROM Block
-    WHERE UserId = ${userId}
-  )
-  ORDER BY date DESC, LikesCount DESC, CommentCount DESC ;
+    FROM Post
+    WHERE userName IN (
+        SELECT Username
+        FROM User
+        WHERE ID IN (
+            SELECT Follow_id
+            FROM Follow
+            WHERE userName = '${userName}'
+        )
+    ) AND userName NOT IN (
+      SELECT BlockedUserName
+      FROM Block
+      WHERE UserId = ${userId}
+    )
+    ORDER BY date DESC, LikesCount DESC, CommentCount DESC
+    LIMIT ${limit} OFFSET ${offset};
   `;
 
-  let getUser = await common.customQuery(sql);
+  try {
+    let getUser = await common.customQuery(sql);
 
-  if (getUser.data.length > 0) {
-    let response = {
-      status: 200,
-      msg: "Data Available",
-      data: getUser.data,
-    };
-    res.send(response);
-  } else {
+    if (getUser.data.length > 0) {
+      let response = {
+        status: 200,
+        msg: "Data Available",
+        data: getUser.data,
+      };
+      res.send(response);
+    } else {
+      let response = {
+        status: 500,
+        msg: "No data available",
+      };
+      res.send(response);
+    }
+  } catch (err) {
     let response = {
       status: 500,
-      msg: "No data available",
+      msg: "Error fetching data",
+      error: err,
     };
     res.send(response);
   }
 };
+
 
 exports.balance = async (req, res) => {
   try {
