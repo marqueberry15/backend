@@ -4,7 +4,7 @@ const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const config = require("../config/config");
 // const ffmpeg = require('ffmpeg');
-const connectDB= require("../config/db")
+const connectDB = require("../config/db");
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -95,7 +95,6 @@ exports.userDetail = async (req, res) => {
 
 exports.createPost = async (req, res) => {
   try {
-   
     const { date, time } = getCurrentDateTime();
 
     const type = req.file.mimetype.split("/")[0];
@@ -103,7 +102,6 @@ exports.createPost = async (req, res) => {
     const fileName = `${date}_${time}.${ext}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "UserPost");
-   
 
     const post = {
       mobileNo: req.body.mobileNo,
@@ -120,7 +118,6 @@ exports.createPost = async (req, res) => {
     };
 
     if (result) {
-    
       const updatedUser = await common.AddRecords(
         "Post",
         post,
@@ -145,7 +142,6 @@ exports.createPost = async (req, res) => {
   }
 };
 async function extractThumbnailAndUpload(videoUri, videoFileName, ftpFolder) {
-
   // return new Promise(async (resolve, reject) => {
   //   const ftpClient = new ftp.Client();
 
@@ -213,8 +209,8 @@ exports.getallPost = async (req, res) => {
     const userId = req.query.userId;
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
-    console.log('ggggggggggggggggggggg',userId,limit,offset)
-    
+    console.log("ggggggggggggggggggggg", userId, limit, offset);
+
     const sql = `SELECT *
     FROM Post
     WHERE userName NOT IN (
@@ -226,12 +222,13 @@ exports.getallPost = async (req, res) => {
       FROM Hide_Post
       WHERE UserId = ${userId}
     ) 
-    ORDER BY date DESC, LikesCount DESC, CommentCount DESC
+    ORDER BY (LikesCount + CommentCount) / 2.0 DESC, date DESC
     LIMIT ${limit} OFFSET ${offset};
     `;
-    
+
+
     const postdetails = await common.customQuery(sql);
-    
+
     if (postdetails.status == 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     }
@@ -283,13 +280,7 @@ exports.getinterest = async (req, res) => {
 
     const interestsArray = Interest.split(" ");
 
-    // const postdetails = await common.GetPosts(
-    //   "Post",
-    //   "",
-    //   interestsArray,
-    //   req.query.UserId
-    // );
-    const postdetails = await common.GetRecords("Post","","")
+    const postdetails = await common.GetRecords("Post", "", "");
     if (postdetails.status === 200) {
       return res.status(200).send({ status: 200, posts: postdetails.data });
     } else {
@@ -426,7 +417,6 @@ const uploadTemplate = async (req, res, file) => {
 };
 
 exports.getTemplate = async (req, res) => {
-
   try {
     const postdetails = await common.GetRecords("Template_Image", "", "");
     if (postdetails.status === 200) {
@@ -715,11 +705,12 @@ exports.applycampaign = async (req, res) => {
       });
     }
   } catch (err) {
-    console.error('Error occurred:', err);
-    return res.status(500).send({ msg: 'Internal Server Error', error: err.message });
+    console.error("Error occurred:", err);
+    return res
+      .status(500)
+      .send({ msg: "Internal Server Error", error: err.message });
   }
 };
-
 
 exports.getUserTemplate = async (req, res) => {
   try {
@@ -753,19 +744,18 @@ exports.createcontest = async (req, res) => {
       contestName,
       fileName,
       date: `${date}_${time}`,
-      time_limit:req.body.time
+      time_limit: req.body.time,
     };
     const addcontest = await common.AddRecords("Contest", contestobj);
-   
+
     if (addcontest) {
       const noti = {
         msg: ` New Contest is Live. Apply Now to the contest ${contestName}`,
         userId: 0,
       };
       const notisend = await common.AddRecords("Notification", noti);
-    
+
       if (notisend.status) {
-       
         return res
           .status(200)
           .send({ msg: "Contest Created Successfully", status: 200 });
@@ -837,13 +827,10 @@ exports.getnotification = async (req, res) => {
 
 exports.getResult = async (req, res) => {
   try {
+    const results = await common.GetRecords("Result", "", "");
 
-   
-    const results = await common.GetRecords("Result","","");
- 
-    res.status(200).send({"results":results});
+    res.status(200).send({ results: results });
   } catch (err) {
-   
     res.status(500).send({ msg: "Error fetching results" });
   }
 };
@@ -869,9 +856,10 @@ exports.getrelevant = async (req, res) => {
       FROM Block
       WHERE UserId = ${userId}
     )
-    ORDER BY date DESC, LikesCount DESC, CommentCount DESC
+   ORDER BY (LikesCount + CommentCount) / 2.0 DESC, date DESC
     LIMIT ${limit} OFFSET ${offset};
   `;
+
 
   try {
     let getUser = await common.customQuery(sql);
@@ -899,7 +887,6 @@ exports.getrelevant = async (req, res) => {
     res.send(response);
   }
 };
-
 
 exports.balance = async (req, res) => {
   try {
@@ -940,6 +927,3 @@ exports.deleteuser = async (req, res) => {
     res.status(500).send({ msg: "Cannot Delete" });
   }
 };
-
-
-
