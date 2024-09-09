@@ -3,6 +3,11 @@ require("dotenv").config();
 
 
 const contactapp = async (req, res) => {
+
+    console.log('htttt')
+    console.log('Email:', process.env.email);
+console.log('Password:', process.env.password2);
+
     try {
       const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -21,6 +26,7 @@ const contactapp = async (req, res) => {
       };
   
       const info = await transporter.sendMail(mailOptions);
+      console.log('fffffff',info)
   
       res.send({ status: 200, msg: "Successfull" });
     } catch (error) {
