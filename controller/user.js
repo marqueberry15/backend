@@ -681,14 +681,14 @@ exports.userTemplate = async (req, res) => {
 exports.applycampaign = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
-    const { campaign_name, userName } = req.body;
+    const { campaign_name, userName, mobileNo } = req.body;
 
     const fileName = `${date}_${time}_${campaign_name}`;
 
     const result = await connectFTP(req.file.buffer, fileName, "Campaign");
 
     if (result) {
-      const insertQuery = `INSERT INTO Campaign (campaign_name, fileName, type, time, userName) VALUES (?, ?, ?, ?, ?)`;
+      const insertQuery = `INSERT INTO Campaign (campaign_name, fileName, type, time, userName, mobileNo) VALUES (?, ?, ?, ?, ?, ?)`;
 
       await connectDB.query(insertQuery, [
         campaign_name,
@@ -696,6 +696,7 @@ exports.applycampaign = async (req, res) => {
         req.file.mimetype,
         time,
         userName,
+        mobileNo
       ]);
 
       return res.send({
@@ -775,7 +776,7 @@ exports.createcontest = async (req, res) => {
 exports.applycontest = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
-    const { contestName, userName } = req.body;
+    const { contestName, userName, mobileNo } = req.body;
 
     const fileName = `${date}_${time}_${userName}`;
 
@@ -788,6 +789,7 @@ exports.applycontest = async (req, res) => {
         time,
         type: req.file.mimetype,
         userName,
+        mobileNo
       });
       if (updatedUser) {
         return res.send({
@@ -903,12 +905,6 @@ exports.balance = async (req, res) => {
       msg: "Getting error while fetching the result for the wallet balance",
     });
   }
-};
-
-exports.walletotp = async (req, res) => {};
-
-exports.correctdate = async (req, res) => {
-  const postquery = "Select date F";
 };
 
 exports.deleteusertemplate = async (req, res) => {
