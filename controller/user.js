@@ -890,7 +890,9 @@ exports.getrelevant = async (req, res) => {
 
 exports.balance = async (req, res) => {
   try {
+    console.log('jjjjjjjjjjj',req.query)
     const { userId } = req.query;
+    console.log('hhhhhhhhhhhhhhh',userId)
     const getbalance = await common.GetRecords("Wallet", "", { userId });
     if (getbalance.status) {
       return res.send({ status: 200, balance: getbalance.data[0] }).status(200);

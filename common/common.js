@@ -30,6 +30,8 @@ module.exports = {
           sql += " WHERE " + conditions.join(" AND ");
         }
 
+        console.log('query issssssssss',sql)
+
         try {
           dbConnection.query(
 
