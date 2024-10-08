@@ -536,12 +536,8 @@ const withdrawmail = async (req, res) => {
       from: process.env.email,
       to: [
         "info@marqueberry.com",
-        "amit@marqueberry.com",
-        "deepanshu@marqueberry.com",
-        "ritesh@marqueberry.com",
-        // "sushma.rani@marqueberry.com"
+        
       ],
-      cc: ["sushma.rani@marqueberry.com", "prateek.bhardwaj@marqueberry.com"],
       subject: "Money Withdraw REquest",
       text: `
       

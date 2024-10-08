@@ -226,7 +226,6 @@ exports.getallPost = async (req, res) => {
     LIMIT ${limit} OFFSET ${offset};
     `;
 
-
     const postdetails = await common.customQuery(sql);
 
     if (postdetails.status == 200) {
@@ -696,8 +695,13 @@ exports.applycampaign = async (req, res) => {
         req.file.mimetype,
         time,
         userName,
-        mobileNo
+        mobileNo,
       ]);
+
+      let sqlupdate = `UPDATE BrandInfo
+      SET applicant = applicant + 1 WHERE campaign_name = ?;`;
+
+      await connectDB.query(sqlupdate, [campaign_name]);
 
       return res.send({
         status: 200,
@@ -789,9 +793,13 @@ exports.applycontest = async (req, res) => {
         time,
         type: req.file.mimetype,
         userName,
-        mobileNo
+        mobileNo,
       });
       if (updatedUser) {
+        let sqlupdate = `UPDATE Contest
+        SET applicant = applicant + 1 Where contestName=${contestName};
+        `;
+        await common.customQuery(sqlupdate);
         return res.send({
           status: 200,
           msg: "Applied  Succesfully",
@@ -862,7 +870,6 @@ exports.getrelevant = async (req, res) => {
     LIMIT ${limit} OFFSET ${offset};
   `;
 
-
   try {
     let getUser = await common.customQuery(sql);
 
@@ -892,9 +899,9 @@ exports.getrelevant = async (req, res) => {
 
 exports.balance = async (req, res) => {
   try {
-    console.log('jjjjjjjjjjj',req.query)
+    console.log("jjjjjjjjjjj", req.query);
     const { userId } = req.query;
-    console.log('hhhhhhhhhhhhhhh',userId)
+    console.log("hhhhhhhhhhhhhhh", userId);
     const getbalance = await common.GetRecords("Wallet", "", { userId });
     if (getbalance.status) {
       return res.send({ status: 200, balance: getbalance.data[0] }).status(200);
