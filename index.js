@@ -19,11 +19,19 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.static(path.resolve(__dirname, "public")));
 app.use("/user", route);
 app.use("/mail", route2);
 app.use("/brand", route3);
 app.use("/admin", route4);
+app.get('/hello',(req,res)=>{
+  res.send({
+    user:{
+      name:"sushma"
+    }
+  })
+})
 app.use("/app/user", route6);
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
