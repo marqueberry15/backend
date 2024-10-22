@@ -72,6 +72,7 @@ const {
   updatecontest,
   notification,
   report,
+  getmemetemplate,
 } = require("../controller/post");
 const { payment, success } = require("../controller/saveinfo");
 route.post("/generateotp", generateAndSaveOTP);
@@ -112,6 +113,7 @@ route.post("/createcontest", upload.single("file"), createcontest);
 route.get("/getallcontest", getcontest);
 route.delete("/deletecontest", deletecontest);
 route.get("/gettrendingtemplate", gettrendingtemplate);
+route.get("/getmemetemplate",getmemetemplate)
 route.post("/applycontest", upload.single("file"), applycontest);
 route.get("/getnotification", getnotification);
 route.get("/getresult", getResult);

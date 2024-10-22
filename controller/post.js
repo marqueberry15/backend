@@ -6,6 +6,7 @@ const connectDB = require("../config/db")
 const { getMessaging } = require("firebase-admin/messaging");
 var admin = require("firebase-admin");
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -316,6 +317,25 @@ exports.gettrendingtemplate = async (req, res) => {
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
 };
+
+
+exports.getmemetemplate = async (req, res) => {
+  try {
+    const { name } = req.query;
+    console.log(name,req.query,req.params)
+
+    const gettrendtemp = await common.GetRecords("Template_Image", "", {name} );
+    if (gettrendtemp.status)
+      return res.status(200).send({
+        msg: "Trending Templates are fetched Completely",
+        status: 200,
+        trendingtemplate: gettrendtemp.data,
+      });
+  } catch (err) {
+    return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
+  }
+};
+
 
 exports.hide = async (req, res) => {
   const { PostId, UserId } = req.body;
