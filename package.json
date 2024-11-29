@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run server",
-    "server": "node index.js"
+    "server": "node index.js",
+    "build": "babel -d dist"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +16,7 @@
     "@react-native-async-storage/async-storage": "^1.21.0",
     "aws": "^0.0.3-2",
     "aws-cli": "^0.0.2",
-    "aws-sdk": "^2.1459.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.6.2",
     "basic-ftp": "^5.0.3",
     "bcrypt": "^5.1.1",
@@ -30,16 +31,24 @@
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
+    "latest": "^0.2.0",
     "moment-timezone": "^0.5.43",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.0",
+    "node": "^20.18.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.5",
     "path": "^0.12.7",
+    "pdf-lib": "^1.17.1",
     "razorpay": "^2.9.4",
     "sharp": "^0.33.2",
     "stream": "^0.0.2",
     "thumbsupply": "^0.4.0",
     "underscore": "^1.13.6"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0"
   }
 }

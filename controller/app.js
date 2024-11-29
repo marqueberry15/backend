@@ -3,7 +3,6 @@ const config = require("../config/config");
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
 
 const moment = require("moment-timezone");
 const fakeNumbers = [

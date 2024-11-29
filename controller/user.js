@@ -1,5 +1,4 @@
-const ftp = require("basic-ftp");
-const { PassThrough } = require("stream");
+
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const config = require("../config/config");
@@ -8,47 +7,82 @@ const connectDB = require("../config/db");
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
-const axios = require("axios");
 const thumbsupply = require("thumbsupply");
-const { update } = require("./app");
-const configr = {
-  host: "154.41.233.75",
-  port: process.env.ftpport,
-  user: "u394360389.Admin",
-  password: process.env.ftppassword,
-};
+const fs = require('fs');
+const { PDFDocument } = require('pdf-lib');
+const path= require('path')
+// const configr = {
+//   host: "154.41.233.75",
+//   port: process.env.ftpport,
+//   user: "u394360389.Admin",
+//   password: process.env.ftppassword,
+// };
 
-const configur = {
-  host: process.env.ftphost,
-  port: process.env.ftpport,
-  user: process.env.ftpuser,
-  password: process.env.ftppassword,
-};
+// const configur = {
+//   host: process.env.ftphost,
+//   port: process.env.ftpport,
+//   user: process.env.ftpuser,
+//   password: process.env.ftppassword,
+// };
 
-async function connectFTP(buffer, fileName, folder) {
-  const client = new ftp.Client();
-  const readableStream = new PassThrough();
-  readableStream.end(buffer);
+// async function connectFTP(buffer, fileName, folder) {
+//   const client = new ftp.Client();
+//   const readableStream = new PassThrough();
+//   readableStream.end(buffer);
+//   try {
+//     await client.access(configr);
+
+//     await client.cd(folder);
+
+//     await client.uploadFrom(readableStream, fileName, { overwrite: true });
+
+//     client.close();
+//     return 1;
+//   } catch (err) {
+//     client.close();
+//     return 0;
+//   }
+// }
+
+const AWS = require('aws-sdk');
+
+// Configure the AWS SDK to use environment variables
+const s3 = new AWS.S3({
+  
+
+  region: process.env.region,
+  accessKeyId: process.env.accessKeyId,
+  secretAccessKey: process.env.secretAccessKey,
+  //endpoint: `https://s3.${process.env.region}.amazonaws.com`
+});
+
+// Example function to upload a file to S3
+async function uploadToS3(buffer, fileName, path) {
+
+  const params = {
+    Bucket: "adoro-data-storage",
+    Key: `${path}/${fileName}`,
+    Body: buffer,
+    // ContentType: 'image/jpeg',
+  };
+
   try {
-    await client.access(configr);
-
-    await client.cd(folder);
-
-    await client.uploadFrom(readableStream, fileName, { overwrite: true });
-
-    client.close();
-    return 1;
-  } catch (err) {
-    client.close();
-    return 0;
+    await s3.upload(params).promise();
+    console.log('tttttttttttttt',params)
+    console.log("File uploaded successfully");
+    return 1 
+  } catch (error) {
+    console.error("Error uploading file to S3:", error);
+    return 0
   }
 }
+
 
 exports.updateprofile = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
-    const result = await connectFTP(
+    const result = await uploadToS3(
       req.file.buffer,
       fileName,
       "UserProfilePic"
@@ -101,7 +135,7 @@ exports.createPost = async (req, res) => {
     const ext = req.file.mimetype.split("/")[1];
     const fileName = `${date}_${time}.${ext}`;
 
-    const result = await connectFTP(req.file.buffer, fileName, "UserPost");
+    const result = await uploadToS3(req.file.buffer, fileName, "UserPost");
 
     const post = {
       mobileNo: req.body.mobileNo,
@@ -296,7 +330,7 @@ const uploadPost = async (req, res, file) => {
   const type = file.mimetype.split("/")[0];
 
   try {
-    const result = await connectFTP(file.buffer, fileName, "UserPost");
+    const result = await uploadToS3(file.buffer, fileName, "UserPost");
     if (result) {
       const post = {
         mobileNo: req.body.mobileNo,
@@ -387,7 +421,7 @@ const uploadTemplate = async (req, res, file) => {
   const type = file.mimetype.split("/")[0];
 
   try {
-    const result = await connectFTP(file.buffer, fileName, "TrendingTemplate");
+    const result = await uploadToS3(file.buffer, fileName, "TrendingTemplate");
     if (result) {
       const template = {
         fileName,
@@ -617,7 +651,7 @@ exports.updatewallpaper = async (req, res) => {
   try {
     const { date, time } = getCurrentDateTime();
     const fileName = `${date}_${time}`;
-    const result = await connectFTP(req.file.buffer, fileName, "UserWallpaper");
+    const result = await uploadToS3(req.file.buffer, fileName, "UserWallpaper");
     if (result) {
       const updatedUser = await common.UpdateRecords(
         config.userTable,
@@ -649,7 +683,7 @@ exports.userTemplate = async (req, res) => {
 
     const fileName = `${date}_${time}`;
 
-    const result = await connectFTP(req.file.buffer, fileName, "UserTemplate");
+    const result = await uploadToS3(req.file.buffer, fileName, "UserTemplate");
 
     if (result) {
       const updatedUser = await common.AddRecords("User_Template", {
@@ -684,7 +718,7 @@ exports.applycampaign = async (req, res) => {
 
     const fileName = `${date}_${time}_${campaign_name}`;
 
-    const result = await connectFTP(req.file.buffer, fileName, "Campaign");
+    const result = await uploadToS3(req.file.buffer, fileName, "Campaign");
 
     if (result) {
       const insertQuery = `INSERT INTO Campaign (campaign_name, fileName, type, time, userName, mobileNo) VALUES (?, ?, ?, ?, ?, ?)`;
@@ -742,7 +776,7 @@ exports.createcontest = async (req, res) => {
     const fileName = `${date}_${time}_${req.body.contestName}`;
 
     const { Description, contestName } = req.body;
-    const result = await connectFTP(req.file.buffer, fileName, "Contest");
+    const result = await uploadToS3(req.file.buffer, fileName, "Contest");
 
     const contestobj = {
       Description,
@@ -784,7 +818,8 @@ exports.applycontest = async (req, res) => {
 
     const fileName = `${date}_${time}_${userName}`;
 
-    const result = await connectFTP(req.file.buffer, fileName, "ContestApply");
+    const result = await uploadToS3(req.file.buffer, fileName, "ContestApply");
+    console.log('hhhhhhhh',result)
 
     if (result) {
       const updatedUser = await common.AddRecords("Contest_Apply", {
@@ -932,3 +967,187 @@ exports.deleteuser = async (req, res) => {
     res.status(500).send({ msg: "Cannot Delete" });
   }
 };
+
+// exports.makeinvoice = async(req,res)=>{
+//   try {
+//     // Read the PDF template
+//     const templatePath = path.join(__dirname, '..', 'public', 'bill.pdf');
+//    // const templatePath = require("../public/bill.pdf"); // Replace with your template path
+//    // const templatePath = path.join(__dirname, 'public', 'bill.pdf'); // Replace with your template path
+
+//     // Read the PDF template as a binary buffer
+//     const pdfBuffer = fs.readFileSync(templatePath);
+
+//     // Load the PDF with pdf-lib
+//     const pdfDoc = await PDFDocument.load(pdfBuffer);
+
+//     // Get the form fields
+//     const form = pdfDoc.getForm();
+//     //const form = pdfDoc.getForm();
+
+//     // Get all fields in the form
+//     const fields = form.getFields();
+
+//     // Log and collect field names
+//     const fieldNames = fields.map(field => field.getName());
+//     console.log('Field Names in PDF:', fieldNames);
+
+//     // Fill the form fields using data from the request body
+//     const { name} = req.body; // Add more fields as required
+//     form.getTextField('nameField').setText(name); // Replace 'name' with the field name in your template
+//     // form.getTextField('email').setText(email);
+//     // form.getTextField('address').setText(address);
+
+//     // Flatten the form (optional, makes fields non-editable)
+//     form.flatten();
+
+//     // Serialize the filled PDF to bytes
+//     const filledPdfBytes = await pdfDoc.save();
+
+//     // Set response headers for download
+//     res.setHeader('Content-Disposition', 'attachment; filename="filled-form.pdf"');
+//     res.setHeader('Content-Type', 'application/pdf');
+
+//     // Send the filled PDF as a response
+//     res.send(filledPdfBytes);
+//   } catch (error) {
+//     console.error('Error generating PDF:', error);
+//     res.status(500).send('An error occurred while generating the PDF.');
+//   }
+
+// }
+
+
+// Configure AWS SDK
+
+exports.makeinvoice = async (req, res) => {
+  try {
+    // Read the PDF template
+    const templatePath = path.join(__dirname, '..', 'public', 'bill.pdf');
+    const pdfBuffer = fs.readFileSync(templatePath);
+
+    // Load the PDF with pdf-lib
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+
+    // Get the form fields
+    const form = pdfDoc.getForm();
+    const fields = form.getFields();
+
+    // Log and collect field names
+    const fieldNames = fields.map(field => field.getName());
+    console.log('Field Names in PDF:', fieldNames);
+
+
+    const { date, time } = getCurrentDateTime();
+
+    // Extract name from request body and fill the form field
+    const { name,description,amt } = req.body;
+    form.getTextField('nameField').setText(name);
+    form.getTextField('discriptionField').setText(description);
+    form.getTextField('billtoField').setText('Think Ellipse Pvt. Ltd.');
+    form.getTextField('amountField').setText(amt);
+    form.getTextField('dateField').setText(date);
+    
+
+    // Get current date and time
+   
+    // Flatten the form (optional, makes fields non-editable)
+    form.flatten();
+
+    // Serialize the filled PDF to bytes
+    const filledPdfBytes = await pdfDoc.save();
+
+    // S3 upload parameters
+    const bucketName = "adoro-data-storage"; // S3 Bucket name
+    const fileName = `${name}_${date}_${time}.pdf`; // Create a unique filename
+    const uploadParams = {
+      Bucket: bucketName,
+      Key: `Invoice/${fileName}`,
+      Body: filledPdfBytes,
+      ContentType: 'application/pdf',
+    };
+
+    // Upload the file to S3
+    const s3Response = await s3.upload(uploadParams).promise();
+    console.log('PDF uploaded to S3:', s3Response.Location);
+
+    const result = await common.AddRecords('invoice', {
+      name,
+      date,
+      fileName
+    });
+
+    // Provide the URL of the uploaded PDF on S3
+    res.status(200).json({
+      message: 'PDF generated and uploaded successfully!',
+      downloadUrl: s3Response.Location, // Link to download the PDF
+    });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).send('An error occurred while generating the PDF.');
+  }
+};
+
+exports.uploadinvoice = async (req, res) => {
+  try {
+    // Multer middleware handles file upload
+      
+      const fileBuffer = req.file.buffer
+
+      // Generate unique filename
+      const { name} = req.body;
+      const { date, time } = getCurrentDateTime(); // Helper function to get current date and time
+      const fileName = `${name}_${date}_${time}.pdf`;
+
+      // S3 upload parameters
+      const bucketName = 'adoro-data-storage'; // S3 Bucket name
+      const uploadParams = {
+        Bucket: bucketName,
+        Key: `Invoice/${fileName}`,
+        Body: fileBuffer,
+        ContentType: 'application/pdf',
+      };
+      console.log('s3 isss',s3.region,s3.accessKeyId,s3.secretAccessKey)
+      console.log('s3 isss',process.env.region,process.env.accessKeyId,process.env.secretAccessKey)
+
+      // Upload the file to S3
+      const s3Response = await s3.upload(uploadParams).promise();
+      console.log('PDF uploaded to S3:', s3Response.Location);
+
+      // Save file metadata in the database
+      const result = await common.AddRecords('invoice', {
+        name,
+        date,
+        fileName,
+        
+      });
+
+      fs.unlinkSync(filePath);
+
+      res.status(200).json({
+        message: 'File uploaded and saved successfully!',
+        fileUrl: s3Response.Location,
+      });
+    
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('An error occurred while uploading the file.');
+  }
+};
+
+exports.getverified = async (req,res) =>{
+  try
+  {
+
+
+  }
+  catch(err){
+    console.log(err)
+    console.error('Error uploading file:', error);
+    res.status(500).send('An error occurred while making the file verified.');
+  }
+
+
+}
+
+

@@ -3,13 +3,24 @@ const responseCode = require("../constant/response");
 const _ = require("underscore");
 const mysql = require("mysql2");
 const dbConnection = mysql.createPool({
-  host: "srv1021.hstgr.io",
-  user: "u394360389_App",
-  password: "Marqueberryisthegreat@123",
-  database: "u394360389_Adoro",
+//  host: "srv1021.hstgr.io",
+//   user: "u394360389_App",
+//   password: "Marqueberryisthegreat@123",
+//   database: "u394360389_Adoro",
+
+  host:  process.env.host,
+  user: process.env.user3,
+   password: process.env.password,
+   database:  process.env.database3,
+
 });
 
+console.log('credentails are , ', process.env.host,
+   process.env.user3,
+   process.env.password,
+    process.env.database3)
 dbConnection.promise();
+
 const connectDB = require("../config/db");
 
 module.exports = {
@@ -62,6 +73,10 @@ module.exports = {
 
   AddRecords: async (table, addObject) => {
     try {
+      console.log('credentails are , ', process.env.host,
+        process.env.user3,
+        process.env.password,
+         process.env.database3)
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
         let sql = `INSERT INTO ${table} SET ?`;

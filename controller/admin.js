@@ -2,10 +2,40 @@ const connectDB2 = require("../config/db2");
 const ftp = require("basic-ftp");
 const fs = require("fs").promises;
 const getCurrentDateTime = require("./datetime");
-require("dotenv").config();
 const connectDB = require("../config/db");
 const stream = require("stream");
 const { PassThrough } = require("stream");
+
+
+const AWS = require('aws-sdk');
+
+// Configure the AWS SDK to use environment variables
+const s3 = new AWS.S3({
+  region: process.env.region,
+  accessKeyId: process.env.accessKeyId,
+  secretAccessKey: process.env.secretAccessKey,
+});
+
+// Example function to upload a file to S3
+async function uploadToS3(buffer, fileName, path) {
+
+  const params = {
+    Bucket: "marqueberrry",
+    Key: `${path}/${fileName}`,
+    Body: buffer,
+    // ContentType: 'image/jpeg',
+  };
+
+  try {
+    await s3.upload(params).promise();
+    console.log('tttttttttttttt',params)
+    console.log("File uploaded successfully");
+    return 1
+  } catch (error) {
+    console.error("Error uploading file to S3:", error);
+    return 0
+  }
+}
 
 
 const config = {
@@ -107,7 +137,9 @@ const save = async (req, res) => {
 
     const path = type === "Blog" ? "marqueberryblog" : "marqueberrycasestudy";
   
-    const result = await connectFTP(req.file.buffer, fileName, path);
+   // const result = await connectFTP(req.file.buffer, fileName, path);
+    const result = await uploadToS3(req.file.buffer, fileName, path);
+    console.log('rrrrrrrrrrrrrrr',result)
 
     if (result === 0) {
      
@@ -117,16 +149,16 @@ const save = async (req, res) => {
     const { date, time } = getCurrentDateTime();
 
 
-    const insertQuery = `INSERT INTO ${type} (Header, Content, Image, Date, Time) VALUES (?, ?, ?, ?, ?)`;
+    // const insertQuery = `INSERT INTO ${type} (Header, Content, Image, Date, Time) VALUES (?, ?, ?, ?, ?)`;
 
     
-    await connectDB2.execute(insertQuery, [
-      header,
-      content,
-      fileName,
-      date,
-      time,
-    ]);
+    // await connectDB2.execute(insertQuery, [
+    //   header,
+    //   content,
+    //   fileName,
+    //   date,
+    //   time,
+    // ]);
 
  
     res.status(200).json({ msg: "Uploaded Successfully" });
@@ -145,7 +177,7 @@ const update = async (req, res) => {
     if (req.file) {
       fileName = generateBrandIdentifier(header);
       const path = type === "Blog" ? "marqueberryblog" : "marqueberrycasestudy";
-      const result = await connectFTP(req.file.buffer, fileName, path);
+      const result = await uploadToS3(req.file.buffer, fileName, path);
 
       if (result === 0) {
         return res.status(500).json({ error: "Error uploading logo" });

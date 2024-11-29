@@ -43,6 +43,8 @@ const {
   balance,
   deleteusertemplate,
   getResult,
+  makeinvoice,
+  uploadinvoice,
 } = require("../controller/user");
 const {
   postComment,
@@ -141,6 +143,7 @@ route.post("/sendresponse", sendresponse);
 route.put("/updatecontest/:Id", upload.single("file"), updatecontest);
 route.post("/send", notification);
 route.put("/report",report)
-
+route.post("/makeinvoice",makeinvoice)
+route.post("/uploadinvoice", upload.single("file"), uploadinvoice);
 
 module.exports = route;

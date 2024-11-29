@@ -2,7 +2,6 @@ const connectDB = require("../config/db");
 const ftp = require("basic-ftp");
 const fs = require("fs");
 const { PassThrough } = require("stream");
-require("dotenv").config();
 const getCurrentDateTime = require("./datetime");
 const Razorpay= require("razorpay")
 const crypto= require('crypto')
@@ -13,33 +12,66 @@ const config = {
   password: process.env.ftppassword,
 };
 
+
+
+const AWS = require('aws-sdk');
+
+// Configure the AWS SDK to use environment variables
+const s3 = new AWS.S3({
+  region: process.env.region,
+  accessKeyId: process.env.accessKeyId,
+  secretAccessKey: process.env.secretAccessKey,
+});
+
+// Example function to upload a file to S3
+async function uploadToS3(buffer, fileName, path) {
+
+  const params = {
+    Bucket: "marqueberrry",
+    Key: `$marqueberrylogofiles/${fileName}`,
+    Body: buffer,
+    // ContentType: 'image/jpeg',
+  };
+
+  try {
+    await s3.upload(params).promise();
+    console.log('tttttttttttttt',params)
+    console.log("File uploaded successfully");
+    return 1
+  } catch (error) {
+    
+    console.error("Error uploading file to S3:", error);
+    return 0
+  }
+}
+
 function generateBrandIdentifier(brandName) {
   const timestamp = Date.now();
   // const randomString = generateRandomString(4); // Adjust the length of the random string as needed
   return `${brandName}_${timestamp}`;
 }
 
-async function connectFTP(buffer, fileName) {
-  const client = new ftp.Client();
+// async function connectFTP(buffer, fileName) {
+//   const client = new ftp.Client();
 
-  const readableStream = new PassThrough();
-  readableStream.end(buffer);
+//   const readableStream = new PassThrough();
+//   readableStream.end(buffer);
 
-  try {
-    await client.access(config);
+//   try {
+//     await client.access(config);
 
-    await client.cd("marqueberrylogofiles");
+//     await client.cd("marqueberrylogofiles");
 
-    await client.uploadFrom(readableStream, fileName);
+//     await client.uploadFrom(readableStream, fileName);
 
-    client.close();
-    return 1;
-  } catch (err) {
-    console.error("Error:", err); // Log the error for debugging
-    client.close();
-    return 0;
-  }
-}
+//     client.close();
+//     return 1;
+//   } catch (err) {
+//     console.error("Error:", err); // Log the error for debugging
+//     client.close();
+//     return 0;
+//   }
+// }
 
 const saveinfo = async (req, res) => {
   try {
@@ -47,7 +79,10 @@ const saveinfo = async (req, res) => {
 
     // Modify the file name to include the brand identifier
     const fileName = `logo_${brandIdentifier}.png`;
-    const result = await connectFTP(req.file.buffer, fileName);
+
+    //const result = await connectFTP(req.file.buffer, fileName);
+    const result = await uploadToS3(req.file.buffer, fileName)
+    
     if (result === 0) {
       return res.status(500).json({ error: "Error uploading logo" });
     }
