@@ -1,4 +1,3 @@
-
 const getCurrentDateTime = require("./datetime");
 const common = require("../common/common");
 const config = require("../config/config");
@@ -8,9 +7,10 @@ const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath(ffmpegPath);
 const thumbsupply = require("thumbsupply");
-const fs = require('fs');
-const { PDFDocument } = require('pdf-lib');
-const path= require('path')
+const fs = require("fs");
+const { PDFDocument } = require("pdf-lib");
+const path = require("path");
+
 // const configr = {
 //   host: "154.41.233.75",
 //   port: process.env.ftpport,
@@ -44,12 +44,10 @@ const path= require('path')
 //   }
 // }
 
-const AWS = require('aws-sdk');
+const AWS = require("aws-sdk");
 
 // Configure the AWS SDK to use environment variables
 const s3 = new AWS.S3({
-  
-
   region: process.env.region,
   accessKeyId: process.env.accessKeyId,
   secretAccessKey: process.env.secretAccessKey,
@@ -58,7 +56,6 @@ const s3 = new AWS.S3({
 
 // Example function to upload a file to S3
 async function uploadToS3(buffer, fileName, path) {
-
   const params = {
     Bucket: "adoro-data-storage",
     Key: `${path}/${fileName}`,
@@ -68,15 +65,14 @@ async function uploadToS3(buffer, fileName, path) {
 
   try {
     await s3.upload(params).promise();
-    console.log('tttttttttttttt',params)
+    console.log("tttttttttttttt", params);
     console.log("File uploaded successfully");
-    return 1 
+    return 1;
   } catch (error) {
     console.error("Error uploading file to S3:", error);
-    return 0
+    return 0;
   }
 }
-
 
 exports.updateprofile = async (req, res) => {
   try {
@@ -819,7 +815,7 @@ exports.applycontest = async (req, res) => {
     const fileName = `${date}_${time}_${userName}`;
 
     const result = await uploadToS3(req.file.buffer, fileName, "ContestApply");
-    console.log('hhhhhhhh',result)
+    console.log("hhhhhhhh", result);
 
     if (result) {
       const updatedUser = await common.AddRecords("Contest_Apply", {
@@ -1017,13 +1013,12 @@ exports.deleteuser = async (req, res) => {
 
 // }
 
-
 // Configure AWS SDK
 
 exports.makeinvoice = async (req, res) => {
   try {
     // Read the PDF template
-    const templatePath = path.join(__dirname, '..', 'public', 'bill.pdf');
+    const templatePath = path.join(__dirname, "..", "public", "bill.pdf");
     const pdfBuffer = fs.readFileSync(templatePath);
 
     // Load the PDF with pdf-lib
@@ -1034,23 +1029,21 @@ exports.makeinvoice = async (req, res) => {
     const fields = form.getFields();
 
     // Log and collect field names
-    const fieldNames = fields.map(field => field.getName());
-    console.log('Field Names in PDF:', fieldNames);
-
+    const fieldNames = fields.map((field) => field.getName());
+    console.log("Field Names in PDF:", fieldNames);
 
     const { date, time } = getCurrentDateTime();
 
     // Extract name from request body and fill the form field
-    const { name,description,amt } = req.body;
-    form.getTextField('nameField').setText(name);
-    form.getTextField('discriptionField').setText(description);
-    form.getTextField('billtoField').setText('Think Ellipse Pvt. Ltd.');
-    form.getTextField('amountField').setText(amt);
-    form.getTextField('dateField').setText(date);
-    
+    const { name, description, amt } = req.body;
+    form.getTextField("nameField").setText(name);
+    form.getTextField("discriptionField").setText(description);
+    form.getTextField("billtoField").setText("Think Ellipse Pvt. Ltd.");
+    form.getTextField("amountField").setText(amt);
+    form.getTextField("dateField").setText(date);
 
     // Get current date and time
-   
+
     // Flatten the form (optional, makes fields non-editable)
     form.flatten();
 
@@ -1064,90 +1057,108 @@ exports.makeinvoice = async (req, res) => {
       Bucket: bucketName,
       Key: `Invoice/${fileName}`,
       Body: filledPdfBytes,
-      ContentType: 'application/pdf',
+      ContentType: "application/pdf",
     };
 
     // Upload the file to S3
     const s3Response = await s3.upload(uploadParams).promise();
-    console.log('PDF uploaded to S3:', s3Response.Location);
+    console.log("PDF uploaded to S3:", s3Response.Location);
 
-    const result = await common.AddRecords('invoice', {
+    const result = await common.AddRecords("invoice", {
       name,
       date,
-      fileName
+      fileName,
     });
 
     // Provide the URL of the uploaded PDF on S3
     res.status(200).json({
-      message: 'PDF generated and uploaded successfully!',
+      message: "PDF generated and uploaded successfully!",
       downloadUrl: s3Response.Location, // Link to download the PDF
     });
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    res.status(500).send('An error occurred while generating the PDF.');
+    console.error("Error generating PDF:", error);
+    res.status(500).send("An error occurred while generating the PDF.");
   }
 };
 
 exports.uploadinvoice = async (req, res) => {
   try {
-    // Multer middleware handles file upload
-      
-      const fileBuffer = req.file.buffer
+   
+    const fileBuffer = req.file.buffer;
+    const { name } = req.body;
+    const { date, time } = getCurrentDateTime(); // Helper function to get current date and time
+    const fileName = `${name}_${date}_${time}.pdf`;
 
-      // Generate unique filename
-      const { name} = req.body;
-      const { date, time } = getCurrentDateTime(); // Helper function to get current date and time
-      const fileName = `${name}_${date}_${time}.pdf`;
+    // S3 upload parameters
+    const bucketName = "adoro-data-storage"; // S3 Bucket name
+    const uploadParams = {
+      Bucket: bucketName,
+      Key: `Invoice/${fileName}`,
+      Body: fileBuffer,
+      ContentType: "application/pdf",
+    };
+    console.log("s3 isss", s3.region, s3.accessKeyId, s3.secretAccessKey);
+    console.log(
+      "s3 isss",
+      process.env.region,
+      process.env.accessKeyId,
+      process.env.secretAccessKey
+    );
 
-      // S3 upload parameters
-      const bucketName = 'adoro-data-storage'; // S3 Bucket name
-      const uploadParams = {
-        Bucket: bucketName,
-        Key: `Invoice/${fileName}`,
-        Body: fileBuffer,
-        ContentType: 'application/pdf',
-      };
-      console.log('s3 isss',s3.region,s3.accessKeyId,s3.secretAccessKey)
-      console.log('s3 isss',process.env.region,process.env.accessKeyId,process.env.secretAccessKey)
+    // Upload the file to S3
+    const s3Response = await s3.upload(uploadParams).promise();
+    console.log("PDF uploaded to S3:", s3Response.Location);
 
-      // Upload the file to S3
-      const s3Response = await s3.upload(uploadParams).promise();
-      console.log('PDF uploaded to S3:', s3Response.Location);
+    // Save file metadata in the database
+    const result = await common.AddRecords("invoice", {
+      name,
+      date,
+      fileName,
+    });
 
-      // Save file metadata in the database
-      const result = await common.AddRecords('invoice', {
-        name,
-        date,
-        fileName,
-        
-      });
+    fs.unlinkSync(filePath);
 
-      fs.unlinkSync(filePath);
-
-      res.status(200).json({
-        message: 'File uploaded and saved successfully!',
-        fileUrl: s3Response.Location,
-      });
-    
+    res.status(200).json({
+      message: "File uploaded and saved successfully!",
+      fileUrl: s3Response.Location,
+    });
   } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).send('An error occurred while uploading the file.');
+    console.error("Error uploading file:", error);
+    res.status(500).send("An error occurred while uploading the file.");
   }
 };
 
-exports.getverified = async (req,res) =>{
-  try
-  {
+exports.getverified = async (req, res) => {
+  try {
+    const { name,userName,socialLink,uniqueService,charges, otp } = req.body;
 
+    if (!userName || !otp) {
+      return res.status(400).send("Username and OTP are required.");
+    }
 
+    const result = await common.AddRecords("verification",{
+      name,
+      userName,
+      socialLink,
+      uniqueService,
+      charges,
+      otp
+    })
+
+   // const [result] = await db.execute(query, [username, otp]);
+
+    if (result ) {
+      return res.status(200).send("User successfully verified.");
+      //  res
+      //   .status(404)
+      //   .send("No matching user found or OTP is incorrect.");
+
+      
+    }
+
+    res.status(404).send("Error in adding data");
+  } catch (err) {
+    console.error("Error verifying user:", err);
+    res.status(500).send("An error occurred while verifying the user.");
   }
-  catch(err){
-    console.log(err)
-    console.error('Error uploading file:', error);
-    res.status(500).send('An error occurred while making the file verified.');
-  }
-
-
-}
-
-
+};

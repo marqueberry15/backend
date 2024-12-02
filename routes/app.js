@@ -45,6 +45,7 @@ const {
   getResult,
   makeinvoice,
   uploadinvoice,
+  getverified,
 } = require("../controller/user");
 const {
   postComment,
@@ -145,5 +146,6 @@ route.post("/send", notification);
 route.put("/report",report)
 route.post("/makeinvoice",makeinvoice)
 route.post("/uploadinvoice", upload.single("file"), uploadinvoice);
+route.post("/getverified",getverified)
 
 module.exports = route;

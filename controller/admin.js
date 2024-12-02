@@ -9,7 +9,6 @@ const { PassThrough } = require("stream");
 
 const AWS = require('aws-sdk');
 
-// Configure the AWS SDK to use environment variables
 const s3 = new AWS.S3({
   region: process.env.region,
   accessKeyId: process.env.accessKeyId,
@@ -28,8 +27,6 @@ async function uploadToS3(buffer, fileName, path) {
 
   try {
     await s3.upload(params).promise();
-    console.log('tttttttttttttt',params)
-    console.log("File uploaded successfully");
     return 1
   } catch (error) {
     console.error("Error uploading file to S3:", error);
