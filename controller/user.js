@@ -1018,8 +1018,10 @@ exports.deleteuser = async (req, res) => {
 exports.makeinvoice = async (req, res) => {
   try {
     // Read the PDF template
+    console.log(1)
     const templatePath = path.join(__dirname, "..", "public", "bill.pdf");
     const pdfBuffer = fs.readFileSync(templatePath);
+    console.log(req)
 
     // Load the PDF with pdf-lib
     const pdfDoc = await PDFDocument.load(pdfBuffer);
@@ -1082,7 +1084,8 @@ exports.makeinvoice = async (req, res) => {
 };
 
 exports.uploadinvoice = async (req, res) => {
-  try {
+  try {console.log(1)
+    console.log(2,req.file)
    
     const fileBuffer = req.file.buffer;
     const { name } = req.body;
@@ -1130,7 +1133,9 @@ exports.uploadinvoice = async (req, res) => {
 
 exports.getverified = async (req, res) => {
   try {
+    console.log(req.body)
     const { name,userName,socialLink,uniqueService,charges, otp } = req.body;
+    console.log(name,otp)
 
     if (!userName || !otp) {
       return res.status(400).send("Username and OTP are required.");
@@ -1145,6 +1150,7 @@ exports.getverified = async (req, res) => {
       otp
     })
 
+    console.log(result,'resss')
    // const [result] = await db.execute(query, [username, otp]);
 
     if (result ) {
