@@ -1,8 +1,8 @@
 const connectDB = require("../config/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs"); // Changed to bcryptjs
 const getCurrentDateTime = require("./datetime");
+
 const register = async (req, res) => {
- 
   try {
     const { first_name, last_name, mobileNo, email, password, company_name } =
       req.body;
@@ -18,7 +18,8 @@ const register = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = bcrypt.hashSync(password, 10); // Using bcryptjs's synchronous method
+
     const checkUserExistsQuery =
       "SELECT COUNT(*) AS count FROM `User` WHERE `Email` = ? OR `Phone` = ?";
     const insertUserQuery =
@@ -37,7 +38,6 @@ const register = async (req, res) => {
     const [rows] = await connectDB.execute(checkUserExistsQuery, paramsCheck);
 
     if (rows[0].count > 0) {
-     
       return res
         .status(401)
         .send({ status: 401, msg: "Email Id or Mobile No. already exist" });
@@ -68,7 +68,7 @@ const login = async (req, res) => {
     }
 
     const user = rows[0];
-    const passwordMatch = await bcrypt.compare(password, user.Password);
+    const passwordMatch = bcrypt.compareSync(password, user.Password); // Using bcryptjs's compareSync
 
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -105,13 +105,13 @@ const changepassword = async (req, res) => {
 
     const user = rows[0];
 
-    const isPasswordMatch = await bcrypt.compare(old_pass, user.Password);
+    const isPasswordMatch = bcrypt.compareSync(old_pass, user.Password); // Using bcryptjs's compareSync
 
     if (!isPasswordMatch) {
       return res.status(401).json({ message: "Incorrect current password" });
     }
 
-    const hashedPassword = await bcrypt.hash(new_pass, 10);
+    const hashedPassword = bcrypt.hashSync(new_pass, 10); // Using bcryptjs's hashSync
 
     const updateQuery = "UPDATE `User` SET `Password` = ? WHERE `Email` = ?";
     await connectDB.execute(updateQuery, [hashedPassword, email]);
