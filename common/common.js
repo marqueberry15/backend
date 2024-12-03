@@ -19,7 +19,19 @@ console.log('credentails are , ', process.env.host,
    process.env.user3,
    process.env.password,
     process.env.database3)
+
+
+    dbConnection.getConnection((err, connection) => {
+      if (err) {
+        console.error("Database3 connection failed:", err.message);
+      } else {
+        console.log("Database3 connected successfully!");
+        connection.release();
+      }
+    });
+
 dbConnection.promise();
+
 
 const connectDB = require("../config/db");
 

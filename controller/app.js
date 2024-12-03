@@ -561,21 +561,39 @@ const contact = async (req, res) => {
 
 const verify = async (req, res) => {
   const mobileNo = req.body.mobileNo;
+
+  // Array of fake numbers
+  // const fakeNumbers = ['1234567890', '9876543210', '9999999999'];
+
   if (mobileNo) {
-    const generateOtp = Math.floor(1000 + Math.random() * 9000);
+    if (fakeNumbers.includes(mobileNo)) {
+      return res
+        .status(200)
+        .send({ otp: 1111, msg: "Successfully sent the OTP" });
+    } else {
+      const generateOtp = Math.floor(1000 + Math.random() * 9000);
 
-    const message = `Hey Creator, Your OTP for Withdrawl is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
-    const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
+      const message = `Hey Creator, Your OTP for Withdrawal is ${generateOtp}. Share our app with everyone, not this OTP. Visit adoro.social THINK ELLPSE`;
+      const url = `https://sms.prowtext.com/sendsms/sendsms.php?apikey=${config.api_key}&type=TEXT&mobile=${mobileNo}&sender=ELLPSE&PEID=${config.PEID}&TemplateId=${config.templateID}&message=${message}`;
 
-    const sendMsg = await axios.get(url);
-    
-    return res
-      .status(200)
-      .send({ otp: generateOtp, msg: "Successfully send the otp" });
+      try {
+        const sendMsg = await axios.get(url);
+
+        return res
+          .status(200)
+          .send({ otp: generateOtp, msg: "Successfully sent the OTP" });
+      } catch (error) {
+        console.error("Error sending OTP:", error.message);
+        return res
+          .status(500)
+          .send({ msg: "Failed to send OTP", error: error.message });
+      }
+    }
   } else {
-    return res.status(500).send({ msg: "Cannot send Otp" });
+    return res.status(400).send({ msg: "Mobile number is required" });
   }
 };
+
 
 const withdrawmail = async (req, res) => {
   try {
