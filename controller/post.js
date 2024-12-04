@@ -1,18 +1,18 @@
-const getCurrentDateTime = require("./datetime");
-const common = require("../common/common");
-const { post } = require("../routes/app");
-const response = require("../constant/response");
-const connectDB = require("../config/db")
-const { getMessaging } = require("firebase-admin/messaging");
-var admin = require("firebase-admin");
+import getCurrentDateTime from "./datetime";
+import { AddRecords, customQuery, GetRecords, deleteRecords, Update } from "../common/common";
+import { post } from "../routes/app";
+import response from "../constant/response";
+import { execute } from "../config/db";
+import { getMessaging } from "firebase-admin/messaging";
+import { initializeApp, credential as _credential } from "firebase-admin";
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+initializeApp({
+  credential: _credential.cert(serviceAccount)
 });
 
 
-exports.postComment = async (req, res) => {
+export async function postComment(req, res) {
   try {
     let text = req.body.text;
     let reply = req.body.parent_id;
@@ -32,13 +32,13 @@ exports.postComment = async (req, res) => {
       profile,
     };
 
-    let addRecord = await common.AddRecords("Comment", addobj);
+    let addRecord = await AddRecords("Comment", addobj);
 
     if (addRecord) {
       let sqlupdate = `UPDATE Post
       SET CommentCount = CommentCount + 1 Where Id=${Post_Id};
       `;
-      await common.customQuery(sqlupdate);
+      await customQuery(sqlupdate);
 
       let response = {
         status: 200,
@@ -60,13 +60,13 @@ exports.postComment = async (req, res) => {
     };
     res.send(response);
   }
-};
+}
 
-exports.getAllComments = async (req, res) => {
+export async function getAllComments(req, res) {
   try {
     let Post_Id = req.query.post_id;
 
-    const commentdetails = await common.GetRecords("Comment", "", { Post_Id });
+    const commentdetails = await GetRecords("Comment", "", { Post_Id });
 
     if (commentdetails.status === 200) {
       let comments = commentdetails.data;
@@ -91,9 +91,9 @@ exports.getAllComments = async (req, res) => {
     };
     res.send(response);
   }
-};
+}
 
-exports.hitlike = async (req, res) => {
+export async function hitlike(req, res) {
  
 
   try {
@@ -104,17 +104,17 @@ exports.hitlike = async (req, res) => {
       userName,
     };
  
-    const addedlikes = await common.AddRecords("Likes", obj);
+    const addedlikes = await AddRecords("Likes", obj);
  
     let sql = `SELECT User.ProfileDp FROM User Where User.userName = '${userName}';`;
-    const getdp = await common.customQuery(sql);
+    const getdp = await customQuery(sql);
     
 
     if (addedlikes.status == 1) {
       let sqlupdate = `UPDATE Post
        SET LikesCount = LikesCount + 1 Where Id=${postId};
        `;
-      await common.customQuery(sqlupdate);
+      await customQuery(sqlupdate);
       let Dp;
       if (getdp.status == 200) {
         Dp = getdp.data[0].ProfileDp;
@@ -123,7 +123,7 @@ exports.hitlike = async (req, res) => {
       }
 
       let usersql = `SELECT User.Id FROM User WHERE User.userName = (SELECT Post.userName FROM Post WHERE Id = ${postId})`;
-      const getuserId = await common.customQuery(usersql);
+      const getuserId = await customQuery(usersql);
      
       const noti = {
         msg: `${userName} Liked  your Post`,
@@ -131,7 +131,7 @@ exports.hitlike = async (req, res) => {
         Dp,
       };
      
-      const notisend = await common.AddRecords("Notification", noti);
+      const notisend = await AddRecords("Notification", noti);
 
      
       if (notisend.status) {
@@ -152,13 +152,13 @@ exports.hitlike = async (req, res) => {
       msg: err,
     };
   }
-};
-exports.getlike = async (req, res) => {
+}
+export async function getlike(req, res) {
   try {
    
     const postId = req.query.postId;
 
-    const getlikes = await common.GetRecords("Likes", "", { postId });
+    const getlikes = await GetRecords("Likes", "", { postId });
     if (getlikes.status == 200) {
      
       return res.status(200).send({ status: 200, likes: getlikes.data });
@@ -173,13 +173,13 @@ exports.getlike = async (req, res) => {
       .status(501)
       .send({ msg: "Error while fetching the  likes data" });
   }
-};
+}
 
-exports.userlike = async (req, res) => {
+export async function userlike(req, res) {
   try {
    
     const userName = req.query.userName;
-    const getlikes = await common.GetRecords("Likes", "", userName);
+    const getlikes = await GetRecords("Likes", "", userName);
    
     if (getlikes.status == 200) {
       return res.status(200).send({ status: 200, likes: getlikes.data });
@@ -192,9 +192,9 @@ exports.userlike = async (req, res) => {
       .status(501)
       .send({ msg: "Error while fetching the  likes data" });
   }
-};
+}
 
-exports.unlike = async (req, res) => {
+export async function unlike(req, res) {
   try {
     const { postId, userId } = req.query;
    
@@ -204,7 +204,7 @@ exports.unlike = async (req, res) => {
     `;
 
     
-    let unlikeuser = await common.customQuery(sql);
+    let unlikeuser = await customQuery(sql);
     // if (unlikeuser.status==1) {
     // console.log("iff condition satisfied")
 
@@ -231,7 +231,7 @@ exports.unlike = async (req, res) => {
       SET LikesCount = LikesCount - 1
       WHERE Id = ${postId}`;
 
-    const deltelike = await common.customQuery(sqlupdate);
+    const deltelike = await customQuery(sqlupdate);
  
     let response = {
       status: 200,
@@ -241,9 +241,9 @@ exports.unlike = async (req, res) => {
   } catch (err) {
     return res.status(501).send({ msg: "Error while fetching data" });
   }
-};
+}
 
-exports.getfollowuserName = async (req, res) => {
+export async function getfollowuserName(req, res) {
   try {
     const userName = req.query.userName;
     const sql = `SELECT userName 
@@ -251,7 +251,7 @@ exports.getfollowuserName = async (req, res) => {
     WHERE Id IN (SELECT Follow_id FROM Follow WHERE userName = '${userName}')
      `;
 
-    let getUser = await common.customQuery(sql);
+    let getUser = await customQuery(sql);
 
     if (getUser.status) {
       let response = {
@@ -270,11 +270,11 @@ exports.getfollowuserName = async (req, res) => {
   } catch (err) {
     res.status(500).send({ msg: err });
   }
-};
+}
 
-exports.getcontest = async (req, res) => {
+export async function getcontest(req, res) {
   try {
-    const getcontest = await common.GetRecords("Contest", "", "");
+    const getcontest = await GetRecords("Contest", "", "");
     if (getcontest.status)
       return res.send({
         msg: "contest details are fetched successfully",
@@ -286,12 +286,12 @@ exports.getcontest = async (req, res) => {
   } catch (err) {
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
-};
+}
 
-exports.deletecontest = async (req, res) => {
+export async function deletecontest(req, res) {
   try {
     const { Id } = req.query;
-    const deletecontest = await common.deleteRecords("Contest", { Id });
+    const deletecontest = await deleteRecords("Contest", { Id });
     if (deletecontest.status) {
       return res.status(200).send({ msg: "Deleted Successfully", status: 200 });
     } else
@@ -302,11 +302,11 @@ exports.deletecontest = async (req, res) => {
   } catch (err) {
     return res.status(501).send({ msg: `Faced an Error : ${err}` });
   }
-};
+}
 
-exports.gettrendingtemplate = async (req, res) => {
+export async function gettrendingtemplate(req, res) {
   try {
-    const gettrendtemp = await common.GetRecords("Trending_Template", "", "");
+    const gettrendtemp = await GetRecords("Trending_Template", "", "");
     if (gettrendtemp.status)
       return res.status(200).send({
         msg: "Trending Templates are fetched Completely",
@@ -316,15 +316,15 @@ exports.gettrendingtemplate = async (req, res) => {
   } catch (err) {
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
-};
+}
 
 
-exports.getmemetemplate = async (req, res) => {
+export async function getmemetemplate(req, res) {
   try {
     const { name } = req.query;
     console.log(name,req.query,req.params)
 
-    const gettrendtemp = await common.GetRecords("Template_Image", "", {name} );
+    const gettrendtemp = await GetRecords("Template_Image", "", {name} );
     if (gettrendtemp.status)
       return res.status(200).send({
         msg: "Trending Templates are fetched Completely",
@@ -334,49 +334,49 @@ exports.getmemetemplate = async (req, res) => {
   } catch (err) {
     return res.status(501).send({ msg: `Facing Error, ${err}`, status: "501" });
   }
-};
+}
 
 
-exports.hide = async (req, res) => {
+export async function hide(req, res) {
   const { PostId, UserId } = req.body;
  
-  const result = await common.AddRecords("Hide_Post", req.body);
+  const result = await AddRecords("Hide_Post", req.body);
   if (result.status == 1) {
     console.log("Added Successfully");
     return res.status(200).send({ msg: "added" });
   } else return res.status(501).send({ Msg: "Facing Prblem" });
-};
+}
 
-exports.blockuser = async (req, res) => {
+export async function blockuser(req, res) {
 
-  const result = await common.AddRecords("Block", req.body);
+  const result = await AddRecords("Block", req.body);
   if (result.status == 1) {
    
     return res.status(200).send({ msg: "added" });
   } else return res.status(501).send({ Msg: "Facing Prblem" });
-};
+}
 
-exports.allpost = async (req, res) => {
+export async function allpost(req, res) {
 
-  const postdetails = await common.GetRecords("Post", "", { Status: 0 });
+  const postdetails = await GetRecords("Post", "", { Status: 0 });
   return res.status(200).send({ data: postdetails.data });
-};
+}
 
-exports.updatepost = async (req, res) => {
+export async function updatepost(req, res) {
   try {
     const Id = req.body.Id;
     const sql = `Update Post SEt Status=1 where Id=${Id}`;
-    const updatedetail = await common.customQuery(sql);
+    const updatedetail = await customQuery(sql);
     return res.status(200).send({ msg: "Update Done Successfully" });
   } catch (err) {
     return res.send(500).send({ msg: "Not updated" });
   }
-};
+}
 
-exports.delpost = async (req, res) => {
+export async function delpost(req, res) {
   try {
     const Id = req.query.Id;
-   const deletedetail = await common.deleteRecords("Post", `Id = ${Id}`);
+   const deletedetail = await deleteRecords("Post", `Id = ${Id}`);
 
     if (deletedetail.status == 1) {
       
@@ -388,26 +388,26 @@ exports.delpost = async (req, res) => {
   } catch (err) {
     return res.send(500).send({ msg: "Not Deleted" });
   }
-};
+}
 
-exports.getBrandCampaign = async (req, res) => {
+export async function getBrandCampaign(req, res) {
  
   try {
     const sql =  "SELECT * FROM `Campaign` WHERE `campaign_name` =(Select `campaign_name` From `BrandInfo` where `Id` = ?)"
-    const [rows] = await connectDB.execute(sql, [req.query.Id]);
+    const [rows] = await execute(sql, [req.query.Id]);
     
    
     return res.json({ status: 200, campaigndetails: rows });
   } catch (err) {
     return res.status(500).json({ Error: err });
   }
-};
+}
 
-exports.contestapplicants = async (req, res) => {
+export async function contestapplicants(req, res) {
  
   const contestName = req.query.Id;
   try {
-    const getdetails = await common.customQuery(
+    const getdetails = await customQuery(
       `SELECT * FROM Contest_Apply WHERE contestName = (SELECT contestName FROM Contest WHERE Id = ${contestName});`
 
     );
@@ -419,11 +419,11 @@ exports.contestapplicants = async (req, res) => {
    
     res.status(500).send({ msg: "Cannot get the applicants result" });
   }
-};
+}
 
-exports.getalltemplates = async (req, res) => {
+export async function getalltemplates(req, res) {
   try {
-    const getdetails = await common.GetRecords("User_Template", "", "");
+    const getdetails = await GetRecords("User_Template", "", "");
 
     if (getdetails.status == 200) {
       return res.status(200).send({ status: 200, templates: getdetails.data });
@@ -432,23 +432,23 @@ exports.getalltemplates = async (req, res) => {
    
     res.status(500).send({ msg: "Cannot get the applicants result" });
   }
-};
+}
 
-exports.updatetemplate = async (req, res) => {
+export async function updatetemplate(req, res) {
   try {
     const Id = req.body.Id;
     const sql = `Update User_Template Set Approval=1 where Id=${Id}`;
-    const updatedetail = await common.customQuery(sql);
+    const updatedetail = await customQuery(sql);
     return res.status(200).send({ msg: "Update Done Successfully" });
   } catch (err) {
     return res.send(500).send({ msg: "Not updated" });
   }
-};
+}
 
-exports.deltemplate = async (req, res) => {
+export async function deltemplate(req, res) {
   try {
     const Id = req.body.Id;
-    const deletedetail = await common.deleteRecords(
+    const deletedetail = await deleteRecords(
       "User_Template",
       `Id = ${Id}`
     );
@@ -460,9 +460,9 @@ exports.deltemplate = async (req, res) => {
   } catch (err) {
     return res.send(500).send({ msg: "Not Deleted" });
   }
-};
+}
 
-exports.saveResult = async (req, res) => {
+export async function saveResult(req, res) {
   try {
 
 
@@ -475,18 +475,18 @@ exports.saveResult = async (req, res) => {
     };
    
 
-    await common.AddRecords("Result", newRecord);
+    await AddRecords("Result", newRecord);
     res.status(200).send({ msg: "Declared Result Successfully" });
   } catch (err) {
     console.error('Error in saving result:', err.message); // Log the error message
     res.status(500).send({ msg: "Error in saving result" });
   }
-};
+}
 
 
-exports.getallusers = async (req, res) => {
+export async function getallusers(req, res) {
   try {
-    const getdetails = await common.GetRecords("User", "", "");
+    const getdetails = await GetRecords("User", "", "");
 
     if (getdetails.status == 200) {
       return res.status(200).send({ status: 200, templates: getdetails.data });
@@ -500,11 +500,11 @@ exports.getallusers = async (req, res) => {
       .status(500)
       .send({ msg: "Facing error in fetching the details" });
   }
-};
+}
 
-exports.support = async (req, res) => {
+export async function support(req, res) {
   try {
-    const getdetails = await common.GetRecords("Support", "", "");
+    const getdetails = await GetRecords("Support", "", "");
 
     if (getdetails.status == 200) {
       return res.status(200).send({ status: 200, queries: getdetails.data });
@@ -518,9 +518,9 @@ exports.support = async (req, res) => {
       .status(500)
       .send({ msg: "Facing error in fetching the details" });
   }
-};
+}
 
-exports.updatecontest = async (req, res) => {
+export async function updatecontest(req, res) {
   
   const updateobj = {
     contestName:req.body.contestName,
@@ -528,16 +528,16 @@ exports.updatecontest = async (req, res) => {
     time_limit:req.body.time
   }
   try {
-    await common.Update("Contest",updateobj,req.params.Id)
+    await Update("Contest",updateobj,req.params.Id)
     return res.status(200).send({msg:"Updated Successfully"})
   } catch (err) {
     console.log(err);
     return res.status(500).send({ msg: "Failed to Update Details" });
   }
-};
+}
 
 
-exports.notification = async (req,res)=>{
+export async function notification(req,res){
  
 // const registrationToken = 'dfl97H9VTeuzdzwquLsL76:APA91bErEZ9V79-hl5pRv4twZmCdjYKnZcPe7n15B6l25FB21Tp9mO-Hpf5Qqjs3jsZHRswJrze2GlChQ3k1ZJSOWKR7xOzTtmb2wPk4wW0gOpzZi6KNcOM62dmkqiYoNke-97eQzh1h';
 //const registrationToken='evoomBfLSaWA2pgHzaPXXX:APA91bGmEb5uRuXJZzvRlNP8-H3WAZwiNshpt3g69uoswfGTMlprTtpJKENfUyRPkfFOLjvju3k24McFpTtVS8r_ZW0m83-_QX5Dux-O5sc8vyzG9s-LKUuY_VsaPeGt_PcF2avvQ6ii'
@@ -565,10 +565,10 @@ const message = {
 
 }
 
-exports.report = async(req,res)=>{
+export async function report(req,res){
 
  try{
-  await common.customQuery(`UPDATE Post SET Status=0  WHERE Id= ${req.body.Id}`)
+  await customQuery(`UPDATE Post SET Status=0  WHERE Id= ${req.body.Id}`)
   return res.send({msg:"Reported Successfully"})
  }
 catch(err){

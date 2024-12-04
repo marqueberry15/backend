@@ -560,10 +560,8 @@ const contact = async (req, res) => {
 };
 
 const verify = async (req, res) => {
+  
   const mobileNo = req.body.mobileNo;
-
-  // Array of fake numbers
-  // const fakeNumbers = ['1234567890', '9876543210', '9999999999'];
 
   if (mobileNo) {
     if (fakeNumbers.includes(mobileNo)) {

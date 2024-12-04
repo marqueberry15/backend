@@ -1,6 +1,6 @@
-const connectDB = require("../config/db");
-const bcrypt = require("bcryptjs"); // Changed to bcryptjs
-const getCurrentDateTime = require("./datetime");
+import { execute } from "../config/db";
+import { hashSync, compareSync } from "bcryptjs"; 
+import getCurrentDateTime from "./datetime";
 
 const register = async (req, res) => {
   try {
@@ -18,7 +18,7 @@ const register = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const hashedPassword = bcrypt.hashSync(password, 10); // Using bcryptjs's synchronous method
+    const hashedPassword = hashSync(password, 10);
 
     const checkUserExistsQuery =
       "SELECT COUNT(*) AS count FROM `User` WHERE `Email` = ? OR `Phone` = ?";
@@ -35,14 +35,14 @@ const register = async (req, res) => {
       company_name,
     ];
 
-    const [rows] = await connectDB.execute(checkUserExistsQuery, paramsCheck);
+    const [rows] = await execute(checkUserExistsQuery, paramsCheck);
 
     if (rows[0].count > 0) {
       return res
         .status(401)
         .send({ status: 401, msg: "Email Id or Mobile No. already exist" });
     }
-    await connectDB.execute(insertUserQuery, paramsInsert);
+    await execute(insertUserQuery, paramsInsert);
 
     return res.status(200).json({ message: "Registration successful" });
   } catch (error) {
@@ -61,14 +61,14 @@ const login = async (req, res) => {
     const { date, time } = getCurrentDateTime();
 
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
-    const [rows] = await connectDB.execute(query, [email]);
+    const [rows] = await execute(query, [email]);
 
     if (rows.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
     const user = rows[0];
-    const passwordMatch = bcrypt.compareSync(password, user.Password); // Using bcryptjs's compareSync
+    const passwordMatch = compareSync(password, user.Password); // Using bcryptjs's compareSync
 
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -78,8 +78,7 @@ const login = async (req, res) => {
       "INSERT INTO `Login` (`UserId`, `Time`, `Date`) VALUES (?, ?, ?) ;";
     const param2 = [email, time, date];
 
-    await connectDB
-      .execute(query2, param2)
+    await execute(query2, param2)
       .then((res) => {})
       .catch((err) => {
         console.log(err);
@@ -97,7 +96,7 @@ const changepassword = async (req, res) => {
   try {
     const query = "SELECT * FROM `User` WHERE `Email` = ?";
 
-    const [rows] = await connectDB.execute(query, [email]);
+    const [rows] = await execute(query, [email]);
 
     if (rows.length === 0) {
       return res.status(401).json({ message: "User not found" });
@@ -105,16 +104,16 @@ const changepassword = async (req, res) => {
 
     const user = rows[0];
 
-    const isPasswordMatch = bcrypt.compareSync(old_pass, user.Password); // Using bcryptjs's compareSync
+    const isPasswordMatch = compareSync(old_pass, user.Password); // Using bcryptjs's compareSync
 
     if (!isPasswordMatch) {
       return res.status(401).json({ message: "Incorrect current password" });
     }
 
-    const hashedPassword = bcrypt.hashSync(new_pass, 10); // Using bcryptjs's hashSync
+    const hashedPassword = hashSync(new_pass, 10); // Using bcryptjs's hashSync
 
     const updateQuery = "UPDATE `User` SET `Password` = ? WHERE `Email` = ?";
-    await connectDB.execute(updateQuery, [hashedPassword, email]);
+    await execute(updateQuery, [hashedPassword, email]);
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
@@ -122,7 +121,7 @@ const changepassword = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   register,
   login,
   changepassword,

@@ -171,6 +171,7 @@ exports.createPost = async (req, res) => {
     return res.status(501).send({ msg: err });
   }
 };
+
 async function extractThumbnailAndUpload(videoUri, videoFileName, ftpFolder) {
   // return new Promise(async (resolve, reject) => {
   //   const ftpClient = new ftp.Client();
@@ -1015,6 +1016,7 @@ exports.deleteuser = async (req, res) => {
 
 // Configure AWS SDK
 
+
 exports.makeinvoice = async (req, res) => {
   try {
     // Read the PDF template
@@ -1037,7 +1039,7 @@ exports.makeinvoice = async (req, res) => {
     const { date, time } = getCurrentDateTime();
 
     // Extract name from request body and fill the form field
-    const { name, description, amt } = req.body;
+    const { name, description, amt,userName } = req.body;
     form.getTextField("nameField").setText(name);
     form.getTextField("discriptionField").setText(description);
     form.getTextField("billtoField").setText("Think Ellipse Pvt. Ltd.");
@@ -1054,7 +1056,7 @@ exports.makeinvoice = async (req, res) => {
 
     // S3 upload parameters
     const bucketName = "adoro-data-storage"; // S3 Bucket name
-    const fileName = `${name}_${date}_${time}.pdf`; // Create a unique filename
+    const fileName = `${userName}_${date}_${time}.pdf`; // Create a unique filename
     const uploadParams = {
       Bucket: bucketName,
       Key: `Invoice/${fileName}`,
@@ -1067,7 +1069,7 @@ exports.makeinvoice = async (req, res) => {
     console.log("PDF uploaded to S3:", s3Response.Location);
 
     const result = await common.AddRecords("invoice", {
-      name,
+      userName,
       date,
       fileName,
     });
@@ -1089,7 +1091,7 @@ exports.uploadinvoice = async (req, res) => {
    
     const fileBuffer = req.file.buffer;
     const { name } = req.body;
-    const { date, time } = getCurrentDateTime(); // Helper function to get current date and time
+    const { date, time } = getCurrentDateTime(); 
     const fileName = `${name}_${date}_${time}.pdf`;
 
     // S3 upload parameters
@@ -1118,9 +1120,7 @@ exports.uploadinvoice = async (req, res) => {
       date,
       fileName,
     });
-
-    fs.unlinkSync(filePath);
-
+    
     res.status(200).json({
       message: "File uploaded and saved successfully!",
       fileUrl: s3Response.Location,
