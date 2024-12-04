@@ -1016,14 +1016,13 @@ exports.deleteuser = async (req, res) => {
 
 // Configure AWS SDK
 
-
 exports.makeinvoice = async (req, res) => {
   try {
     // Read the PDF template
-    console.log(1)
+    console.log(1);
     const templatePath = path.join(__dirname, "..", "public", "bill.pdf");
     const pdfBuffer = fs.readFileSync(templatePath);
-    console.log(req)
+    console.log(req);
 
     // Load the PDF with pdf-lib
     const pdfDoc = await PDFDocument.load(pdfBuffer);
@@ -1039,7 +1038,7 @@ exports.makeinvoice = async (req, res) => {
     const { date, time } = getCurrentDateTime();
 
     // Extract name from request body and fill the form field
-    const { name, description, amt,userName } = req.body;
+    const { name, description, amt, userName } = req.body;
     form.getTextField("nameField").setText(name);
     form.getTextField("discriptionField").setText(description);
     form.getTextField("billtoField").setText("Think Ellipse Pvt. Ltd.");
@@ -1055,8 +1054,8 @@ exports.makeinvoice = async (req, res) => {
     const filledPdfBytes = await pdfDoc.save();
 
     // S3 upload parameters
-    const bucketName = "adoro-data-storage"; // S3 Bucket name
-    const fileName = `${userName}_${date}_${time}.pdf`; // Create a unique filename
+    const bucketName = "adoro-data-storage"; 
+    const fileName = `${userName}_${date}_${time}.pdf`; 
     const uploadParams = {
       Bucket: bucketName,
       Key: `Invoice/${fileName}`,
@@ -1086,12 +1085,13 @@ exports.makeinvoice = async (req, res) => {
 };
 
 exports.uploadinvoice = async (req, res) => {
-  try {console.log(1)
-    console.log(2,req.file)
-   
+  try {
+    console.log(1);
+    console.log(2, req.file);
+
     const fileBuffer = req.file.buffer;
     const { name } = req.body;
-    const { date, time } = getCurrentDateTime(); 
+    const { date, time } = getCurrentDateTime();
     const fileName = `${name}_${date}_${time}.pdf`;
 
     // S3 upload parameters
@@ -1120,7 +1120,7 @@ exports.uploadinvoice = async (req, res) => {
       date,
       fileName,
     });
-    
+
     res.status(200).json({
       message: "File uploaded and saved successfully!",
       fileUrl: s3Response.Location,
@@ -1133,33 +1133,32 @@ exports.uploadinvoice = async (req, res) => {
 
 exports.getverified = async (req, res) => {
   try {
-    console.log(req.body)
-    const { name,userName,socialLink,uniqueService,charges, otp } = req.body;
-    console.log(name,otp)
+    console.log(req.body);
+    const { name, userName, socialLink, uniqueService, charges, otp } =
+      req.body;
+    console.log(name, otp);
 
     if (!userName || !otp) {
       return res.status(400).send("Username and OTP are required.");
     }
 
-    const result = await common.AddRecords("verification",{
+    const result = await common.AddRecords("verification", {
       name,
       userName,
       socialLink,
       uniqueService,
       charges,
-      otp
-    })
+      otp,
+    });
 
-    console.log(result,'resss')
-   // const [result] = await db.execute(query, [username, otp]);
+    console.log(result, "resss");
+    // const [result] = await db.execute(query, [username, otp]);
 
-    if (result ) {
+    if (result) {
       return res.status(200).send("User successfully verified.");
       //  res
       //   .status(404)
       //   .send("No matching user found or OTP is incorrect.");
-
-      
     }
 
     res.status(404).send("Error in adding data");
