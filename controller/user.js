@@ -1068,7 +1068,7 @@ exports.makeinvoice = async (req, res) => {
     console.log("PDF uploaded to S3:", s3Response.Location);
 
     const result = await common.AddRecords("invoice", {
-      userName,
+      name:userName,
       date,
       fileName,
     });
