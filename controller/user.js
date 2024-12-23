@@ -713,40 +713,67 @@ exports.applycampaign = async (req, res) => {
     const { date, time } = getCurrentDateTime();
     const { campaign_name, userName, mobileNo } = req.body;
 
-    const fileName = `${date}_${time}_${campaign_name}`;
-
-    const result = await uploadToS3(req.file.buffer, fileName, "Campaign");
-
-    if (result) {
-      const insertQuery = `INSERT INTO Campaign (campaign_name, fileName, type, time, userName, mobileNo) VALUES (?, ?, ?, ?, ?, ?)`;
-
-      await connectDB.query(insertQuery, [
-        campaign_name,
-        fileName,
-        req.file.mimetype,
-        time,
-        userName,
-        mobileNo,
-      ]);
-
-      let sqlupdate = `UPDATE BrandInfo
-      SET applicant = applicant + 1 WHERE campaign_name = ?;`;
-
-      await connectDB.query(sqlupdate, [campaign_name]);
-
-      return res.send({
-        status: 200,
-        msg: "Picture Uploaded Successfully",
-        file: fileName,
-      });
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).send({ msg: "File is missing in the request" });
     }
+
+    if (!campaign_name || typeof campaign_name !== "string") {
+      return res.status(400).send({ msg: "Invalid campaign_name provided" });
+    }
+
+    const fileName = `${date}_${time}_${campaign_name}`;
+    const fileBuffer = req.file.buffer;
+
+    // Upload the file to S3
+    const s3Result = await uploadToS3(fileBuffer, fileName, "Campaign");
+
+    if (!s3Result) {
+      return res.status(500).send({ msg: "Failed to upload file to S3" });
+    }
+
+    // Insert the campaign data into the database
+    const insertQuery = `
+      INSERT INTO Campaign (campaign_name, fileName, type, time, userName, mobileNo) 
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    await connectDB.query(insertQuery, [
+      campaign_name,
+      fileName,
+      req.file.mimetype,
+      time,
+      userName,
+      mobileNo,
+    ]);
+
+    // Update applicant count for the campaign
+    const updateQuery = `
+      UPDATE BrandInfo
+      SET applicant = applicant + 1 
+      WHERE campaign_name = ?;
+    `;
+
+    const [updateResult] = await connectDB.query(updateQuery, [campaign_name]);
+
+    // Check if any rows were affected
+    if (updateResult.affectedRows === 0) {
+      return res.status(404).send({ msg: `Campaign "${campaign_name}" not found for update` });
+    }
+
+    return res.send({
+      status: 200,
+      msg: "Picture Uploaded Successfully",
+      file: fileName,
+    });
   } catch (err) {
     console.error("Error occurred:", err);
-    return res
-      .status(500)
-      .send({ msg: "Internal Server Error", error: err.message });
+    return res.status(500).send({
+      msg: "Internal Server Error",
+      error: err.message,
+    });
   }
 };
+
 
 exports.getUserTemplate = async (req, res) => {
   try {
@@ -829,7 +856,7 @@ exports.applycontest = async (req, res) => {
       });
       if (updatedUser) {
         let sqlupdate = `UPDATE Contest
-        SET applicant = applicant + 1 Where contestName=${contestName};
+        SET applicant = applicant + 1 Where contestName='${contestName}';
         `;
         await common.customQuery(sqlupdate);
         return res.send({
@@ -1039,10 +1066,13 @@ exports.makeinvoice = async (req, res) => {
 
     // Extract name from request body and fill the form field
     const { name, description, amt, userName } = req.body;
-    form.getTextField("nameField").setText(name);
-    form.getTextField("discriptionField").setText(description);
-    form.getTextField("billtoField").setText("Think Ellipse Pvt. Ltd.");
+    form.getTextField("fromField").setText(name);
+    form.getTextField("descriptionField").setText(description);
+    
+    
     form.getTextField("amountField").setText(amt);
+    form.getTextField("taxField").setText(0);
+    form.getTextField("totalField").setText(amt);
     form.getTextField("dateField").setText(date);
 
     // Get current date and time
@@ -1094,8 +1124,7 @@ exports.uploadinvoice = async (req, res) => {
     const { date, time } = getCurrentDateTime();
     const fileName = `${name}_${date}_${time}.pdf`;
 
-    // S3 upload parameters
-    const bucketName = "adoro-data-storage"; // S3 Bucket name
+    const bucketName = "adoro-data-storage"; 
     const uploadParams = {
       Bucket: bucketName,
       Key: `Invoice/${fileName}`,
@@ -1134,7 +1163,7 @@ exports.uploadinvoice = async (req, res) => {
 exports.getverified = async (req, res) => {
   try {
     console.log(req.body);
-    const { name, userName, socialLink, uniqueService, charges, otp } =
+    const { name, userName, socialLink, uniqueService, charges, otp, lang, nationality} =
       req.body;
     console.log(name, otp);
 
@@ -1149,6 +1178,8 @@ exports.getverified = async (req, res) => {
       uniqueService,
       charges,
       otp,
+      lang,
+      nationality
     });
 
     console.log(result, "resss");

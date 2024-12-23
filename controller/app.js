@@ -59,53 +59,59 @@ const fakeNumbers = [
   "9369108556",
   "9369108567",
 
-"9990698794",
-"9990698701",
-"9990698802",
-"9990698799",
-"9990698703",
-"9990698811",
-"9990698722",
-"9990698788",
-"9990698777",
-"9990698733",
+  "9990698794",
+  "9990698701",
+  "9990698802",
+  "9990698799",
+  "9990698703",
+  "9990698811",
+  "9990698722",
+  "9990698788",
+  "9990698777",
+  "9990698733",
 
-"7042335548",
-"7042335526",
-"7042335564",
-"7042335581",
-"7042335592",
-"7042335503",
-"7042335577",
-"7042335519",
-"7042335530",
-"7042335543",
+  "7042335548",
+  "7042335526",
+  "7042335564",
+  "7042335581",
+  "7042335592",
+  "7042335503",
+  "7042335577",
+  "7042335519",
+  "7042335530",
+  "7042335543",
 
-"7644871234",
-"7644895678",
-"7644860001",
-"7644856789",
-"7644882345",
-"7644833456",
-"7644861122",
-"7644869900",
-"7644845678",
-"7644890012",
+  "7644871234",
+  "7644895678",
+  "7644860001",
+  "7644856789",
+  "7644882345",
+  "7644833456",
+  "7644861122",
+  "7644869900",
+  "7644845678",
+  "7644890012",
 
-"7645805716",
-"7645805725",
-"7645815715",
-"7645806715",
-"7645805717",
-"7645815716",
-"7645795715",
-"7645805726",
-"7645804715",
-"7645815725",
-
+  "7645805716",
+  "7645805725",
+  "7645815715",
+  "7645806715",
+  "7645805717",
+  "7645815716",
+  "7645795715",
+  "7645805726",
+  "7645804715",
+  "7645815725",
 ];
 
-const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId ) => {
+const usersignup = async (
+  mobileNo,
+  fullName,
+  userName,
+  otp,
+  ownerUser,
+  instaId
+) => {
   try {
     const currentDate = new Date();
     const user = await common.GetRecords(config.userTable, "", { mobileNo });
@@ -118,7 +124,7 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
         status: 401,
         msg: "Phone No. Already registered.",
       };
-      res.send(response);
+      return response;
     }
 
     const timestamp = currentDate.getTime();
@@ -126,27 +132,27 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
       .tz("Asia/Kolkata")
       .format("YYYY-MM-DD HH:mm:ss");
 
+    // Dynamically construct the newUser object
     const newUser = {
-      fullName: fullName,
-      userName: userName,
+      fullName,
+      userName,
       refer_id: `${userName}_${timestamp}`,
       created_on: created_at,
-      mobileNo: mobileNo,
-      otp: otp,
-      instaId
+      mobileNo,
+      otp,
     };
 
+    if (instaId) {
+      newUser.instaId = instaId;
+    }
+
     const insertResult = await common.AddRecords(config.userTable, newUser);
-    //console.log(1,insertResult)
-   
+
     if (insertResult.status) {
-      
-      if (ownerUser != "") {
-        console.log(2)
+      if (ownerUser) {
         const ownerExist = await common.GetRecords("User", "", {
           userName: ownerUser,
         });
-        console.log(3,ownerExist)
 
         if (ownerExist.status == 200) {
           await common.AddRecords("Referal", {
@@ -158,34 +164,23 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
             UserId: insertResult.data.insertId,
             mobileNo,
             balance: 5,
-            userName
+            userName,
           });
 
           const ownerWallet = await common.GetRecords("Wallet", "", {
-         userName: ownerUser
+            userName: ownerUser,
           });
-          console.log(1,ownerWallet)
-
 
           if (ownerWallet.status == 200) {
-            console.log(2)
-
             const sql = `UPDATE Wallet SET balance = balance + 5 WHERE userName = '${ownerUser}'`;
-
-            const ressql=await common.customQuery(sql);
-            console.log(3,ressql)
+            await common.customQuery(sql);
           } else {
-            console.log(4)
             const userwallet = await common.GetRecords("User", "", {
-            userName:ownerUser
+              userName: ownerUser,
             });
-            console.log(5,userwallet.data[0])
 
-            //const query = `INSERT INTO Wallet ( 'UserId', 'mobileNo', 'balance', 'userName') VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},5,${ownerUser})`;
-          const query = `INSERT INTO Wallet ( UserId, mobileNo, balance, userName) VALUES ( ${userwallet.data[0].Id},${userwallet.data[0].mobileNo},5,'${ownerUser}')`;
-            const resquery=await common.customQuery(query)
-            console.log(6,resquery)
-
+            const query = `INSERT INTO Wallet (UserId, mobileNo, balance, userName) VALUES (${userwallet.data[0].Id}, ${userwallet.data[0].mobileNo}, 5, '${ownerUser}')`;
+            await common.customQuery(query);
           }
         }
       }
@@ -199,8 +194,8 @@ const usersignup = async (mobileNo, fullName, userName, otp, ownerUser,instaId )
     return null;
   }
 };
+
 const login = async (req, res) => {
-  
   try {
     const mobileNo = req.body.mobileNo || "";
 
@@ -375,16 +370,14 @@ async function generateAndSaveOTP(req, res) {
   }
 }
 
-
 const validatephoneOTP = async (req, res) => {
- 
   try {
     const mobileNo = req.body.mobileNo;
     const otp = req.body.otp;
     const fullName = req.body.fullName;
     const userName = req.body.userName;
     const ownerUser = req.body.referral;
-    const instaId= req.body. instaUsername;
+    const instaId = req.body.instaUsername;
 
     if (mobileNo !== "" && mobileNo.length === 10) {
       try {
@@ -400,7 +393,6 @@ const validatephoneOTP = async (req, res) => {
             otp,
             ownerUser,
             instaId
-
           ); // You may need to adjust the arguments based on your usersignup function
 
           if (signupResult.status) {
@@ -509,7 +501,6 @@ const saveInterest = async (req, res) => {
         .status(200)
         .json({ msg: "DONEEE", updateResult: updateResult.data });
     } else {
-     
       return res
         .status(500)
         .json({ error: "Internal Server Error", updateResult: null });
@@ -523,7 +514,6 @@ const saveInterest = async (req, res) => {
 };
 
 const contact = async (req, res) => {
-  
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -542,15 +532,11 @@ const contact = async (req, res) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    await common.AddRecords("Support",{
-
-      fullName:req.body.full_name,
-      email:req.body.email,
+    await common.AddRecords("Support", {
+      fullName: req.body.full_name,
+      email: req.body.email,
       message: req.body.message,
-     
-    })
-
-    
+    });
 
     res.status(200).send({ status: 200, msg: "Successful" });
   } catch (error) {
@@ -560,7 +546,6 @@ const contact = async (req, res) => {
 };
 
 const verify = async (req, res) => {
-  
   const mobileNo = req.body.mobileNo;
 
   if (mobileNo) {
@@ -592,7 +577,6 @@ const verify = async (req, res) => {
   }
 };
 
-
 const withdrawmail = async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -605,10 +589,7 @@ const withdrawmail = async (req, res) => {
     });
     const mailOptions = {
       from: process.env.email,
-      to: [
-        "info@marqueberry.com",
-        
-      ],
+      to: ["info@marqueberry.com"],
       subject: "Money Withdraw REquest",
       text: `
       
@@ -616,15 +597,14 @@ const withdrawmail = async (req, res) => {
       BenificiaryName: ${req.body.benificiaryName}\n AccountNo: ${req.body.accountNo}\nIfsc Code: ${req.body.ifscCode}\nBankName: ${req.body.bankName}`,
     };
     const info = await transporter.sendMail(mailOptions);
-  
+
     res.send({ status: 200, msg: "Successful" });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
-const sendresponse = async(req,res)=>{
-
+const sendresponse = async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -639,19 +619,17 @@ const sendresponse = async(req,res)=>{
       from: process.env.email,
       to: req.body.email,
       subject: "Adoro Support",
-      text:req.body.response,
+      text: req.body.response,
     };
 
     const info = await transporter.sendMail(mailOptions);
- 
+
     res.status(200).send({ status: 200, msg: "Successful" });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
-
-
-}
+};
 
 module.exports = {
   login,
@@ -664,5 +642,5 @@ module.exports = {
   contact,
   verify,
   withdrawmail,
-  sendresponse
+  sendresponse,
 };

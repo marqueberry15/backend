@@ -16,7 +16,7 @@ const getCurrentDateTime = () => {
   const milliseconds = String(istTime.getMilliseconds()).padStart(3, "0");
 
   const formattedDate = `${year}-${month}-${day}`;
-  const formattedTime = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+  const formattedTime = `${hours}:${minutes}:${seconds}`;
 
   return { date: formattedDate, time: formattedTime };
 };

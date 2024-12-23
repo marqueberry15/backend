@@ -67,6 +67,7 @@ async function connectFTP(buffer, fileName, path) {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(1)
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
@@ -74,13 +75,14 @@ const login = async (req, res) => {
 
     const query = "SELECT * FROM `Admin` WHERE `Email` = ?";
     const [rows] = await connectDB2.execute(query, [email]);
+    console.log(2)
 
     if (rows.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
     const user = rows[0];
-
+    console.log(3)
     if (user.Password === password) {
       return res.status(200).json({ msg: "Logged In Successfully" });
     }

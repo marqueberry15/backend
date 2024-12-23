@@ -438,12 +438,14 @@ exports.deltemplate = async(req, res) =>{
 exports.saveResult= async(req, res)=> {
   try {
     const data = { Array: req.body.data["Array"] };
+    console.log('dayaaaaaa isssssss',data)
 
     const newRecord = {
       campaign: req.body.campaign,
       data: JSON.stringify(data), // Convert data to JSON string if the column type is TEXT or VARCHAR
       Name: req.body.Name,
     };
+    
 
     await common.AddRecords("Result", newRecord);
     res.status(200).send({ msg: "Declared Result Successfully" });
