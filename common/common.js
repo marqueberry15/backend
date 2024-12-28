@@ -85,10 +85,7 @@ module.exports = {
 
   AddRecords: async (table, addObject) => {
     try {
-      console.log('credentails are , ', process.env.host,
-        process.env.user3,
-        process.env.password,
-         process.env.database3)
+      console.log('credentails are , ',table,addObject)
       return new Promise(async (resolve, reject) => {
         let responseObj = {};
         let sql = `INSERT INTO ${table} SET ?`;

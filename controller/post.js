@@ -435,25 +435,79 @@ exports.deltemplate = async(req, res) =>{
   }
 }
 
-exports.saveResult= async(req, res)=> {
+// exports.saveResult= async(req, res)=> {
+//   try {
+//     const data = { Array: req.body.data["Array"] };
+//     console.log('dayaaaaaa isssssss',data)
+//     const newRecord = {
+//       campaign: req.body.campaign,
+//       data: JSON.stringify(data), 
+//       Name: req.body.Name,
+//     };
+    
+
+//     await common.AddRecords("Result", newRecord);
+//     res.status(200).send({ msg: "Declared Result Successfully" });
+//   } catch (err) {
+//     console.error("Error in saving result:", err.message); 
+//     res.status(500).send({ msg: "Error in saving result" });
+//   }
+// }
+
+
+exports.saveResult = async (req, res) => {
   try {
     const data = { Array: req.body.data["Array"] };
-    console.log('dayaaaaaa isssssss',data)
+    console.log("Data received:", data);
 
     const newRecord = {
       campaign: req.body.campaign,
-      data: JSON.stringify(data), // Convert data to JSON string if the column type is TEXT or VARCHAR
+      data: JSON.stringify(data),
       Name: req.body.Name,
     };
-    
 
+    // Save the result in the "Result" table
     await common.AddRecords("Result", newRecord);
-    res.status(200).send({ msg: "Declared Result Successfully" });
+
+    // Loop through each user in the input array
+    for (const user of data.Array) {
+      const { userName, amt } = user;
+
+      // Fetch user details from the User table for each username
+      const userQuery = `
+        SELECT Id AS UserId, mobileNo, userName 
+        FROM User 
+        WHERE userName = '${userName}';
+      `;
+      const userDetails = await common.customQuery(userQuery);
+      console.log('usrdetiall issss ',userDetails)
+
+      if (!userDetails || userDetails.length === 0) {
+        console.error(`User not found in User table: ${userName}`);
+        continue;
+      }
+
+      const { UserId, mobileNo } = userDetails.data[0]; // Assuming userDetails is an array
+
+      // Insert or update the wallet for the use
+      const walletQuery = `
+  INSERT INTO Wallet (UserId, mobileNo, balance, userName) 
+  VALUES (${UserId}, '${mobileNo}', ${amt}, '${userName}') 
+  ON DUPLICATE KEY UPDATE 
+    balance = balance + VALUES(balance);
+`;
+
+      await common.customQuery(walletQuery);
+    }
+
+    res.status(200).send({ msg: "Declared Result Successfully and updated wallets" });
   } catch (err) {
     console.error("Error in saving result:", err.message); // Log the error message
     res.status(500).send({ msg: "Error in saving result" });
   }
-}
+};
+
+
 
 exports.getallusers= async(req, res) => {
   try {
